@@ -1,0 +1,41 @@
+Metadata-Version: 2.1
+Name: meatpy
+Version: 0.0.1a2
+Summary: Market Exchange Analysis Toolbox for Python
+Home-page: http://www.meatpy.org
+Author: The MeatPy Group
+Author-email: meatpy@meatpy.org
+License: BSD (3 clause)
+Description: MeatPy
+        ======
+        
+        The Market Empirical Analysis Toolbox for Python
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        Project Description
+        -------------------
+        
+        The goal of this project is to provide a standard framework for
+        processing and analysing high-frequency financial data.
+        
+        The MeatPy is  can be used to process event-time data from multiple financial exchanges
+        and formats, such as Nasdaq ITCH.
+        
+        Team
+        ----
+        
+        MeatPy was created by Vincent Grégoire (HEC Montréal)
+        and Charles Martineau (University of Toronto).
+        
+Keywords: financial analysis,market microstructure
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Financial and Insurance Industry
+Classifier: Topic :: Office/Business :: Financial
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: License :: OSI Approved :: BSD (3 clause)
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Provides-Extra: dev

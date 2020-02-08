@@ -1,0 +1,6 @@
+pandas
+numpy
+pytz
+
+[dev]
+check-manifest

@@ -1,0 +1,1131 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>meatpy.level module &mdash; meatpy 0.0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="meatpy.itch50 package" href="meatpy.itch50.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> meatpy
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="meatpy.html">meatpy package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="meatpy.html#module-meatpy">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meatpy.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="meatpy.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">meatpy.level module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-meatpy.lob">meatpy.lob module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-meatpy.market_event_handler">meatpy.market_event_handler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-meatpy.market_processor">meatpy.market_processor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-meatpy.message_parser">meatpy.message_parser module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-meatpy.timestamp">meatpy.timestamp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-meatpy.trading_status">meatpy.trading_status module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">meatpy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="meatpy.html">meatpy package</a> &raquo;</li>
+        
+      <li>meatpy.level module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/meatpy_submodules.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-meatpy.level">
+<span id="meatpy-level-module"></span><h1>meatpy.level module<a class="headerlink" href="#module-meatpy.level" title="Permalink to this headline">¶</a></h1>
+<p>This module is for recognizing the level of the LOB and supporting classes.</p>
+<dl class="exception">
+<dt id="meatpy.level.ExecutionPriorityException">
+<em class="property">exception </em><code class="sig-prename descclassname">meatpy.level.</code><code class="sig-name descname">ExecutionPriorityException</code><a class="headerlink" href="#meatpy.level.ExecutionPriorityException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>An exception when market priority (price/time preference) is not respected.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.level.Level">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.level.</code><code class="sig-name descname">Level</code><span class="sig-paren">(</span><em class="sig-param">price</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class ######## description ######</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>price</strong> (<em>int</em>) – related price for specific stock</p></li>
+<li><p><strong>queue</strong> (<em>list</em>) – create a queue for orders</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="meatpy.level.Level.cancel_quote">
+<code class="sig-name descname">cancel_quote</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">volume</em>, <em class="sig-param">i=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.cancel_quote" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Cancel order with order_id and volume. Returns true on success,</dt><dd><p>false if not in this level</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> – </p></li>
+<li><p><strong>volume</strong> – </p></li>
+<li><p><strong>i</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.delete_quote">
+<code class="sig-name descname">delete_quote</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">i=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.delete_quote" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Delete order with order_id . Returns true on success,</dt><dd><p>false if not in this level</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> – </p></li>
+<li><p><strong>i</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.enter_quote">
+<code class="sig-name descname">enter_quote</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.enter_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter the quote at the back of the queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> – </p></li>
+<li><p><strong>volume</strong> – </p></li>
+<li><p><strong>order_id</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.enter_quote_at_position">
+<code class="sig-name descname">enter_quote_at_position</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">position</em>, <em class="sig-param">check_position</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.enter_quote_at_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter the quote in the queue according to  stated position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> – </p></li>
+<li><p><strong>volume</strong> – </p></li>
+<li><p><strong>order_id</strong> – </p></li>
+<li><p><strong>position</strong> – </p></li>
+<li><p><strong>check_position</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.enter_quote_out_of_order">
+<code class="sig-name descname">enter_quote_out_of_order</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.enter_quote_out_of_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter the quote in the queue according to timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> – </p></li>
+<li><p><strong>volume</strong> – </p></li>
+<li><p><strong>order_id</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.execute_trade">
+<code class="sig-name descname">execute_trade</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">volume</em>, <em class="sig-param">timestamp=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.execute_trade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the trade with priority.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> – </p></li>
+<li><p><strong>volume</strong> – </p></li>
+<li><p><strong>timestamp</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.execute_trade_price">
+<code class="sig-name descname">execute_trade_price</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">volume</em>, <em class="sig-param">timestamp=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.execute_trade_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the trade, bypass priority priority.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> – </p></li>
+<li><p><strong>volume</strong> – </p></li>
+<li><p><strong>timestamp</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.execution_price">
+<code class="sig-name descname">execution_price</code><span class="sig-paren">(</span><em class="sig-param">volume</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.execution_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate the execution price for an order os size volume.</p>
+<p>Returns a tuple, with the first element being the total price and
+the second element the number of shares, which is
+min(requested volume, total book volume at current level)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>volume</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.find_order_on_book">
+<code class="sig-name descname">find_order_on_book</code><span class="sig-paren">(</span><em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.find_order_on_book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the order_id on the books at the current level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order_id</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.order_factory">
+<code class="sig-name descname">order_factory</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.order_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>########### description ############
+:param order_id:  a number for each order to make them clear
+:type order_id: int
+:param timestamp: time for orders
+:param volume: size of the order for trading
+:type: int
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.order_on_book">
+<code class="sig-name descname">order_on_book</code><span class="sig-paren">(</span><em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.order_on_book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if the order_id is on the books at the current level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order_id</strong> – a number for each order to make them clear</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.print_out">
+<code class="sig-name descname">print_out</code><span class="sig-paren">(</span><em class="sig-param">indent=''</em>, <em class="sig-param">level=0</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.print_out" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indent</strong> – </p></li>
+<li><p><strong>level</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.volume">
+<code class="sig-name descname">volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the total volume for the order</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.Level.write_csv">
+<code class="sig-name descname">write_csv</code><span class="sig-paren">(</span><em class="sig-param">file</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">order_type</em>, <em class="sig-param">level</em>, <em class="sig-param">collapse_orders=False</em>, <em class="sig-param">price=None</em>, <em class="sig-param">show_age=False</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.Level.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> – </p></li>
+<li><p><strong>timestamp</strong> – </p></li>
+<li><p><strong>order_type</strong> – </p></li>
+<li><p><strong>level</strong> – </p></li>
+<li><p><strong>collapse_orders</strong> – </p></li>
+<li><p><strong>price</strong> – </p></li>
+<li><p><strong>show_age</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.level.OrderOnBook">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.level.</code><code class="sig-name descname">OrderOnBook</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.OrderOnBook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An order currently on the book.</p>
+<p>Just a low-level order structure for orders on the book. The order
+type and price  are irrelevant here, they depend on the queue and
+level the order belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order_id</strong> (<em>int</em>) – </p></li>
+<li><p><strong>timestamp</strong> – </p></li>
+<li><p><strong>volume</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="meatpy.level.OrderOnBook.print_out">
+<code class="sig-name descname">print_out</code><span class="sig-paren">(</span><em class="sig-param">indent=''</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.OrderOnBook.print_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to print information as a log.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indent</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.level.OrderOnBook.write_csv">
+<code class="sig-name descname">write_csv</code><span class="sig-paren">(</span><em class="sig-param">file</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">order_type</em>, <em class="sig-param">level</em>, <em class="sig-param">price</em>, <em class="sig-param">show_age</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.level.OrderOnBook.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is for writing the data to a csv file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Address of the file that we want to save our results there</p></li>
+<li><p><strong>timestamp</strong> – </p></li>
+<li><p><strong>order_type</strong> (<em>str</em>) – </p></li>
+<li><p><strong>level</strong> (<em>int</em>) – </p></li>
+<li><p><strong>price</strong> (<em>int</em>) – </p></li>
+<li><p><strong>show_age</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>:type bool
+:return: None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="meatpy.level.VolumeInconsistencyException">
+<em class="property">exception </em><code class="sig-prename descclassname">meatpy.level.</code><code class="sig-name descname">VolumeInconsistencyException</code><a class="headerlink" href="#meatpy.level.VolumeInconsistencyException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>An exception when the volume of a trade or cancel is larger than the volume on the book.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.lob">
+<span id="meatpy-lob-module"></span><h1>meatpy.lob module<a class="headerlink" href="#module-meatpy.lob" title="Permalink to this headline">¶</a></h1>
+<p>lob.py: A snapshot of the limit order book.</p>
+<dl class="exception">
+<dt id="meatpy.lob.ExecutionPriorityExceptionList">
+<em class="property">exception </em><code class="sig-prename descclassname">meatpy.lob.</code><code class="sig-name descname">ExecutionPriorityExceptionList</code><a class="headerlink" href="#meatpy.lob.ExecutionPriorityExceptionList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="meatpy.lob.InexistantValueException">
+<em class="property">exception </em><code class="sig-prename descclassname">meatpy.lob.</code><code class="sig-name descname">InexistantValueException</code><a class="headerlink" href="#meatpy.lob.InexistantValueException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.lob.LimitOrderBook">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.lob.</code><code class="sig-name descname">LimitOrderBook</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">timestamp_inc=0</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A snapshot a a limit order book</p>
+<p>The handling of orders (enter, execute, revise) is standard
+and should apply to any exchange that applies price and
+time preference for execution of orders on the book.</p>
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.adjust_price">
+<code class="sig-name descname">adjust_price</code><span class="sig-paren">(</span><em class="sig-param">price</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.adjust_price" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.ask_order_on_book">
+<code class="sig-name descname">ask_order_on_book</code><span class="sig-paren">(</span><em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.ask_order_on_book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if the order_id is on the ask book.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>int</em><em> or </em><em>str</em>) – Order ID (exchange-specific)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>whether the order is on the book</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.lob.LimitOrderBook.ask_type">
+<code class="sig-name descname">ask_type</code><em class="property"> = 0</em><a class="headerlink" href="#meatpy.lob.LimitOrderBook.ask_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.best_ask">
+<code class="sig-name descname">best_ask</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.best_ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the best ask</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>best ask</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>same as price format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.best_bid">
+<code class="sig-name descname">best_bid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.best_bid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the best bid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>best bid</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>same as price format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.bid_ask_spread">
+<code class="sig-name descname">bid_ask_spread</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.bid_ask_spread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the bid-ask spread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>bid ask spread</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>same as price format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.bid_order_on_book">
+<code class="sig-name descname">bid_order_on_book</code><span class="sig-paren">(</span><em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.bid_order_on_book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if the order_id is on the bid book.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>int</em><em> or </em><em>str</em>) – Order ID (exchange-specific)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>whether the order is on the book</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.lob.LimitOrderBook.bid_type">
+<code class="sig-name descname">bid_type</code><em class="property"> = 1</em><a class="headerlink" href="#meatpy.lob.LimitOrderBook.bid_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.buy_execution_price">
+<code class="sig-name descname">buy_execution_price</code><span class="sig-paren">(</span><em class="sig-param">volume</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.buy_execution_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the execution price for a buy order of a certain volume.</p>
+<p>Returns a tuple, with the first element being the total price and
+the second element the number of shares, which is
+min(requested volume, total book volume)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.cancel_quote">
+<code class="sig-name descname">cancel_quote</code><span class="sig-paren">(</span><em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.cancel_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the quote from the appropriate queue</p>
+<p>Find the quote, and delete it (make sure volumes match)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">max_level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.delete_quote">
+<code class="sig-name descname">delete_quote</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.delete_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the quote from the appropriate queue</p>
+<p>Find the quote, and delete it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.end_of_day">
+<code class="sig-name descname">end_of_day</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.end_of_day" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify issues if this is the end of trading day.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.enter_quote">
+<code class="sig-name descname">enter_quote</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.enter_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter the quote in the appropriate queue in the right order</p>
+<p>Implement price and time priority
+Assumes the current list is ordered (0=highest priority)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.enter_quote_at_position">
+<code class="sig-name descname">enter_quote_at_position</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type</em>, <em class="sig-param">position</em>, <em class="sig-param">check_priority</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.enter_quote_at_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter the quote in the appropriate queue in the right order (global
+order on the book, no only on level)</p>
+<p>Check for price and time priority if required
+Assumes the current list is ordered (0=highest priority)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.enter_quote_out_of_order">
+<code class="sig-name descname">enter_quote_out_of_order</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.enter_quote_out_of_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter the quote in the appropriate queue in the right order</p>
+<p>Implement price and time priority
+Assumes the current list is ordered (0=highest priority)
+Does not assume the input timestamp is the most recent.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.execute_trade">
+<code class="sig-name descname">execute_trade</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.execute_trade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the effect of the execution on the book</p>
+<p>Make sure volume and ID are consistent with
+current order of book.
+Order sure be next in line on book, unless a price is specificed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.execute_trade_price">
+<code class="sig-name descname">execute_trade_price</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.execute_trade_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the effect of the execution on the book</p>
+<p>Make sure volume and ID are consistent with
+current order of book.
+Order sure be next in line on book, unless a price is specificed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.find_liquidity_maker">
+<code class="sig-name descname">find_liquidity_maker</code><span class="sig-paren">(</span><em class="sig-param">ask_id</em>, <em class="sig-param">bid_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.find_liquidity_maker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find which of the two orders is already on the book.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.find_order">
+<code class="sig-name descname">find_order</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.find_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the order for an order on the book with possibly known type.</p>
+<p>Returns a tuple with queue as the first element, level as second,
+rank on level as third.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.find_order_type">
+<code class="sig-name descname">find_order_type</code><span class="sig-paren">(</span><em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.find_order_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the type for an order on the book.</p>
+<p>Returns either 0 or 1.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.level_factory">
+<code class="sig-name descname">level_factory</code><span class="sig-paren">(</span><em class="sig-param">price</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.level_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.log_quote_slope">
+<code class="sig-name descname">log_quote_slope</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.log_quote_slope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the log of the slope between the two levels of depth between
+the ask and the bid. Flatter the slope is, the more liquid is the
+market.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>effective spread in percent</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.mid_quote">
+<code class="sig-name descname">mid_quote</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.mid_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mid quote</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>mid quote</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>same as price format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.order_on_book">
+<code class="sig-name descname">order_on_book</code><span class="sig-paren">(</span><em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.order_on_book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if the order_id is on the book.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order_id</strong> (<em>int</em><em> or </em><em>str</em>) – Order ID (exchange-specific)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>whether the order is on the book</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.print_out">
+<code class="sig-name descname">print_out</code><span class="sig-paren">(</span><em class="sig-param">indent=''</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.print_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the content of the limit order book.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.quote_slope">
+<code class="sig-name descname">quote_slope</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.quote_slope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the slope between the two levels of depth between the ask and
+the bid. Flatter the slope is, the more liquid is the market.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>quote slope</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.sell_execution_price">
+<code class="sig-name descname">sell_execution_price</code><span class="sig-paren">(</span><em class="sig-param">volume</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.sell_execution_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the execution price for a sell order of a certain volume.</p>
+<p>Returns a tuple, with the first element being the total price and
+the second element the number of shares, which is
+min(requested volume, total book volume)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.skip_exception">
+<code class="sig-name descname">skip_exception</code><span class="sig-paren">(</span><em class="sig-param">e</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.skip_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if the exception should be skipped.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.lob.LimitOrderBook.write_csv">
+<code class="sig-name descname">write_csv</code><span class="sig-paren">(</span><em class="sig-param">file</em>, <em class="sig-param">collapse_orders=False</em>, <em class="sig-param">show_age=False</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.lob.LimitOrderBook.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write rows for the content of the LOB</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.market_event_handler">
+<span id="meatpy-market-event-handler-module"></span><h1>meatpy.market_event_handler module<a class="headerlink" href="#module-meatpy.market_event_handler" title="Permalink to this headline">¶</a></h1>
+<p>market_event_handler.py: Base class for market event handlers.</p>
+<dl class="class">
+<dt id="meatpy.market_event_handler.MarketEventHandler">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.market_event_handler.</code><code class="sig-name descname">MarketEventHandler</code><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A handler for market events.</p>
+<p>The handler gets triggered whenever there is a market event and
+handles the event accordingly.</p>
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.auction_trade_event">
+<code class="sig-name descname">auction_trade_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">price</em>, <em class="sig-param">bid_id</em>, <em class="sig-param">ask_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.auction_trade_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.before_lob_update">
+<code class="sig-name descname">before_lob_update</code><span class="sig-paren">(</span><em class="sig-param">lob</em>, <em class="sig-param">new_timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.before_lob_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger before a book update (next event timestamp passed)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.cancel_quote_event">
+<code class="sig-name descname">cancel_quote_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.cancel_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.crossing_trade_event">
+<code class="sig-name descname">crossing_trade_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">price</em>, <em class="sig-param">bid_id</em>, <em class="sig-param">ask_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.crossing_trade_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.delete_quote_event">
+<code class="sig-name descname">delete_quote_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.delete_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.enter_quote_event">
+<code class="sig-name descname">enter_quote_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.enter_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.execute_trade_event">
+<code class="sig-name descname">execute_trade_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">trade_ref</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.execute_trade_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.execute_trade_price_event">
+<code class="sig-name descname">execute_trade_price_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">trade_ref</em>, <em class="sig-param">price</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.execute_trade_price_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.message_event">
+<code class="sig-name descname">message_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.message_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_event_handler.MarketEventHandler.replace_quote_event">
+<code class="sig-name descname">replace_quote_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">orig_order_id</em>, <em class="sig-param">new_order_id</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_event_handler.MarketEventHandler.replace_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.market_processor">
+<span id="meatpy-market-processor-module"></span><h1>meatpy.market_processor module<a class="headerlink" href="#module-meatpy.market_processor" title="Permalink to this headline">¶</a></h1>
+<p>market_processor.py: The market engine that receives message and
+re-constructs the market history.</p>
+<dl class="class">
+<dt id="meatpy.market_processor.MarketProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.market_processor.</code><code class="sig-name descname">MarketProcessor</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">book_date</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A market engine that process events and builds the limit order book</p>
+<p>A MarketProcessor object is an engine that processes MarketMessage objects
+to build the market history for one instrument, on one day and on one
+market.</p>
+<p>The MarketProcessor keeps an up-to-date version of
+the limit order book, unless instructed not to.</p>
+<dl class="attribute">
+<dt id="meatpy.market_processor.MarketProcessor.ask_type">
+<code class="sig-name descname">ask_type</code><em class="property"> = 0</em><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.ask_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.auction_trade_event">
+<code class="sig-name descname">auction_trade_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">price</em>, <em class="sig-param">bid_id</em>, <em class="sig-param">ask_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.auction_trade_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.before_lob_update">
+<code class="sig-name descname">before_lob_update</code><span class="sig-paren">(</span><em class="sig-param">new_timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.before_lob_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.market_processor.MarketProcessor.bid_type">
+<code class="sig-name descname">bid_type</code><em class="property"> = 1</em><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.bid_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.cancel_quote_event">
+<code class="sig-name descname">cancel_quote_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.cancel_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.crossing_trade_event">
+<code class="sig-name descname">crossing_trade_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">price</em>, <em class="sig-param">bid_id</em>, <em class="sig-param">ask_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.crossing_trade_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.delete_quote_event">
+<code class="sig-name descname">delete_quote_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.delete_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.enter_quote_event">
+<code class="sig-name descname">enter_quote_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.enter_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.execute_trade_event">
+<code class="sig-name descname">execute_trade_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">trade_ref</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.execute_trade_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.execute_trade_price_event">
+<code class="sig-name descname">execute_trade_price_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">trade_ref</em>, <em class="sig-param">price</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.execute_trade_price_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.message_event">
+<code class="sig-name descname">message_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.message_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.pre_lob_event">
+<code class="sig-name descname">pre_lob_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">new_snapshot=True</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.pre_lob_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the lob for a new event</p>
+<p>If no current LOB, create one. Otherwise only create a new one if
+requested.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.process_message">
+<em class="property">abstract </em><code class="sig-name descname">process_message</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.process_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a MarketMessage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="#meatpy.message_parser.MarketMessage" title="meatpy.message_parser.MarketMessage"><em>MarketMessage</em></a>) – message to process</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.processing_done">
+<code class="sig-name descname">processing_done</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.processing_done" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.market_processor.MarketProcessor.replace_quote_event">
+<code class="sig-name descname">replace_quote_event</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">orig_order_id</em>, <em class="sig-param">new_order_id</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.market_processor.MarketProcessor.replace_quote_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event to pass on to handlers…</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.message_parser">
+<span id="meatpy-message-parser-module"></span><h1>meatpy.message_parser module<a class="headerlink" href="#module-meatpy.message_parser" title="Permalink to this headline">¶</a></h1>
+<p>message_parser.py: The parsing engine that reads raw files/feeds and returns
+parsed messages.</p>
+<dl class="class">
+<dt id="meatpy.message_parser.MarketMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.message_parser.</code><code class="sig-name descname">MarketMessage</code><a class="headerlink" href="#meatpy.message_parser.MarketMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A messages that has been parsed and ready to be processed by
+a market history.</p>
+<p>This is an abstract class that should be overloaded for specific
+exchanges.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.message_parser.MessageParser">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.message_parser.</code><code class="sig-name descname">MessageParser</code><a class="headerlink" href="#meatpy.message_parser.MessageParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A parsing engine that reads raw files/feeds and returns
+parsed messages.</p>
+<p>This is an abstract class that should be overloaded for specific
+exchanges and file formats.</p>
+<dl class="method">
+<dt id="meatpy.message_parser.MessageParser.parse_file">
+<code class="sig-name descname">parse_file</code><span class="sig-paren">(</span><em class="sig-param">infile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.message_parser.MessageParser.parse_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a file containing market messages.</p>
+<p>Parses a file and generate corresponding market messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>infile</strong> (<em>file</em>) – the file to parse</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.timestamp">
+<span id="meatpy-timestamp-module"></span><h1>meatpy.timestamp module<a class="headerlink" href="#module-meatpy.timestamp" title="Permalink to this headline">¶</a></h1>
+<p>timestamp.py: A standard timestamp.</p>
+<dl class="class">
+<dt id="meatpy.timestamp.Timestamp">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.timestamp.</code><code class="sig-name descname">Timestamp</code><a class="headerlink" href="#meatpy.timestamp.Timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></p>
+<p>Basic timestamp derived form datetime</p>
+<p>The timestamp is derived from the standard datetime class. The main
+is that precision is limited to microseconds.
+Timestamps need to be comparable (&lt;, &lt;=, ==, !=, &gt;=, &gt;) and
+need to have a __str__() method.</p>
+<dl class="method">
+<dt id="meatpy.timestamp.Timestamp.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.timestamp.Timestamp.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.timestamp.Timestamp.from_datetime">
+<em class="property">classmethod </em><code class="sig-name descname">from_datetime</code><span class="sig-paren">(</span><em class="sig-param">dt</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.timestamp.Timestamp.from_datetime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.trading_status">
+<span id="meatpy-trading-status-module"></span><h1>meatpy.trading_status module<a class="headerlink" href="#module-meatpy.trading_status" title="Permalink to this headline">¶</a></h1>
+<p>trading_status.py: Classes for possible trading states.</p>
+<dl class="class">
+<dt id="meatpy.trading_status.ClosedTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">ClosedTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.ClosedTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.ClosingAuctionTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">ClosingAuctionTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.ClosingAuctionTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.HaltedTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">HaltedTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.HaltedTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.PostTradeTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">PostTradeTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.PostTradeTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.PreTradeTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">PreTradeTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.PreTradeTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.QuoteOnlyTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">QuoteOnlyTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.QuoteOnlyTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.TradeTradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">TradeTradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.TradeTradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.trading_status.TradingStatus" title="meatpy.trading_status.TradingStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.trading_status.TradingStatus</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.trading_status.TradingStatus">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.trading_status.</code><code class="sig-name descname">TradingStatus</code><span class="sig-paren">(</span><em class="sig-param">details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.trading_status.TradingStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="meatpy.itch50.html" class="btn btn-neutral float-left" title="meatpy.itch50 package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Vincent Grégoire and Charles Martineau
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

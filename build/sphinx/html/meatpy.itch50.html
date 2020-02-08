@@ -1,0 +1,1068 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>meatpy.itch50 package &mdash; meatpy 0.0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="meatpy.level module" href="meatpy_submodules.html" />
+    <link rel="prev" title="meatpy.event_handlers package" href="meatpy.event_handlers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> meatpy
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="meatpy.html">meatpy package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="meatpy.html#module-meatpy">Package contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="meatpy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="meatpy.event_handlers.html">meatpy.event_handlers package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">meatpy.itch50 package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-meatpy.itch50">Package contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#about">About</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#known-issues">Known issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="meatpy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">meatpy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="meatpy.html">meatpy package</a> &raquo;</li>
+        
+      <li>meatpy.itch50 package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/meatpy.itch50.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="meatpy-itch50-package">
+<h1>meatpy.itch50 package<a class="headerlink" href="#meatpy-itch50-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-meatpy.itch50">
+<span id="package-contents"></span><h2>Package contents<a class="headerlink" href="#module-meatpy.itch50" title="Permalink to this headline">¶</a></h2>
+<p>This Subpackage is for tracking and recording events that happened in ITCH, version 5.0.</p>
+</div>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>This package adds support for the Nasdaq TotalView-ITCH 5.0 file format. For more details, see the <a class="reference external" href="http://www.nasdaqtrader.com/content/technicalsupport/specifications/dataproducts/NQTVITCHSpecification.pdf/">format specification</a>.</p>
+</div>
+<div class="section" id="known-issues">
+<h2>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<p>Two message types are not supported yet:</p>
+<ul class="simple">
+<li><p>LULD Auction collars message (introduced September 6, 2017)</p></li>
+<li><p>Operational Haltmessage (introduced March 3, 2018)</p></li>
+</ul>
+<p>Daily files after those dates might not process properly. We are planning to add support for these messages soon.</p>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-meatpy.itch50.itch50_exec_trade_recorder">
+<span id="meatpy-itch50-itch50-exec-trade-recorder-module"></span><h3>meatpy.itch50.itch50_exec_trade_recorder module<a class="headerlink" href="#module-meatpy.itch50.itch50_exec_trade_recorder" title="Permalink to this headline">¶</a></h3>
+<p>itch50_exec_trade_recorder.py: A trade recorder for ITCH 5.0</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_exec_trade_recorder.ITCH50ExecTradeRecorder">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_exec_trade_recorder.</code><code class="sig-name descname">ITCH50ExecTradeRecorder</code><a class="headerlink" href="#meatpy.itch50.itch50_exec_trade_recorder.ITCH50ExecTradeRecorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy_submodules.html#meatpy.market_event_handler.MarketEventHandler" title="meatpy.market_event_handler.MarketEventHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.market_event_handler.MarketEventHandler</span></code></a></p>
+<dl class="method">
+<dt id="meatpy.itch50.itch50_exec_trade_recorder.ITCH50ExecTradeRecorder.message_event">
+<code class="sig-name descname">message_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_exec_trade_recorder.ITCH50ExecTradeRecorder.message_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect messages that affect th top of the book and record them</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_exec_trade_recorder.ITCH50ExecTradeRecorder.write_csv">
+<code class="sig-name descname">write_csv</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_exec_trade_recorder.ITCH50ExecTradeRecorder.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to a file in CSV format</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.itch50.itch50_market_message">
+<span id="meatpy-itch50-itch50-market-message-module"></span><h3>meatpy.itch50.itch50_market_message module<a class="headerlink" href="#module-meatpy.itch50.itch50_market_message" title="Permalink to this headline">¶</a></h3>
+<p>itch50_market_message.py: Market message class for ITCH 5.0</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMPIDMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">AddOrderMPIDMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMPIDMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Add Order w/ MPID Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 40</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'F'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMPIDMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">AddOrderMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Add Order Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 36</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.AddOrderMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'A'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.AddOrderMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.BrokenTradeMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">BrokenTradeMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.BrokenTradeMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.BrokenTradeMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Broken Trade Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.BrokenTradeMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.BrokenTradeMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 19</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.BrokenTradeMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.BrokenTradeMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.BrokenTradeMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.BrokenTradeMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'B'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.BrokenTradeMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.CrossTradeMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">CrossTradeMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.CrossTradeMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.CrossTradeMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Cross Trade Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.CrossTradeMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.CrossTradeMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 40</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.CrossTradeMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.CrossTradeMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.CrossTradeMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.CrossTradeMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'Q'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.CrossTradeMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">IPOQuotingPeriodUpdateMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Retail Price Improvement Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 28</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'k'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">ITCH50MarketMessage</code><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy_submodules.html#meatpy.message_parser.MarketMessage" title="meatpy.message_parser.MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.message_parser.MarketMessage</span></code></a></p>
+<p>A market message in ITCH 4.1 format.</p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.crossType">
+<code class="sig-name descname">crossType</code><em class="property"> = {b'C': 'NASDAQ Closing Cross', b'H': 'Cross for IPO and Halted Securities', b'I': 'NASDAQ Cross Network: Intraday Cross and Post-Close Cross', b'O': 'NASDAQ Opening Cross'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.crossType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.finStatusbsindicators">
+<code class="sig-name descname">finStatusbsindicators</code><em class="property"> = {b' ': 'Not available. Firms should refer to SIAC feeds for code if needed', b'C': 'Creations and/or Redemptions Suspended for Exchange Traded Product', b'D': 'Deficient', b'E': 'Deliquent', b'G': 'Deficient and Bankrupt', b'H': 'Deficient and Deliquent', b'J': 'Delinquent and Bankrput', b'K': 'Deficient, Delinquent and Bankrupt', b'N': 'Normal (Defualt): Issuer Is NOT Deficient, Delinquent, or Bankrupt', b'Q': 'Bankrupt', b'S': 'Suspended'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.finStatusbsindicators" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.interest">
+<code class="sig-name descname">interest</code><em class="property"> = {b'A': 'RPI orders avail on both sides', b'B': 'RPI orders avail on buy side', b'N': 'No RPI orders avail', b'S': 'RPI orders avail on sell side'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.interest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.market">
+<code class="sig-name descname">market</code><em class="property"> = {b' ': 'Not available', b'A': 'AMEX', b'G': 'NASDAQ Global Market', b'N': 'NYSE', b'P': 'Arca', b'Q': 'NASDAQ Global Select', b'S': 'NASDAQ Capital Market', b'Z': 'BATS'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.market" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.marketMakerModes">
+<code class="sig-name descname">marketMakerModes</code><em class="property"> = {b'L': 'Penalty', b'N': 'Normal', b'P': 'Passive', b'R': 'Pre-syndicate', b'S': 'Syndicate'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.marketMakerModes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.marketParticipantStates">
+<code class="sig-name descname">marketParticipantStates</code><em class="property"> = {b'A': 'Active', b'D': 'Deleted', b'E': 'Excused', b'S': 'Suspended', b'W': 'Withdrawn'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.marketParticipantStates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.primaryMarketMaker">
+<code class="sig-name descname">primaryMarketMaker</code><em class="property"> = {b'N': 'Non-primary market maker', b'Y': 'Primary market maker'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.primaryMarketMaker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.print_out">
+<code class="sig-name descname">print_out</code><span class="sig-paren">(</span><em class="sig-param">indent</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.print_out" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.roundLotsOnly">
+<code class="sig-name descname">roundLotsOnly</code><em class="property"> = {b'N': 'Odd and Mixed lots', b'Y': 'Only round lots'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.roundLotsOnly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.set_timestamp">
+<code class="sig-name descname">set_timestamp</code><span class="sig-paren">(</span><em class="sig-param">ts1</em>, <em class="sig-param">ts2</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.set_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.split_timestamp">
+<code class="sig-name descname">split_timestamp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.split_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.sysEventCodes">
+<code class="sig-name descname">sysEventCodes</code><em class="property"> = {b'C': 'End of Messages', b'E': 'End of System Hours', b'M': 'End of Market Hours', b'O': 'Start of Messages', b'Q': 'Start of Market Hours', b'S': 'Start of System Hours'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.sysEventCodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.ITCH50MarketMessage.tradingStates">
+<code class="sig-name descname">tradingStates</code><em class="property"> = {b'H': 'Halted across all U.S. equity markets / SROs', b'P': 'Paused across all U.S. equity markets / SROs', b'Q': 'Quotation only period for cross-SRO halt or pause', b'T': 'Trading on NASDAQ'}</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage.tradingStates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.MWCBBreachMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">MWCBBreachMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBBreachMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MWCBBreachMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'MWCB Breach Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBBreachMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MWCBBreachMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 12</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBBreachMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.MWCBBreachMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBBreachMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MWCBBreachMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'W'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBBreachMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">MWCBDeclineLevelMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'MWCB Decline Level Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 35</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'V'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">MarketParticipantPositionMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Market Participant Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 26</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'L'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.NoiiMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">NoiiMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.NoiiMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.NoiiMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'NOII Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.NoiiMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.NoiiMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 50</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.NoiiMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.NoiiMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.NoiiMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.NoiiMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'I'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.NoiiMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.OrderCancelMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">OrderCancelMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderCancelMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderCancelMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Order Cancel Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderCancelMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderCancelMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 23</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderCancelMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.OrderCancelMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderCancelMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderCancelMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'X'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderCancelMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.OrderDeleteMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">OrderDeleteMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderDeleteMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderDeleteMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Order Delete Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderDeleteMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderDeleteMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 19</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderDeleteMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.OrderDeleteMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderDeleteMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderDeleteMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'D'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderDeleteMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">OrderExecutedMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Order Executed Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 31</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'E'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">OrderExecutedPriceMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Order Executed w/ Price Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 36</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'C'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.OrderReplaceMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">OrderReplaceMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderReplaceMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderReplaceMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Order Replaced Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderReplaceMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderReplaceMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 35</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderReplaceMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.OrderReplaceMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderReplaceMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.OrderReplaceMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'U'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.OrderReplaceMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.RegSHOMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">RegSHOMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RegSHOMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.RegSHOMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Reg SHO Short Sale Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RegSHOMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.RegSHOMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 20</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RegSHOMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.RegSHOMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RegSHOMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.RegSHOMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'Y'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RegSHOMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.RpiiMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">RpiiMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RpiiMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.RpiiMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Retail Price Improvement Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RpiiMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.RpiiMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 20</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RpiiMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.RpiiMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RpiiMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.RpiiMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'N'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.RpiiMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.StockDirectoryMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">StockDirectoryMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockDirectoryMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.StockDirectoryMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Stock Directory Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockDirectoryMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.StockDirectoryMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 39</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockDirectoryMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.StockDirectoryMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockDirectoryMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.StockDirectoryMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'R'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockDirectoryMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.StockTradingActionMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">StockTradingActionMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockTradingActionMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.StockTradingActionMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Stock Trading Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockTradingActionMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.StockTradingActionMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 25</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockTradingActionMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.StockTradingActionMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockTradingActionMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.StockTradingActionMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'H'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.StockTradingActionMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.SystemEventMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">SystemEventMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.SystemEventMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.SystemEventMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'System Event Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.SystemEventMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.SystemEventMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 12</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.SystemEventMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.SystemEventMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.SystemEventMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.SystemEventMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'S'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.SystemEventMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_message.TradeMessage">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_message.</code><code class="sig-name descname">TradeMessage</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.TradeMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.itch50.itch50_market_message.ITCH50MarketMessage</span></code></a></p>
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.TradeMessage.description">
+<code class="sig-name descname">description</code><em class="property"> = 'Trade Message'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.TradeMessage.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.TradeMessage.message_size">
+<code class="sig-name descname">message_size</code><em class="property"> = 44</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.TradeMessage.message_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_message.TradeMessage.pack">
+<code class="sig-name descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_message.TradeMessage.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="meatpy.itch50.itch50_market_message.TradeMessage.type">
+<code class="sig-name descname">type</code><em class="property"> = b'P'</em><a class="headerlink" href="#meatpy.itch50.itch50_market_message.TradeMessage.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.itch50.itch50_market_processor">
+<span id="meatpy-itch50-itch50-market-processor-module"></span><h3>meatpy.itch50.itch50_market_processor module<a class="headerlink" href="#module-meatpy.itch50.itch50_market_processor" title="Permalink to this headline">¶</a></h3>
+<p>itch50_market_processor.py: Market processor and order event classes for ITCH5.0</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_market_processor.</code><code class="sig-name descname">ITCH50MarketProcessor</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">book_date</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy_submodules.html#meatpy.market_processor.MarketProcessor" title="meatpy.market_processor.MarketProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.market_processor.MarketProcessor</span></code></a></p>
+<p>An MarketProcessor for ITCH 5.0 format</p>
+<p>For now only process LOB.</p>
+<p>Note that for efficiency, no check is done on the stock, it is assumed
+that all messages relate to the same stock.</p>
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.cancel_quote">
+<code class="sig-name descname">cancel_quote</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.cancel_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancel a quote from the LOB.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.delete_quote">
+<code class="sig-name descname">delete_quote</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">order_id</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.delete_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a quote from the LOB.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.enter_quote">
+<code class="sig-name descname">enter_quote</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">order_type</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.enter_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enter a new quote in the LOB</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.execute_trade">
+<code class="sig-name descname">execute_trade</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">trade_ref</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.execute_trade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a on-market trade.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.execute_trade_price">
+<code class="sig-name descname">execute_trade_price</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_id</em>, <em class="sig-param">trade_ref</em>, <em class="sig-param">price</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.execute_trade_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a on-market trade, bypassing piority.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.process_message">
+<code class="sig-name descname">process_message</code><span class="sig-paren">(</span><em class="sig-param">message</em>, <em class="sig-param">new_snapshot=True</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.process_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a MarketMessage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="#meatpy.itch50.itch50_market_message.ITCH50MarketMessage" title="meatpy.itch50.itch50_market_message.ITCH50MarketMessage"><em>ITCH50MarketMessage</em></a>) – message to process</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.process_system_message">
+<code class="sig-name descname">process_system_message</code><span class="sig-paren">(</span><em class="sig-param">code</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">new_snapshot=True</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.process_system_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a system message</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.process_trading_action_message">
+<code class="sig-name descname">process_trading_action_message</code><span class="sig-paren">(</span><em class="sig-param">state</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">new_snapshot=True</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.process_trading_action_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a stock trading action message</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.replace_quote">
+<code class="sig-name descname">replace_quote</code><span class="sig-paren">(</span><em class="sig-param">timestamp</em>, <em class="sig-param">orig_order_id</em>, <em class="sig-param">new_order_id</em>, <em class="sig-param">price</em>, <em class="sig-param">volume</em>, <em class="sig-param">order_type</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.replace_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a quote in the LOB.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.update_trading_status">
+<code class="sig-name descname">update_trading_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_market_processor.ITCH50MarketProcessor.update_trading_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the current trading status</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.itch50.itch50_message_parser">
+<span id="meatpy-itch50-itch50-message-parser-module"></span><h3>meatpy.itch50.itch50_message_parser module<a class="headerlink" href="#module-meatpy.itch50.itch50_message_parser" title="Permalink to this headline">¶</a></h3>
+<p>itch50_message_parser.py: Message parser class for ITCH 5.0</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_message_parser.</code><code class="sig-name descname">ITCH50MessageParser</code><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy_submodules.html#meatpy.message_parser.MessageParser" title="meatpy.message_parser.MessageParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.message_parser.MessageParser</span></code></a></p>
+<p>A market message parser for ITCH 5.0 data.</p>
+<dl class="method">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser.ITCH_factory">
+<code class="sig-name descname">ITCH_factory</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser.ITCH_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass this factory an entire bytearray and you will be
+given the appropriate ITCH message</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser.append_stock_message">
+<code class="sig-name descname">append_stock_message</code><span class="sig-paren">(</span><em class="sig-param">stock</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser.append_stock_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append the message to the stock message queue</p>
+<p>Initialises the queue if empty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser.parse_file">
+<code class="sig-name descname">parse_file</code><span class="sig-paren">(</span><em class="sig-param">file</em>, <em class="sig-param">write=False</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser.parse_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the content of the file to generate ITCH50MarketMessage
+objects.</p>
+<p>Flag indicates if parsing output is written at the same time instead
+of kept in memory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser.process_message">
+<code class="sig-name descname">process_message</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser.process_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Looks at the message and decides what to do with it.</p>
+<p>Could be keep, discard, send to file, etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser.write_file">
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">file</em>, <em class="sig-param">in_messages=None</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the messages to a  csv file in a compatible format</p>
+<p>The messages are written to a file that could be again parsed by
+the parser. In no messages are provided, the current message queue
+is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>file</em>) – file to write to</p></li>
+<li><p><strong>in_messages</strong> (<em>list of ITCH50MarketMessage</em>) – messages to output</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_message_parser.ITCH50MessageParser.write_stock">
+<code class="sig-name descname">write_stock</code><span class="sig-paren">(</span><em class="sig-param">stock</em>, <em class="sig-param">overlook_buffer=False</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_message_parser.ITCH50MessageParser.write_stock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.itch50.itch50_ofi_recorder">
+<span id="meatpy-itch50-itch50-ofi-recorder-module"></span><h3>meatpy.itch50.itch50_ofi_recorder module<a class="headerlink" href="#module-meatpy.itch50.itch50_ofi_recorder" title="Permalink to this headline">¶</a></h3>
+<p>A recorder for the changes in OFI adapted to ITCH 4.1</p>
+<p>See Equations (4) and (10) of
+Cont, R., et al. (2013). “The Price Impact of Order Book Events.”
+Journal of Financial Econometrics 12(1): 47-88.</p>
+<p>The recorder follows equation (10) but accounts for trades against
+hidden orders as well.</p>
+<p>&#64;author: vgregoire</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_ofi_recorder.ITCH50OFIRecorder">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_ofi_recorder.</code><code class="sig-name descname">ITCH50OFIRecorder</code><a class="headerlink" href="#meatpy.itch50.itch50_ofi_recorder.ITCH50OFIRecorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy.event_handlers.html#meatpy.event_handlers.ofi_recorder.OFIRecorder" title="meatpy.event_handlers.ofi_recorder.OFIRecorder"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.event_handlers.ofi_recorder.OFIRecorder</span></code></a></p>
+<dl class="method">
+<dt id="meatpy.itch50.itch50_ofi_recorder.ITCH50OFIRecorder.message_event">
+<code class="sig-name descname">message_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_ofi_recorder.ITCH50OFIRecorder.message_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect trades against hidden orders</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.itch50.itch50_order_event_recorder">
+<span id="meatpy-itch50-itch50-order-event-recorder-module"></span><h3>meatpy.itch50.itch50_order_event_recorder module<a class="headerlink" href="#module-meatpy.itch50.itch50_order_event_recorder" title="Permalink to this headline">¶</a></h3>
+<p>Created on Mon Jan 27 13:31:51 2014</p>
+<p>&#64;author: chamar.stu</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_order_event_recorder.ITCH50OrderEventRecorder">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_order_event_recorder.</code><code class="sig-name descname">ITCH50OrderEventRecorder</code><a class="headerlink" href="#meatpy.itch50.itch50_order_event_recorder.ITCH50OrderEventRecorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy_submodules.html#meatpy.market_event_handler.MarketEventHandler" title="meatpy.market_event_handler.MarketEventHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.market_event_handler.MarketEventHandler</span></code></a></p>
+<dl class="method">
+<dt id="meatpy.itch50.itch50_order_event_recorder.ITCH50OrderEventRecorder.message_event">
+<code class="sig-name descname">message_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_order_event_recorder.ITCH50OrderEventRecorder.message_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect messages that involve orders and record them</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_order_event_recorder.ITCH50OrderEventRecorder.write_csv">
+<code class="sig-name descname">write_csv</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_order_event_recorder.ITCH50OrderEventRecorder.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to a file in CSV format</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-meatpy.itch50.itch50_top_of_book_message_recorder">
+<span id="meatpy-itch50-itch50-top-of-book-message-recorder-module"></span><h3>meatpy.itch50.itch50_top_of_book_message_recorder module<a class="headerlink" href="#module-meatpy.itch50.itch50_top_of_book_message_recorder" title="Permalink to this headline">¶</a></h3>
+<p>Created on Sat Dec 21 15:05:58 2013</p>
+<p>&#64;author: vgregoire</p>
+<dl class="class">
+<dt id="meatpy.itch50.itch50_top_of_book_message_recorder.ITCH50TopOfBookMessageRecorder">
+<em class="property">class </em><code class="sig-prename descclassname">meatpy.itch50.itch50_top_of_book_message_recorder.</code><code class="sig-name descname">ITCH50TopOfBookMessageRecorder</code><a class="headerlink" href="#meatpy.itch50.itch50_top_of_book_message_recorder.ITCH50TopOfBookMessageRecorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="meatpy_submodules.html#meatpy.market_event_handler.MarketEventHandler" title="meatpy.market_event_handler.MarketEventHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">meatpy.market_event_handler.MarketEventHandler</span></code></a></p>
+<dl class="method">
+<dt id="meatpy.itch50.itch50_top_of_book_message_recorder.ITCH50TopOfBookMessageRecorder.message_event">
+<code class="sig-name descname">message_event</code><span class="sig-paren">(</span><em class="sig-param">market_processor</em>, <em class="sig-param">timestamp</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_top_of_book_message_recorder.ITCH50TopOfBookMessageRecorder.message_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect messages that affect th top of the book and record them</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="meatpy.itch50.itch50_top_of_book_message_recorder.ITCH50TopOfBookMessageRecorder.write_csv">
+<code class="sig-name descname">write_csv</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#meatpy.itch50.itch50_top_of_book_message_recorder.ITCH50TopOfBookMessageRecorder.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to a file in CSV format</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="meatpy_submodules.html" class="btn btn-neutral float-right" title="meatpy.level module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="meatpy.event_handlers.html" class="btn btn-neutral float-left" title="meatpy.event_handlers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Vincent Grégoire and Charles Martineau
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
