@@ -22,20 +22,20 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1a2',
+    version='0.0.1a3',
 
     description='Market Exchange Analysis Toolbox for Python',
     long_description=long_description,
 
     # The project's main homepage.
-    url='http://www.meatpy.org',
+    url='https://github.com/vgreg/MeatPy',
 
     # Author details
     author='The MeatPy Group',
     author_email='meatpy@meatpy.org',
 
     # Choose your license
-    license='BSD (3 clause)',
+    license='BSD 3-Clause License',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -52,7 +52,7 @@ setup(
         'Topic :: Scientific/Engineering :: Information Analysis',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: BSD (3 clause)',
+        'License :: OSI Approved :: BSD License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.

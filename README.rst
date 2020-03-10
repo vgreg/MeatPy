@@ -2,7 +2,7 @@ MeatPy
 ======
 
 The Market Empirical Analysis Toolbox for Python
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Project Description
 -------------------
@@ -13,6 +13,7 @@ analysing high-frequency financial data.
 
 MeatPy currently supports Nasdaq ITCH 5.0. It can easily be adapted to process event-time data from multiple financial exchanges
 and formats.
+
 Team
 ----
 

@@ -1,31 +1,32 @@
 Metadata-Version: 2.1
 Name: meatpy
-Version: 0.0.1a2
+Version: 0.0.1a3
 Summary: Market Exchange Analysis Toolbox for Python
-Home-page: http://www.meatpy.org
+Home-page: https://github.com/vgreg/MeatPy
 Author: The MeatPy Group
 Author-email: meatpy@meatpy.org
-License: BSD (3 clause)
+License: BSD 3-Clause License
 Description: MeatPy
         ======
         
         The Market Empirical Analysis Toolbox for Python
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
         Project Description
         -------------------
         
-        The goal of this project is to provide a standard framework for
-        processing and analysing high-frequency financial data.
+        The goal of this project is to provide a standard framework for processing and 
+        analysing high-frequency financial data.
         
-        The MeatPy is  can be used to process event-time data from multiple financial exchanges
-        and formats, such as Nasdaq ITCH.
+        
+        MeatPy currently supports Nasdaq ITCH 5.0. It can easily be adapted to process event-time data from multiple financial exchanges
+        and formats.
         
         Team
         ----
         
         MeatPy was created by Vincent Grégoire (HEC Montréal)
-        and Charles Martineau (University of Toronto).
+        and Charles Martineau (University of Toronto). Javad YaAli (Polytechnique Montréal) provided valuable research assistance on the project.
         
 Keywords: financial analysis,market microstructure
 Platform: UNKNOWN
@@ -34,7 +35,7 @@ Classifier: Intended Audience :: Education
 Classifier: Intended Audience :: Financial and Insurance Industry
 Classifier: Topic :: Office/Business :: Financial
 Classifier: Topic :: Scientific/Engineering :: Information Analysis
-Classifier: License :: OSI Approved :: BSD (3 clause)
+Classifier: License :: OSI Approved :: BSD License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.6
 Classifier: Programming Language :: Python :: 3.7
