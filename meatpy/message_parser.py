@@ -37,3 +37,6 @@ class MarketMessage:
     exchanges."""
     __metaclass__ = abc.ABCMeta  # This in an abstract class
     pass
+
+class MessageParsingException(Exception):
+    pass

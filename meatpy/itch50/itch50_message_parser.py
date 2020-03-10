@@ -1,4 +1,4 @@
-"""itch50_message_parser.py: Message parser class for ITCH 5.0"""
+im"""itch50_message_parser.py: Message parser class for ITCH 5.0"""
 
 __author__ = "Vincent Grégoire"
 __email__ = "vincent.gregoire@gmail.com"
