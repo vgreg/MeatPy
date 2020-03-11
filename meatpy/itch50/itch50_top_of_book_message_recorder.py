@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Dec 21 15:05:58 2013
+"""itch50_top_of_book_message_recorder.py: Top of book message recorder class for ITCH 5.0"""
 
-@author: vgregoire
-"""
+__author__ = "Vincent Grégoire"
+__email__ = "vincent.gregoire@gmail.com"
+
+
 from meatpy.market_event_handler import MarketEventHandler
 from meatpy.itch50.itch50_market_message import *
 

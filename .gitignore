@@ -2,4 +2,6 @@
 *.pyc
 build/sphinx/doctrees/*
 docs/source/_build
-
+build/*
+dist/*
+meatpy.egg-info/*

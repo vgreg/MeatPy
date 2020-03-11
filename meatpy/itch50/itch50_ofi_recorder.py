@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-A recorder for the changes in OFI adapted to ITCH 4.1
+"""itch50_ofi_recorder.py: A recorder for the changes in OFI adapted to ITCH 5.0
 
 See Equations (4) and (10) of
 Cont, R., et al. (2013). "The Price Impact of Order Book Events."
@@ -8,9 +6,10 @@ Journal of Financial Econometrics 12(1): 47-88.
 
 The recorder follows equation (10) but accounts for trades against
 hidden orders as well.
-
-@author: vgregoire
 """
+
+__author__ = "Vincent Grégoire"
+__email__ = "vincent.gregoire@gmail.com"
 
 # -*- coding: utf-8 -*-
 from meatpy.event_handlers.ofi_recorder import OFIRecorder
