@@ -30,11 +30,14 @@ class OrderOnBook:
      :type timestamp:
      :param volume:
      :type volume: int
+     :param qualifs: qualifiers
+     :type qualifs: dict or None
     """
-    def __init__(self, order_id, timestamp, volume):
+    def __init__(self, order_id, timestamp, volume, qualifs=None):
         self.order_id = order_id
         self.timestamp = timestamp
         self.volume = volume
+        self.qualifs = qualifs
 
     def print_out(self, indent=''):
         """
@@ -93,18 +96,20 @@ class Level:
         self.price = price
         self.queue = []
 
-    def order_factory(self, order_id, timestamp, volume):
+    def order_factory(self, order_id, timestamp, volume, qualifs=None):
         """
         ########### description ############
         :param order_id:  a number for each order to make them clear
         :type order_id: int
         :param timestamp: time for orders
         :param volume: size of the order for trading
-        :type: int
+        :type volume: int
+        :param qualifs: qualifiers
+        :type qualifs: dict or None
         :return:
         """
         return OrderOnBook(order_id=order_id, timestamp=timestamp,
-                           volume=volume)
+                           volume=volume, qualifs=qualifs)
 
     def print_out(self, indent='', level=0):
         """
@@ -285,18 +290,23 @@ class Level:
         del self.queue[i]
         return True
 
-    def enter_quote(self, timestamp, volume, order_id):
+    def enter_quote(self, timestamp, volume, order_id,
+                    qualifs=None):
         """
         Enter the quote at the back of the queue.
 
         :param timestamp:
         :param volume:
         :param order_id:
+        :param qualifs: qualifiers
+        :type qualifs: dict or None
         :return:
         """
-        self.queue.append(self.order_factory(order_id, timestamp, volume))
+        self.queue.append(self.order_factory(order_id, timestamp, volume,
+                                             qualifs))
 
-    def enter_quote_out_of_order(self, timestamp, volume, order_id):
+    def enter_quote_out_of_order(self, timestamp, volume, order_id,
+                                 qualifs=None):
         """
         Enter the quote in the queue according to timestamp.
 
@@ -304,6 +314,8 @@ class Level:
         :param timestamp:
         :param volume:
         :param order_id:
+        :param qualifs: qualifiers
+        :type qualifs: dict or None
         :return:
         """
         i = 0
@@ -313,10 +325,11 @@ class Level:
             else:
                 continue
 
-        self.queue.insert(i, self.order_factory(order_id, timestamp, volume))
+        self.queue.insert(i, self.order_factory(order_id, timestamp, volume,
+                                                qualifs))
 
     def enter_quote_at_position(self, timestamp, volume, order_id, position,
-                                check_position):
+                                check_position, qualifs=None):
         """
         Enter the quote in the queue according to  stated position.
 
@@ -326,6 +339,8 @@ class Level:
         :param order_id:
         :param position:
         :param check_position:
+        :param qualifs: qualifiers
+        :type qualifs: dict or None
         :return:
         """
         raise_error = False
@@ -340,7 +355,8 @@ class Level:
                 raise_error = True
 
         self.queue.insert(position-1,
-                          self.order_factory(order_id, timestamp, volume))
+                          self.order_factory(order_id, timestamp, volume,
+                                             qualifs))
 
         if raise_error:
             raise ExecutionPriorityException('Level:enter_quote_at_position',

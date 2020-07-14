@@ -327,7 +327,8 @@ class LimitOrderBook:
 
 #### Order and trade processing
 
-    def enter_quote(self, timestamp, price, volume, order_id, order_type):
+    def enter_quote(self, timestamp, price, volume, order_id, order_type,
+                    qualifs=None):
         """Enter the quote in the appropriate queue in the right order
 
         Implement price and time priority
@@ -353,10 +354,10 @@ class LimitOrderBook:
                 queue[i].price != price):
             queue.insert(i, self.level_factory(price))
         # Enter the quote on the level
-        queue[i].enter_quote(timestamp, volume, order_id)
+        queue[i].enter_quote(timestamp, volume, order_id, qualifs)
 
     def enter_quote_out_of_order(self, timestamp, price, volume, order_id,
-                                 order_type):
+                                 order_type, qualifs=None):
         """Enter the quote in the appropriate queue in the right order
 
         Implement price and time priority
@@ -383,10 +384,12 @@ class LimitOrderBook:
                 queue[i].price != price):
             queue.insert(i, self.level_factory(price))
         # Enter the quote on the level
-        queue[i].enter_quote_out_of_order(timestamp, volume, order_id)
+        queue[i].enter_quote_out_of_order(timestamp, volume, order_id,
+                                          qualifs)
 
     def enter_quote_at_position(self, timestamp, price, volume, order_id,
-                                order_type, position, check_priority):
+                                order_type, position, check_priority,
+                                qualifs=None):
         """Enter the quote in the appropriate queue in the right order (global
         order on the book, no only on level)
 
@@ -421,11 +424,12 @@ class LimitOrderBook:
         level_position = position - pre_positions
         if level_position < 1:
             raise Exception('LimitOrderBook:enter_quote_at_position',
-                            'Level position not possible: ' + level_position)
+                            'Level position not possible: ' + str(level_position))
 
         # Enter the quote on the level
         queue[i].enter_quote_at_position(timestamp, volume, order_id,
-                                         level_position, check_priority)
+                                         level_position, check_priority,
+                                         qualifs)
 
     def cancel_quote(self, volume, order_id, order_type=None):
         """Delete the quote from the appropriate queue
