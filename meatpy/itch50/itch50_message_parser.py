@@ -84,8 +84,8 @@ class ITCH50MessageParser(MessageParser):
             message = self.ITCH_factory(dataBuffer[2:2+messageLen])
             self.process_message(message)
 
-            if message.type is 'S':  # System message
-                if message.code is 'C':  # End of messages
+            if message.type == b'S':  # System message
+                if message.code == b'C':  # End of messages
                     break
 
             # Check if we need to write the cache for the stock
@@ -154,7 +154,7 @@ class ITCH50MessageParser(MessageParser):
         if message.type not in self.keep_messages_types:
             return
 
-        if message.type is b'R':
+        if message.type in b'R':
             self.stock_directory.append(message)
             self.append_stock_message(message.stock, message)
         elif message.type in b'SVW':
@@ -173,21 +173,21 @@ class ITCH50MessageParser(MessageParser):
             if message.orderRefNum in self.order_refs:
                 stock = self.order_refs[message.orderRefNum]
                 self.append_stock_message(stock, message)
-                if message.type is b'D':
+                if message.type in b'D':
                     del self.order_refs[message.orderRefNum]
                 elif message.type in b'EC':
                     self.matches[message.match] = stock
-        elif message.type is b'U':
+        elif message.type in b'U':
             if message.origOrderRefNum in self.order_refs:
                 stock = self.order_refs[message.origOrderRefNum]
                 self.append_stock_message(stock, message)
                 del self.order_refs[message.origOrderRefNum]
                 self.order_refs[message.newOrderRefNum] = stock
-        elif message.type is b'B':
+        elif message.type in b'B':
             if message.match in self.matches:
                 stock = self.matches[message.match]
                 self.append_stock_message(stock, message)
-        elif message.type is b'P':
+        elif message.type in b'P':
             if self.stocks is None or message.stock in self.stocks:
                 self.append_stock_message(message.stock, message)
                 self.matches[message.match] = message.stock

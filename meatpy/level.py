@@ -23,7 +23,6 @@ class OrderOnBook:
      type and price  are irrelevant here, they depend on the queue and
      level the order belongs to.
 
-
      :param order_id:
      :type order_id: int
      :param timestamp:
@@ -54,9 +53,9 @@ class OrderOnBook:
 
     def write_csv(self, file, timestamp, order_type, level, price, show_age):
         """
-        This method is for writing the data to a csv file
-        
-        :param file: Address of the file that we want to save our results there
+        This method is for writing the data to a csv file.
+
+        :param file: output path
         :type file: str
         :param timestamp:
         :param order_type:
@@ -66,7 +65,7 @@ class OrderOnBook:
         :param price:
         :type price: int
         :param show_age:
-        :type bool
+        :type show_age: bool
         :return: None
         """
         if show_age:

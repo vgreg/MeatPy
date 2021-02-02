@@ -5,3 +5,6 @@ docs/source/_build
 build/*
 dist/*
 meatpy.egg-info/*
+samples/sample_data/*
+docs/build/*
+docs/source/meatpy/*

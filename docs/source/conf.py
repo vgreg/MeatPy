@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'meatpy'
-copyright = '2020, Vincent Grégoire and Charles Martineau'
+copyright = '2021, Vincent Grégoire and Charles Martineau'
 author = 'Vincent Grégoire and Charles Martineau'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.2'
+release = '0.0.3'
 
 
 # -- General configuration ---------------------------------------------------

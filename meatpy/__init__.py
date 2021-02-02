@@ -21,7 +21,6 @@ This package contains some subpackages and submodules:
 
 """
 
-
 from meatpy.lob import *
 from meatpy.market_processor import *
 from meatpy.timestamp import *

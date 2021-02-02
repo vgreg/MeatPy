@@ -6,22 +6,29 @@
 Welcome to meatpy's documentation!
 ==================================
 
-The Market Exchange Analysis Toolbox for Python (MeatPy) is a Python module aimed at researchers studying high frequency market datafeeds, with a special focus on full limit order book data. The aim of MeatPy is to provide a set of standard, user-friendly open-source tools to lower the bar to entry into advanced empirical market microstructure research. 
+The Market Empirical Analysis Toolbox for Python (MeatPy) is a Python module aimed at researchers studying high-frequency market data feeds, focusing on full limit order book data. 
+MeatPy aims to provide a set of standard, user-friendly open-source tools to lower the bar to entry into advanced empirical market microstructure research. 
+
+MeatPy's latest documentation is available at `<https://meatpy.readthedocs.io/en/latest/>`_ and the source code is available on `GitHub <https://github.com/vgreg/MeatPy>`_.
+
+MeatPy is a work in progress, and a lot remains to be done before we reach version 1.0. As of the current version, MeatPy only supports Nasdaq ITCH 5.0 files.
 
 Installation
 ------------
 
 You can install MeatPy using ``pip install meatpy``.
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   meatpy
+   meatpy_overview
 
+   getting_started
+
+   meatpy/meatpy
 
 Credits
 -------
 
-MeatPy was created by Vincent Grégoire (HEC Montréal) and Charles Martineau (University of Toronto). Javad YaAli provided excellent research assistance.
+MeatPy was created by `Vincent Grégoire <http://www.vincentgregoire.com/>`_ (HEC Montréal) and `Charles Martineau <https://www.charlesmartineau.com/>`_ (University of Toronto). Javad YaAli provided excellent research assistance.

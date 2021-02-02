@@ -1,10 +1,10 @@
 Metadata-Version: 2.1
 Name: meatpy
-Version: 0.0.1a2
-Summary: Market Exchange Analysis Toolbox for Python
+Version: 0.0.3
+Summary: Market Empirical Analysis Toolbox for Python
 Home-page: https://github.com/vgreg/MeatPy
-Author: The MeatPy Group
-Author-email: meatpy@meatpy.org
+Author: Vincent Grégoire and Charles Martineau
+Author-email: vincent.gregoire+meatpy@gmail.com
 License: BSD 3-Clause License
 Description: MeatPy
         ======
@@ -39,4 +39,5 @@ Classifier: License :: OSI Approved :: BSD License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.6
 Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
 Provides-Extra: dev
