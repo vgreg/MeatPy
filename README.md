@@ -11,6 +11,9 @@ analysing high-frequency financial data.
 MeatPy currently supports Nasdaq ITCH 5.0. It can easily be adapted to process event-time data from multiple financial exchanges
 and formats.
 
+## Documentation
+
+The latest documentation can be found at <https://meatpy.readthedocs.io/en/latest/>.
 
 ## Team
 
