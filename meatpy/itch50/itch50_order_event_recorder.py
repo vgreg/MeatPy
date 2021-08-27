@@ -37,6 +37,22 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             if len(lob.bid_levels) > 0:
                 bid_price = lob.bid_levels[0].price
                 bid_size = lob.bid_levels[0].volume()
+                
+        # For OrderExecuted and OrderCancel, find price of corresponding
+        # limit order. For OrderDelete also find quantity.
+        if (isinstance(message, OrderExecutedMessage) or
+            isinstance(message, OrderCancelMessage) or
+            isinstance(message, OrderDeleteMessage)):
+            price = None
+            shares = None
+            
+            try:
+                queue, i, j = lob.find_order(message.orderRefNum)
+                price = queue[i].price
+                shares = queue[i].queue[j].volume
+            except Exception as e:
+                print('ITCH50OrderEventRecorder ::' + str(e)
+                      + ' for order ID ' + str(message.orderRefNum))
 
         if isinstance(message, AddOrderMessage):
             record = {'orderRefNum': message.orderRefNum,
@@ -56,7 +72,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             record = {'orderRefNum': message.orderRefNum,
                       'bsindicator': '',
                       'shares': message.shares,
-                      'price': '',
+                      'price': price,
                       'newOrderRefNum': '',
                       'MessageType': 'OrderExecuted'}
         elif isinstance(message, OrderExecutedPriceMessage):
@@ -70,14 +86,14 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             record = {'orderRefNum': message.orderRefNum,
                       'bsindicator': '',
                       'shares': message.cancelShares,
-                      'price': '',
+                      'price': price,
                       'newOrderRefNum': '',
                       'MessageType': 'OrderCancel'}
         elif isinstance(message, OrderDeleteMessage):
             record = {'orderRefNum': message.orderRefNum,
-                      'bsindicator': '',
-                      'shares': '',
-                      'price': '',
+                      'bsindicator': price,
+                      'shares': shares,
+                      'price': price,
                       'newOrderRefNum': '',
                       'MessageType': 'OrderDelete'}
         elif isinstance(message, OrderReplaceMessage):
@@ -100,8 +116,8 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
         file.write('Timestamp,MessageType,BuySellIndicator,Price,Volume,OrderID,NewOrderID,AskPrice,AskSize,BidPrice,BidSize\n'.encode())
         # Write content
         for x in self.records:
-            row = (str(x[0]) + ',' + x[1]["MessageType"] + ',' +
-                   x[1]["bsindicator"] + ',' + str(x[1]["price"]) + ',' +
+            row = (str(x[0]) + ',' + str(x[1]["MessageType"]) + ',' +
+                   str(x[1]["bsindicator"]) + ',' + str(x[1]["price"]) + ',' +
                    str(x[1]["shares"]) + ',' + str(x[1]["orderRefNum"]) +
                    ',' + str(x[1]["newOrderRefNum"]) + ',' +
                    str(x[1]["ask_price"]) + ',' + str(x[1]["ask_size"]) + ',' +
