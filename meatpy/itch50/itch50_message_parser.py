@@ -162,7 +162,7 @@ class ITCH50MessageParser(MessageParser):
             for x in self.stock_messages:
                 self.append_stock_message(x, message)
             self.system_messages.append(message)
-        elif message.type in b'HYQINK':
+        elif message.type in b'HYQINKLJh':
             if self.stocks is None or message.stock in self.stocks:
                 self.append_stock_message(message.stock, message)
         elif message.type in b'AF':
@@ -238,6 +238,10 @@ class ITCH50MessageParser(MessageParser):
             return meatpy.itch50.itch50_market_message.NoiiMessage(message)
         elif msgtype == 'N':
             return meatpy.itch50.itch50_market_message.RpiiMessage(message)
+        elif msgtype == 'J':
+            return meatpy.itch50.itch50_market_message.LULDAuctionCollarMessage(message)
+        elif msgtype == 'h':
+            return meatpy.itch50.itch50_market_message.OperationalHaltMessage(message)
         else:
             raise Exception('ITCH50MessageParser:ITCH_factory',
                             'Unknown message type: '+ str(msgtype))

@@ -30,6 +30,7 @@ class ITCH50MarketMessage(MarketMessage):
         b'G': 'NASDAQ Global Market',
         b'S': 'NASDAQ Capital Market',
         b'Z': 'BATS',
+        b'V': 'Investors’ Exchange',
         b' ': 'Not available'
         }
 
@@ -464,8 +465,8 @@ class MWCBBreachMessage(ITCH50MarketMessage):
 
 
 class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
-    type = b'k'
-    description = "Retail Price Improvement Message"
+    type = b'K'
+    description = "IPO Quoting Period Update Message"
     message_size = struct.calcsize("!HHHI8sIcI") + 1
 
     def __init__(self, message):
@@ -481,3 +482,48 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
                            self.ipo_quotation_release_time,
                            self.ipo_quotation_release_qualifier,
                            self.ipo_price)
+
+
+class LULDAuctionCollarMessage(ITCH50MarketMessage):
+    type = b'J'
+    description = "LULD Auction Collar Message"
+    message_size = struct.calcsize("!HHHI8sIIII") + 1
+
+    def __init__(self, message):
+        (self.stock_locate, self.tracking_number, ts1, ts2, self.stock,
+         self.auction_collar_reference_price,
+         self.upper_auction_collar_price,
+         self.lower_auction_collar_price,
+         self.auction_collar_extension ) = struct.unpack("!HHHI8sIIII",
+                                                         message[1:])
+        self.set_timestamp(ts1, ts2)
+
+    def pack(self):
+        (ts1, ts2) = self.split_timestamp()
+        return struct.pack("!cHHHI8sIIII", self.type, self.stock_locate,
+                           self.tracking_number, ts1, ts2, self.stock,
+                           self.auction_collar_reference_price,
+                           self.upper_auction_collar_price,
+                           self.lower_auction_collar_price,
+                           self.auction_collar_extension)
+
+
+class OperationalHaltMessage(ITCH50MarketMessage):
+    type = b'h'
+    description = "Operational Halt Message"
+    message_size = struct.calcsize("!HHHI8scc") + 1
+
+    def __init__(self, message):
+        (self.stock_locate, self.tracking_number, ts1, ts2, self.stock,
+         self.market_code,
+         self.operational_halt_action) = struct.unpack("!HHHI8scc",
+                                                         message[1:])
+        self.set_timestamp(ts1, ts2)
+
+    def pack(self):
+        (ts1, ts2) = self.split_timestamp()
+        return struct.pack("!cHHHI8scc", self.type, self.stock_locate,
+                           self.tracking_number, ts1, ts2, self.stock,
+                           self.market_code,
+                           self.operational_halt_action)
+
