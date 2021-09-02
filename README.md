@@ -19,3 +19,7 @@ The latest documentation can be found at <https://meatpy.readthedocs.io/en/lates
 
 MeatPy was created by Vincent Grégoire (HEC Montréal)
 and Charles Martineau (University of Toronto). Javad YaAli (Polytechnique Montréal) provided valuable research assistance on the project.
+
+## Funding
+
+MeatPy development benefited from the financial support of [IVADO](https://ivado.ca/)
