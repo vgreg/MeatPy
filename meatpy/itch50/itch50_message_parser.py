@@ -13,7 +13,7 @@ class ITCH50MessageParser(MessageParser):
 
     """
     def __init__(self):
-        self.keep_messages_types = b'SAFECXDUBHRYPQINLVWK'
+        self.keep_messages_types = b'SAFECXDUBHRYPQINLVWKJh'
         self.skip_stock_messages = False
         self.order_refs = {}
         self.stocks = None
