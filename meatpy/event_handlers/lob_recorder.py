@@ -1,6 +1,6 @@
 """lob_recorder.py: A recorder for limit order book snapshots."""
 
-from meatpy.event_handlers.lob_event_recorder import LOBEventRecorder
+from .lob_event_recorder import LOBEventRecorder
 
 
 class LOBRecorder(LOBEventRecorder):

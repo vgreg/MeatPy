@@ -1,7 +1,7 @@
 """lob_event_recorder.py: A generic lob event recorder"""
 
-from meatpy.market_event_handler import MarketEventHandler
-from meatpy.trading_status import (
+from ..market_event_handler import MarketEventHandler
+from ..trading_status import (
     HaltedTradingStatus,
     PostTradeTradingStatus,
     PreTradeTradingStatus,

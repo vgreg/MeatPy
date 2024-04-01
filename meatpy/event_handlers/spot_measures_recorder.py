@@ -2,8 +2,8 @@
 
 from copy import deepcopy
 
-from meatpy.event_handlers.lob_event_recorder import LOBEventRecorder
-from meatpy.lob import InexistantValueException
+from ..lob import InexistantValueException
+from .lob_event_recorder import LOBEventRecorder
 
 
 class SpotMeasuresRecorder(LOBEventRecorder):

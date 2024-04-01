@@ -21,19 +21,19 @@ This package contains some subpackages and submodules:
 
 """
 
-from meatpy.level import (
+from .level import (
     ExecutionPriorityException,
     Level,
     OrderOnBook,
     VolumeInconsistencyException,
 )
-from meatpy.lob import (
+from .lob import (
     ExecutionPriorityExceptionList,
     InexistantValueException,
     LimitOrderBook,
 )
-from meatpy.market_processor import MarketProcessor
-from meatpy.trading_status import (
+from .market_processor import MarketProcessor
+from .trading_status import (
     ClosedTradingStatus,
     ClosingAuctionTradingStatus,
     HaltedTradingStatus,
