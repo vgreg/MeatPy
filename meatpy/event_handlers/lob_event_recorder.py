@@ -1,10 +1,13 @@
 """lob_event_recorder.py: A generic lob event recorder"""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 from meatpy.market_event_handler import MarketEventHandler
-from meatpy.trading_status import *
+from meatpy.trading_status import (
+    HaltedTradingStatus,
+    PostTradeTradingStatus,
+    PreTradeTradingStatus,
+    QuoteOnlyTradingStatus,
+    TradeTradingStatus,
+)
 
 
 class LOBEventRecorder(MarketEventHandler):

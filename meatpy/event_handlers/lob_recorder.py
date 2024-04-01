@@ -1,8 +1,5 @@
 """lob_recorder.py: A recorder for limit order book snapshots."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 from meatpy.event_handlers.lob_event_recorder import LOBEventRecorder
 
 

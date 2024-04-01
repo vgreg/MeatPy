@@ -1,8 +1,5 @@
 """timestamp.py: A standard timestamp."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 from copy import deepcopy
 from datetime import datetime
 

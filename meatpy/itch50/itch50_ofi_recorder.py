@@ -8,12 +8,8 @@ The recorder follows equation (10) but accounts for trades against
 hidden orders as well.
 """
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-# -*- coding: utf-8 -*-
-from meatpy.event_handlers.ofi_recorder import OFIRecorder
-from meatpy.itch50.itch50_market_message import TradeMessage
+from ..event_handlers.ofi_recorder import OFIRecorder
+from .itch50_market_message import TradeMessage
 
 
 class ITCH50OFIRecorder(OFIRecorder):

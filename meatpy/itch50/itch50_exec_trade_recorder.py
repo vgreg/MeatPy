@@ -1,11 +1,11 @@
 """itch50_exec_trade_recorder.py: A trade recorder for ITCH 5.0"""
 
-__author__ = "Charles Martineau"
-__email__ = "martineau.charles@gmail.com"
-
-from meatpy.market_event_handler import MarketEventHandler
-from meatpy.itch50.itch50_market_message import *
-from meatpy.itch50.itch50_market_message import TradeMessage
+from ..market_event_handler import MarketEventHandler
+from .itch50_market_message import (
+    OrderExecutedMessage,
+    OrderExecutedPriceMessage,
+    TradeMessage,
+)
 
 
 class ITCH50ExecTradeRecorder(MarketEventHandler):

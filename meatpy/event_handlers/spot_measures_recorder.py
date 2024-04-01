@@ -1,11 +1,9 @@
 """spot_measures_recorder.py: A recorder for multiple spot (only on current LOB) measures."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
+from copy import deepcopy
 
 from meatpy.event_handlers.lob_event_recorder import LOBEventRecorder
 from meatpy.lob import InexistantValueException
-from copy import deepcopy
 
 
 class SpotMeasuresRecorder(LOBEventRecorder):

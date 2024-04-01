@@ -1,9 +1,6 @@
 """message_parser.py: The parsing engine that reads raw files/feeds and returns
 parsed messages."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 import abc
 
 

@@ -1,11 +1,9 @@
 """market_processor.py: The market engine that receives message and
 re-constructs the market history."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 import abc
-from meatpy.lob import LimitOrderBook
+
+from .lob import LimitOrderBook
 
 
 class MarketProcessor:

@@ -1,11 +1,9 @@
 """lob.py: A snapshot of the limit order book."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-from math import log
-from meatpy.level import Level, ExecutionPriorityException
 from copy import deepcopy
+from math import log
+
+from .level import ExecutionPriorityException, Level
 
 
 class InexistantValueException(Exception):

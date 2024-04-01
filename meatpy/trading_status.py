@@ -1,8 +1,5 @@
 """trading_status.py: Classes for possible trading states."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 
 class TradingStatus:
     def __init__(self, details=None):

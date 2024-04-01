@@ -1,16 +1,12 @@
 """ofi_recorder.py: A recorder for the changes in order flow imbalance."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
+from ..event_handlers.lob_event_recorder import LOBEventRecorder
 
 """
 See Equation (10) of
 Cont, R., et al. (2013). "The Price Impact of Order Book Events."
 Journal of Financial Econometrics 12(1): 47-88.
 """
-
-# -*- coding: utf-8 -*-
-from meatpy.event_handlers.lob_event_recorder import LOBEventRecorder
 
 
 class OFIRecorder(LOBEventRecorder):

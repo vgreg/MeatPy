@@ -1,11 +1,8 @@
 """itch50_market_message.py: Market message class for ITCH 5.0"""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-
 import struct
-from meatpy.message_parser import MarketMessage
+
+from ..message_parser import MarketMessage
 
 
 class ITCH50MarketMessage(MarketMessage):

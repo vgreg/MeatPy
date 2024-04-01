@@ -1,11 +1,24 @@
 """itch50_market_processor.py: Market processor and order event classes for ITCH5.0"""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-from meatpy.market_processor import MarketProcessor
-from meatpy.itch50.itch50_market_message import *
-from meatpy.trading_status import *
+from ..market_processor import MarketProcessor
+from ..trading_status import (
+    HaltedTradingStatus,
+    PostTradeTradingStatus,
+    PreTradeTradingStatus,
+    QuoteOnlyTradingStatus,
+    TradeTradingStatus,
+)
+from .itch50_market_message import (
+    AddOrderMessage,
+    AddOrderMPIDMessage,
+    OrderCancelMessage,
+    OrderDeleteMessage,
+    OrderExecutedMessage,
+    OrderExecutedPriceMessage,
+    OrderReplaceMessage,
+    StockTradingActionMessage,
+    SystemEventMessage,
+)
 
 
 class ITCH50MarketProcessor(MarketProcessor):

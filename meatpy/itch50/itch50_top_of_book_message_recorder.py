@@ -1,11 +1,16 @@
 """itch50_top_of_book_message_recorder.py: Top of book message recorder class for ITCH 5.0"""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-
-from meatpy.market_event_handler import MarketEventHandler
-from meatpy.itch50.itch50_market_message import *
+from ..market_event_handler import MarketEventHandler
+from .itch50_market_message import (
+    AddOrderMessage,
+    AddOrderMPIDMessage,
+    OrderCancelMessage,
+    OrderDeleteMessage,
+    OrderExecutedMessage,
+    OrderExecutedPriceMessage,
+    OrderReplaceMessage,
+    TradeMessage,
+)
 
 
 class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
@@ -209,7 +214,7 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                 elif (
                     message.price == lob.ask_levels[0].price
                     and lob.ask_levels[0].order_on_book(message.origOrderRefNum)
-                    == False
+                    is False
                 ):  # Improvement over old order
                     record = {
                         "MessageType": "Replace",
@@ -261,7 +266,7 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                 elif (
                     message.price == lob.bid_levels[0].price
                     and lob.bid_levels[0].order_on_book(message.origOrderRefNum)
-                    == False
+                    is False
                 ):  # Improvement over old order
                     record = {
                         "MessageType": "Replace",

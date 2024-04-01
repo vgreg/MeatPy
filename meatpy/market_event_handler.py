@@ -1,8 +1,5 @@
 """market_event_handler.py: Base class for market event handlers."""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
 
 class MarketEventHandler:
     """A handler for market events.

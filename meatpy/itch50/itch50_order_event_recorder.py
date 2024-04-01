@@ -1,10 +1,15 @@
 """itch50_order_event_recorder.py: Order event recorder class for ITCH 5.0"""
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-from meatpy.market_event_handler import MarketEventHandler
-from meatpy.itch50.itch50_market_message import *
+from ..market_event_handler import MarketEventHandler
+from .itch50_market_message import (
+    AddOrderMessage,
+    AddOrderMPIDMessage,
+    OrderCancelMessage,
+    OrderDeleteMessage,
+    OrderExecutedMessage,
+    OrderExecutedPriceMessage,
+    OrderReplaceMessage,
+)
 
 
 class ITCH50OrderEventRecorder(MarketEventHandler):
