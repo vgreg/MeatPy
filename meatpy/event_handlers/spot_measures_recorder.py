@@ -24,51 +24,52 @@ class SpotMeasuresRecorder(LOBEventRecorder):
                 try:
                     spread = lob.bid_ask_spread()
                 except InexistantValueException:
-                    spread = ''
+                    spread = ""
                 new_record.append(spread)
             elif x == "Mid Quote":
                 try:
                     mid_quote = lob.mid_quote()
                 except InexistantValueException:
-                    mid_quote = ''
+                    mid_quote = ""
                 new_record.append(mid_quote)
             elif x == "Best Ask":
                 try:
                     best_ask = lob.best_ask()
                 except InexistantValueException:
-                    best_ask = ''
+                    best_ask = ""
                 new_record.append(best_ask)
             elif x == "Best Bid":
                 try:
                     best_bid = lob.best_bid()
                 except InexistantValueException:
-                    best_bid = ''
+                    best_bid = ""
                 new_record.append(best_bid)
             elif x == "Quote Slope":
                 try:
                     quote_slope = lob.quote_slope()
                 except InexistantValueException:
-                    quote_slope = ''
+                    quote_slope = ""
                 new_record.append(quote_slope)
             elif x == "Log Quote Slope":
                 try:
                     log_quote_slope = lob.log_quote_slope()
                 except InexistantValueException:
-                    log_quote_slope = ''
+                    log_quote_slope = ""
                 new_record.append(log_quote_slope)
             else:
-                raise Exception("SpotMeasuresRecorder:before_lob_update",
-                                "Unknown measure: " + x)
+                raise Exception(
+                    "SpotMeasuresRecorder:before_lob_update", "Unknown measure: " + x
+                )
 
         self.records.append(new_record)
 
     def write_csv(self, file, collapse=False):
         """Write to a file in CSV format"""
         # Write header row
-        file.write('Timestamp')
+        file.write("Timestamp")
         for x in self.measures:
-            file.write(',' + x)
-        file.write('\n')
+            file.write("," + x)
+        file.write("\n")
 
         if collapse:
             last_ts = None
@@ -96,18 +97,18 @@ class SpotMeasuresRecorder(LOBEventRecorder):
         first = True
         for y in record:
             if not first:
-                file.write(',')
+                file.write(",")
             else:
                 first = False
             file.write(str(y))
-        file.write('\n')
+        file.write("\n")
 
     def write_csv_header(self, file):
         # Write header row
-        file.write('Timestamp')
+        file.write("Timestamp")
         for x in self.measures:
-            file.write(',' + x)
-        file.write('\n')
+            file.write("," + x)
+        file.write("\n")
 
     def append_csv(self, file):
         # Write content
@@ -115,9 +116,9 @@ class SpotMeasuresRecorder(LOBEventRecorder):
             first = True
             for y in x:
                 if not first:
-                    file.write(',')
+                    file.write(",")
                 else:
                     first = False
                 file.write(str(y))
-            file.write('\n')
+            file.write("\n")
         self.records = []

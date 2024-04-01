@@ -11,6 +11,7 @@ from copy import deepcopy
 class InexistantValueException(Exception):
     pass
 
+
 class ExecutionPriorityExceptionList(Exception):
     pass
 
@@ -22,6 +23,7 @@ class LimitOrderBook:
     and should apply to any exchange that applies price and
     time preference for execution of orders on the book.
     """
+
     def __init__(self, timestamp, timestamp_inc=0):
         """Initialize the object with a timestamp and event_type and empty
         order queues.
@@ -44,21 +46,26 @@ class LimitOrderBook:
 
         self.execution_errors_buffer = []  # Buffer for executions out of order
 
-    def print_out(self, indent=''):
+    def print_out(self, indent=""):
         """Print the content of the limit order book."""
-        print( indent + 'LOB Snapshot: ' + 
-            str(self.timestamp) + ',' + 
-            str(self.timestamp_inc) + ' -------------')
-        print( indent + ' Bid:')
+        print(
+            indent
+            + "LOB Snapshot: "
+            + str(self.timestamp)
+            + ","
+            + str(self.timestamp_inc)
+            + " -------------"
+        )
+        print(indent + " Bid:")
         i = 0
         for x in self.bid_levels:
             i += 1
-            x.print_out(indent + '  ', i)
-        print( indent + ' Ask:')
+            x.print_out(indent + "  ", i)
+        print(indent + " Ask:")
         i = 0
         for x in self.ask_levels:
             i += 1
-            x.print_out(indent + '  ', i)
+            x.print_out(indent + "  ", i)
 
     # Common type definitions. Note: Also redefined in MarketProcessor.
     ask_type = 0
@@ -88,16 +95,30 @@ class LimitOrderBook:
         """Write rows for the content of the LOB"""
         i = 1
         for x in self.ask_levels:
-            x.write_csv(file, self.timestamp, "Ask", i, collapse_orders,
-                        self.adjust_price(x.price), show_age)
+            x.write_csv(
+                file,
+                self.timestamp,
+                "Ask",
+                i,
+                collapse_orders,
+                self.adjust_price(x.price),
+                show_age,
+            )
             i += 1
         i = 1
         for x in self.bid_levels:
-            x.write_csv(file, self.timestamp, "Bid", i, collapse_orders,
-                        self.adjust_price(x.price), show_age)
+            x.write_csv(
+                file,
+                self.timestamp,
+                "Bid",
+                i,
+                collapse_orders,
+                self.adjust_price(x.price),
+                show_age,
+            )
             i += 1
 
-#### Built-in measures #######
+    #### Built-in measures #######
 
     def adjust_price(self, price):
         if self.decimals_adj is None:
@@ -111,11 +132,13 @@ class LimitOrderBook:
         :rtype: same as price format
         """
         try:
-            return self.adjust_price(self.ask_levels[0].price -
-                                     self.bid_levels[0].price)
+            return self.adjust_price(
+                self.ask_levels[0].price - self.bid_levels[0].price
+            )
         except IndexError:
-            raise InexistantValueException('LimitOrderBook:bid_ask_spread',
-                                           'There is no bid-ask spread')
+            raise InexistantValueException(
+                "LimitOrderBook:bid_ask_spread", "There is no bid-ask spread"
+            )
 
     def mid_quote(self):
         """Return the mid quote
@@ -124,11 +147,16 @@ class LimitOrderBook:
         :rtype: same as price format
         """
         try:
-            return self.adjust_price(float(self.ask_levels[0].price +
-                                           self.bid_levels[0].price))/2.0
+            return (
+                self.adjust_price(
+                    float(self.ask_levels[0].price + self.bid_levels[0].price)
+                )
+                / 2.0
+            )
         except IndexError:
-            raise InexistantValueException('LimitOrderBook:mid quote',
-                                           'There is no bid-ask spread')
+            raise InexistantValueException(
+                "LimitOrderBook:mid quote", "There is no bid-ask spread"
+            )
 
     def quote_slope(self):
         """Return the slope between the two levels of depth between the ask and
@@ -137,12 +165,13 @@ class LimitOrderBook:
         :returns: quote slope
         """
         try:
-            return (float(self.bid_ask_spread()) /
-                    (log(self.ask_levels[0].volume()) +
-                     log(self.bid_levels[0].volume())))
+            return float(self.bid_ask_spread()) / (
+                log(self.ask_levels[0].volume()) + log(self.bid_levels[0].volume())
+            )
         except IndexError:
-            raise InexistantValueException('LimitOrderBook:quote_slope',
-                                           'There missing bid or ask price or volume')
+            raise InexistantValueException(
+                "LimitOrderBook:quote_slope", "There missing bid or ask price or volume"
+            )
 
     def log_quote_slope(self):
         """Return the log of the slope between the two levels of depth between
@@ -152,13 +181,14 @@ class LimitOrderBook:
         :returns: effective spread in percent
         """
         try:
-            return float((log(float(self.ask_levels[0].price /
-                         self.bid_levels[0].price))) /
-                         (log(self.ask_levels[0].volume()) +
-                          log(self.bid_levels[0].volume())))
+            return float(
+                (log(float(self.ask_levels[0].price / self.bid_levels[0].price)))
+                / (log(self.ask_levels[0].volume()) + log(self.bid_levels[0].volume()))
+            )
         except IndexError:
-            raise InexistantValueException('LimitOrderBook:log_quote_slope',
-                                           'There is no bid-ask spread')
+            raise InexistantValueException(
+                "LimitOrderBook:log_quote_slope", "There is no bid-ask spread"
+            )
 
     def best_bid(self):
         """Return the best bid
@@ -169,8 +199,9 @@ class LimitOrderBook:
         try:
             return self.adjust_price(self.bid_levels[0].price)
         except IndexError:
-            raise InexistantValueException('LimitOrderBook:best_bid',
-                                           'There is no best bid')
+            raise InexistantValueException(
+                "LimitOrderBook:best_bid", "There is no best bid"
+            )
 
     def best_ask(self):
         """Return the best ask
@@ -181,8 +212,9 @@ class LimitOrderBook:
         try:
             return self.adjust_price(self.ask_levels[0].price)
         except IndexError:
-            raise InexistantValueException('LimitOrderBook:best_ask',
-                                           'There is no best ask')
+            raise InexistantValueException(
+                "LimitOrderBook:best_ask", "There is no best ask"
+            )
 
     def buy_execution_price(self, volume):
         """Compute the execution price for a buy order of a certain volume.
@@ -194,7 +226,7 @@ class LimitOrderBook:
         price_acc = 0
 
         for x in self.ask_levels:
-            (price_lvl, volume_lvl) = x.execution_price(volume-volume_acc)
+            (price_lvl, volume_lvl) = x.execution_price(volume - volume_acc)
             price_acc += price_lvl
             volume_acc += volume_lvl
             if volume_acc == volume:
@@ -212,7 +244,7 @@ class LimitOrderBook:
         price_acc = 0
 
         for x in self.bid_levels:
-            (price_lvl, volume_lvl) = x.execution_price(volume-volume_acc)
+            (price_lvl, volume_lvl) = x.execution_price(volume - volume_acc)
             price_acc += price_lvl
             volume_acc += volume_lvl
             if volume_acc == volume:
@@ -220,7 +252,7 @@ class LimitOrderBook:
 
         return (self.adjust_price(price_acc), volume_acc)
 
-#### Companion methods
+    #### Companion methods
 
     def order_on_book(self, order_id, order_type=None):
         """Indicate if the order_id is on the book.
@@ -248,8 +280,9 @@ class LimitOrderBook:
             else:
                 return False
         else:
-            raise Exception('LimitOrderBook:order_on_book',
-                            'Unknown order type: ' + order_type)
+            raise Exception(
+                "LimitOrderBook:order_on_book", "Unknown order type: " + order_type
+            )
 
     def ask_order_on_book(self, order_id):
         """Indicate if the order_id is on the ask book.
@@ -286,8 +319,9 @@ class LimitOrderBook:
         elif self.ask_order_on_book(order_id):
             return self.ask_type
         else:
-            raise Exception('LimitOrderBook:find_order_type',
-                            'Order not found: ' + str(order_id))
+            raise Exception(
+                "LimitOrderBook:find_order_type", "Order not found: " + str(order_id)
+            )
 
     def find_order(self, order_id, order_type=None):
         """Find the order for an order on the book with possibly known type.
@@ -313,22 +347,25 @@ class LimitOrderBook:
             elif order_type == self.bid_type:
                 queue = self.bid_levels
             else:
-                raise Exception('LimitOrderBook:find_order',
-                                'Unknown order type: '+str(order_type))
+                raise Exception(
+                    "LimitOrderBook:find_order",
+                    "Unknown order type: " + str(order_type),
+                )
             i = 0
             while i < len(queue):
                 j = queue[i].find_order_on_book(order_id)
                 if j != -1:
-                        return (queue, i, j)
+                    return (queue, i, j)
                 i += 1
 
-        raise Exception('LimitOrderBook:find_order_with_type',
-                        'Quote ID (' + str(order_id) + ') missing from queue')
+        raise Exception(
+            "LimitOrderBook:find_order_with_type",
+            "Quote ID (" + str(order_id) + ") missing from queue",
+        )
 
-#### Order and trade processing
+    #### Order and trade processing
 
-    def enter_quote(self, timestamp, price, volume, order_id, order_type,
-                    qualifs=None):
+    def enter_quote(self, timestamp, price, volume, order_id, order_type, qualifs=None):
         """Enter the quote in the appropriate queue in the right order
 
         Implement price and time priority
@@ -350,14 +387,14 @@ class LimitOrderBook:
                 i += 1
 
         # If the price level does not exist, create it!
-        if (i == len(queue) or
-                queue[i].price != price):
+        if i == len(queue) or queue[i].price != price:
             queue.insert(i, self.level_factory(price))
         # Enter the quote on the level
         queue[i].enter_quote(timestamp, volume, order_id, qualifs)
 
-    def enter_quote_out_of_order(self, timestamp, price, volume, order_id,
-                                 order_type, qualifs=None):
+    def enter_quote_out_of_order(
+        self, timestamp, price, volume, order_id, order_type, qualifs=None
+    ):
         """Enter the quote in the appropriate queue in the right order
 
         Implement price and time priority
@@ -380,16 +417,22 @@ class LimitOrderBook:
                 i += 1
 
         # If the price level does not exist, create it!
-        if (i == len(queue) or
-                queue[i].price != price):
+        if i == len(queue) or queue[i].price != price:
             queue.insert(i, self.level_factory(price))
         # Enter the quote on the level
-        queue[i].enter_quote_out_of_order(timestamp, volume, order_id,
-                                          qualifs)
+        queue[i].enter_quote_out_of_order(timestamp, volume, order_id, qualifs)
 
-    def enter_quote_at_position(self, timestamp, price, volume, order_id,
-                                order_type, position, check_priority,
-                                qualifs=None):
+    def enter_quote_at_position(
+        self,
+        timestamp,
+        price,
+        volume,
+        order_id,
+        order_type,
+        position,
+        check_priority,
+        qualifs=None,
+    ):
         """Enter the quote in the appropriate queue in the right order (global
         order on the book, no only on level)
 
@@ -412,8 +455,7 @@ class LimitOrderBook:
                 i += 1
 
         # If the price level does not exist, create it!
-        if (i == len(queue) or
-                queue[i].price != price):
+        if i == len(queue) or queue[i].price != price:
             queue.insert(i, self.level_factory(price))
 
         # Compute the number of positions in front
@@ -423,13 +465,15 @@ class LimitOrderBook:
 
         level_position = position - pre_positions
         if level_position < 1:
-            raise Exception('LimitOrderBook:enter_quote_at_position',
-                            'Level position not possible: ' + str(level_position))
+            raise Exception(
+                "LimitOrderBook:enter_quote_at_position",
+                "Level position not possible: " + str(level_position),
+            )
 
         # Enter the quote on the level
-        queue[i].enter_quote_at_position(timestamp, volume, order_id,
-                                         level_position, check_priority,
-                                         qualifs)
+        queue[i].enter_quote_at_position(
+            timestamp, volume, order_id, level_position, check_priority, qualifs
+        )
 
     def cancel_quote(self, volume, order_id, order_type=None):
         """Delete the quote from the appropriate queue
@@ -487,13 +531,15 @@ class LimitOrderBook:
                     # Delete empty levels
                     if len(queue[0].queue) == 0:
                         del queue[0]
-                    raise ExecutionPriorityExceptionList('LimitOrderBook:execute_trade',
-                                                         errors_to_raise)
+                    raise ExecutionPriorityExceptionList(
+                        "LimitOrderBook:execute_trade", errors_to_raise
+                    )
         except ExecutionPriorityException as e:
-                if not self.skip_exception(e):
-                    self.execution_errors_buffer.append(e)
-                self.execute_trade_price(timestamp=timestamp,
-                                         volume=volume, order_id=order_id)
+            if not self.skip_exception(e):
+                self.execution_errors_buffer.append(e)
+            self.execute_trade_price(
+                timestamp=timestamp, volume=volume, order_id=order_id
+            )
         finally:
             # Delete empty levels
             if len(queue[0].queue) == 0:
@@ -510,11 +556,12 @@ class LimitOrderBook:
         elif not self.bid_order_on_book(bid_id):  # Buy order
             return ask_id
         else:
-            raise Exception('LimitOrderBook:find_liquidity_maker',
-                            'Could not determine maker/taker)')
+            raise Exception(
+                "LimitOrderBook:find_liquidity_maker",
+                "Could not determine maker/taker)",
+            )
 
-    def execute_trade_price(self, timestamp, volume, order_id,
-                            order_type=None):
+    def execute_trade_price(self, timestamp, volume, order_id, order_type=None):
         """Apply the effect of the execution on the book
 
         Make sure volume and ID are consistent with
@@ -532,5 +579,6 @@ class LimitOrderBook:
         """Identify issues if this is the end of trading day."""
         # 1) Raise remaining exceptions.
         if len(self.execution_errors_buffer) > 0:
-            raise ExecutionPriorityExceptionList('LimitOrderBook:execute_trade',
-                                                 self.execution_errors_buffer)
+            raise ExecutionPriorityExceptionList(
+                "LimitOrderBook:execute_trade", self.execution_errors_buffer
+            )

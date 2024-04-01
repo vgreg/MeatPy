@@ -54,25 +54,25 @@ class LOBEventRecorder(MarketEventHandler):
         if self.record_always is False:
             if market_processor.trading_status is None:
                 skip = True
-            elif (not self.record_pretrade and
-                    isinstance(market_processor.trading_status,
-                               PreTradeTradingStatus)):
+            elif not self.record_pretrade and isinstance(
+                market_processor.trading_status, PreTradeTradingStatus
+            ):
                 skip = True
-            elif (not self.record_trading and
-                    isinstance(market_processor.trading_status,
-                               TradeTradingStatus)):
+            elif not self.record_trading and isinstance(
+                market_processor.trading_status, TradeTradingStatus
+            ):
                 skip = True
-            elif (not self.record_posttrade and
-                    isinstance(market_processor.trading_status,
-                               PostTradeTradingStatus)):
+            elif not self.record_posttrade and isinstance(
+                market_processor.trading_status, PostTradeTradingStatus
+            ):
                 skip = True
-            elif (not self.record_halted and
-                    isinstance(market_processor.trading_status,
-                               HaltedTradingStatus)):
+            elif not self.record_halted and isinstance(
+                market_processor.trading_status, HaltedTradingStatus
+            ):
                 skip = True
-            elif (not self.record_quoteonly and
-                    isinstance(market_processor.trading_status,
-                               QuoteOnlyTradingStatus)):
+            elif not self.record_quoteonly and isinstance(
+                market_processor.trading_status, QuoteOnlyTradingStatus
+            ):
                 skip = True
 
         if skip:
@@ -80,28 +80,29 @@ class LOBEventRecorder(MarketEventHandler):
             return
 
         if self.record_timestamps is None:
-            if(self.record_start is None or
-               self.record_start <= new_timestamp):
-                if(self.record_end is None or
-                   self.record_end >= new_timestamp):
+            if self.record_start is None or self.record_start <= new_timestamp:
+                if self.record_end is None or self.record_end >= new_timestamp:
                     self.record(lob)
         else:
-            while (len(self.record_timestamps) > 0 and
-                    new_timestamp > self.record_timestamps[-1]):
+            while (
+                len(self.record_timestamps) > 0
+                and new_timestamp > self.record_timestamps[-1]
+            ):
                 record_timestamp = self.record_timestamps.pop()
                 self.record(lob, record_timestamp)
 
-        if (self.write_csv_during_recording is True and
-                self.buffer_size < len(self.records)):
+        if self.write_csv_during_recording is True and self.buffer_size < len(
+            self.records
+        ):
             self.write_buffer()
 
     def write_buffer(self):
         if not self.first_write_done:
-            with open(self.output_file_name, 'w') as file:
+            with open(self.output_file_name, "w") as file:
                 self.write_csv_header(file)
             self.first_write_done = True
 
-        with open(self.output_file_name, 'a+b') as file:
+        with open(self.output_file_name, "a+b") as file:
             self.append_csv(file)
 
     def write_csv_header(self, file):

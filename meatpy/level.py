@@ -3,42 +3,45 @@ This module is for recognizing the level of the LOB and supporting classes.
 """
 # Level of the LOB and supporting classes
 
-TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
 class ExecutionPriorityException(Exception):
     """An exception when market priority (price/time preference) is not respected."""
+
     pass
 
 
 class VolumeInconsistencyException(Exception):
     """An exception when the volume of a trade or cancel is larger than the volume on the book."""
+
     pass
 
 
 class OrderOnBook:
     """An order currently on the book.
 
-     Just a low-level order structure for orders on the book. The order
-     type and price  are irrelevant here, they depend on the queue and
-     level the order belongs to.
+    Just a low-level order structure for orders on the book. The order
+    type and price  are irrelevant here, they depend on the queue and
+    level the order belongs to.
 
-     :param order_id:
-     :type order_id: int
-     :param timestamp:
-     :type timestamp:
-     :param volume:
-     :type volume: int
-     :param qualifs: qualifiers
-     :type qualifs: dict or None
+    :param order_id:
+    :type order_id: int
+    :param timestamp:
+    :type timestamp:
+    :param volume:
+    :type volume: int
+    :param qualifs: qualifiers
+    :type qualifs: dict or None
     """
+
     def __init__(self, order_id, timestamp, volume, qualifs=None):
         self.order_id = order_id
         self.timestamp = timestamp
         self.volume = volume
         self.qualifs = qualifs
 
-    def print_out(self, indent=''):
+    def print_out(self, indent=""):
         """
         Use this function to print information as a log.
 
@@ -47,9 +50,15 @@ class OrderOnBook:
         :type indent: str
         :return: None
         """
-        print (indent + str(self.volume) + " shares at " +
-               str(self.timestamp) + ' (id ' +
-               str(self.order_id) + ')')
+        print(
+            indent
+            + str(self.volume)
+            + " shares at "
+            + str(self.timestamp)
+            + " (id "
+            + str(self.order_id)
+            + ")"
+        )
 
     def write_csv(self, file, timestamp, order_type, level, price, show_age):
         """
@@ -70,15 +79,45 @@ class OrderOnBook:
         """
         if show_age:
             age = timestamp - self.timestamp
-            file.write((str(timestamp) + ',' + order_type + ',' + str(level) +
-                       ',' + str(price) + ',' + str(self.order_id) + ',' +
-                       str(self.volume) + ',' + str(self.timestamp) + ',' +
-                       str(age) + '\n').encode())
+            file.write(
+                (
+                    str(timestamp)
+                    + ","
+                    + order_type
+                    + ","
+                    + str(level)
+                    + ","
+                    + str(price)
+                    + ","
+                    + str(self.order_id)
+                    + ","
+                    + str(self.volume)
+                    + ","
+                    + str(self.timestamp)
+                    + ","
+                    + str(age)
+                    + "\n"
+                ).encode()
+            )
         else:
-            file.write((str(timestamp) + ',' + order_type + ',' + str(level) +
-                       ',' + str(price) + ',' + str(self.order_id) + ',' +
-                       str(self.volume) + ',' + str(self.timestamp) +
-                       '\n').encode())
+            file.write(
+                (
+                    str(timestamp)
+                    + ","
+                    + order_type
+                    + ","
+                    + str(level)
+                    + ","
+                    + str(price)
+                    + ","
+                    + str(self.order_id)
+                    + ","
+                    + str(self.volume)
+                    + ","
+                    + str(self.timestamp)
+                    + "\n"
+                ).encode()
+            )
 
 
 class Level:
@@ -107,22 +146,31 @@ class Level:
         :type qualifs: dict or None
         :return:
         """
-        return OrderOnBook(order_id=order_id, timestamp=timestamp,
-                           volume=volume, qualifs=qualifs)
+        return OrderOnBook(
+            order_id=order_id, timestamp=timestamp, volume=volume, qualifs=qualifs
+        )
 
-    def print_out(self, indent='', level=0):
+    def print_out(self, indent="", level=0):
         """
 
         :param indent:
         :param level:
         :return:
         """
-        print (indent + 'Price level ' + str(level) + ': ' + str(self.price))
+        print(indent + "Price level " + str(level) + ": " + str(self.price))
         for x in self.queue:
-            x.print_out(indent + '  ')
+            x.print_out(indent + "  ")
 
-    def write_csv(self, file, timestamp, order_type, level,
-                  collapse_orders=False, price=None, show_age=False):
+    def write_csv(
+        self,
+        file,
+        timestamp,
+        order_type,
+        level,
+        collapse_orders=False,
+        price=None,
+        show_age=False,
+    ):
         """
 
         :param file:
@@ -158,21 +206,50 @@ class Level:
                 age = age / float(n_orders)
                 first_age = timestamp - self.queue[0].timestamp
                 last_age = timestamp - self.queue[-1].timestamp
-                file.write((str(timestamp) + ',' + order_type + ',' +
-                           str(level) + ',' + str(price) + ',' +
-                           str(volume) + ',' +
-                           str(n_orders) + ',' + str(vw_age) + ',' +
-                           str(age) + ',' + str(first_age) +
-                           ',' + str(last_age) + '\n').encode())
+                file.write(
+                    (
+                        str(timestamp)
+                        + ","
+                        + order_type
+                        + ","
+                        + str(level)
+                        + ","
+                        + str(price)
+                        + ","
+                        + str(volume)
+                        + ","
+                        + str(n_orders)
+                        + ","
+                        + str(vw_age)
+                        + ","
+                        + str(age)
+                        + ","
+                        + str(first_age)
+                        + ","
+                        + str(last_age)
+                        + "\n"
+                    ).encode()
+                )
             else:
-                file.write((str(timestamp) + ',' + order_type + ',' +
-                           str(level) + ',' + str(price) + ',' +
-                           str(volume) + ',' +
-                           str(n_orders) + '\n').encode())
+                file.write(
+                    (
+                        str(timestamp)
+                        + ","
+                        + order_type
+                        + ","
+                        + str(level)
+                        + ","
+                        + str(price)
+                        + ","
+                        + str(volume)
+                        + ","
+                        + str(n_orders)
+                        + "\n"
+                    ).encode()
+                )
         else:
             for x in self.queue:
-                x.write_csv(file, timestamp, order_type, level, self.price,
-                            show_age)
+                x.write_csv(file, timestamp, order_type, level, self.price, show_age)
 
     def order_on_book(self, order_id):
         """
@@ -217,7 +294,7 @@ class Level:
                 volume_acc = volume
                 break
 
-        return (self.price*volume_acc, volume_acc)
+        return (self.price * volume_acc, volume_acc)
 
     def find_order_on_book(self, order_id):
         """
@@ -247,22 +324,24 @@ class Level:
         if i is None:
             i = self.find_order_on_book(order_id)
             if i == -1:
-                raise Exception('Level:cancel_quote',
-                                'Order ID ' +
-                                str(order_id) +
-                                ' not on level')
+                raise Exception(
+                    "Level:cancel_quote", "Order ID " + str(order_id) + " not on level"
+                )
         # Check for consistency in volume
         if self.queue[i].volume < volume:
             book_vol = self.queue[i].volume
             del self.queue[i]
-            raise VolumeInconsistencyException('Level:cancel_quote',
-                                               'Cancel volume (' +
-                                               str(volume) +
-                                               ') larger than book volume (' +
-                                               str(book_vol) +
-                                               ') for order ID ' +
-                                               str(order_id), order_id)
-        #Delete order
+            raise VolumeInconsistencyException(
+                "Level:cancel_quote",
+                "Cancel volume ("
+                + str(volume)
+                + ") larger than book volume ("
+                + str(book_vol)
+                + ") for order ID "
+                + str(order_id),
+                order_id,
+            )
+        # Delete order
         elif self.queue[i].volume == volume:
             del self.queue[i]
         else:
@@ -280,17 +359,15 @@ class Level:
         if i is None:
             i = self.find_order_on_book(order_id)
             if i == -1:
-                raise Exception('Level:delete_quote',
-                                'Order ID ' +
-                                str(order_id) +
-                                ' not on level')
+                raise Exception(
+                    "Level:delete_quote", "Order ID " + str(order_id) + " not on level"
+                )
 
-        #Delete order
+        # Delete order
         del self.queue[i]
         return True
 
-    def enter_quote(self, timestamp, volume, order_id,
-                    qualifs=None):
+    def enter_quote(self, timestamp, volume, order_id, qualifs=None):
         """
         Enter the quote at the back of the queue.
 
@@ -301,11 +378,9 @@ class Level:
         :type qualifs: dict or None
         :return:
         """
-        self.queue.append(self.order_factory(order_id, timestamp, volume,
-                                             qualifs))
+        self.queue.append(self.order_factory(order_id, timestamp, volume, qualifs))
 
-    def enter_quote_out_of_order(self, timestamp, volume, order_id,
-                                 qualifs=None):
+    def enter_quote_out_of_order(self, timestamp, volume, order_id, qualifs=None):
         """
         Enter the quote in the queue according to timestamp.
 
@@ -324,11 +399,11 @@ class Level:
             else:
                 continue
 
-        self.queue.insert(i, self.order_factory(order_id, timestamp, volume,
-                                                qualifs))
+        self.queue.insert(i, self.order_factory(order_id, timestamp, volume, qualifs))
 
-    def enter_quote_at_position(self, timestamp, volume, order_id, position,
-                                check_position, qualifs=None):
+    def enter_quote_at_position(
+        self, timestamp, volume, order_id, position, check_position, qualifs=None
+    ):
         """
         Enter the quote in the queue according to  stated position.
 
@@ -350,22 +425,27 @@ class Level:
                     i = i + 1
                 else:
                     continue
-            if i != (position-1):
+            if i != (position - 1):
                 raise_error = True
 
-        self.queue.insert(position-1,
-                          self.order_factory(order_id, timestamp, volume,
-                                             qualifs))
+        self.queue.insert(
+            position - 1, self.order_factory(order_id, timestamp, volume, qualifs)
+        )
 
         if raise_error:
-            raise ExecutionPriorityException('Level:enter_quote_at_position',
-                                             'Order ID '
-                                             + str(order_id) +
-                                             ' should be at position ' +
-                                             str(i) + ', not ' +
-                                             str(position-1) + '.',
-                                             timestamp, order_id,
-                                             None)
+            raise ExecutionPriorityException(
+                "Level:enter_quote_at_position",
+                "Order ID "
+                + str(order_id)
+                + " should be at position "
+                + str(i)
+                + ", not "
+                + str(position - 1)
+                + ".",
+                timestamp,
+                order_id,
+                None,
+            )
 
     def execute_trade(self, order_id, volume, timestamp=None):
         """
@@ -377,13 +457,17 @@ class Level:
         :return:
         """
         if self.queue[0].order_id != order_id:
-            raise ExecutionPriorityException('Level:execute_trade', 'Order ID '
-                                             + str(order_id) +
-                                             ' not first in line, ' +
-                                             str(self.queue[0].order_id) +
-                                             ' is.',
-                                             timestamp, order_id,
-                                             self.queue[0].order_id)
+            raise ExecutionPriorityException(
+                "Level:execute_trade",
+                "Order ID "
+                + str(order_id)
+                + " not first in line, "
+                + str(self.queue[0].order_id)
+                + " is.",
+                timestamp,
+                order_id,
+                self.queue[0].order_id,
+            )
         if self.queue[0].volume > volume:
             self.queue[0].volume -= volume
         elif self.queue[0].volume == volume:
@@ -391,18 +475,22 @@ class Level:
         else:
             book_vol = str(self.queue[0].volume)
             del self.queue[0]
-            raise VolumeInconsistencyException('Level:execute_trade',
-                                               'Volume (' + str(volume) +
-                                               ') larger than book volume (' +
-                                               str(book_vol) +
-                                               ') for order ' +
-                                               str(order_id), order_id)
+            raise VolumeInconsistencyException(
+                "Level:execute_trade",
+                "Volume ("
+                + str(volume)
+                + ") larger than book volume ("
+                + str(book_vol)
+                + ") for order "
+                + str(order_id),
+                order_id,
+            )
 
     def execute_trade_price(self, order_id, volume, timestamp=None):
         """
         Execute the trade, bypass priority priority.
 
-        
+
         :param order_id:
         :param volume:
         :param timestamp:
@@ -416,8 +504,10 @@ class Level:
                 break
 
         if order is None:
-            raise Exception('Level:execute_trade_price', 'Order ID ' +
-                            str(order_id) + ' not in queue')
+            raise Exception(
+                "Level:execute_trade_price",
+                "Order ID " + str(order_id) + " not in queue",
+            )
         if self.queue[order].volume > volume:
             self.queue[order].volume -= volume
         elif self.queue[order].volume == volume:
@@ -425,7 +515,12 @@ class Level:
         else:
             book_vol = str(self.queue[order].volume)
             del self.queue[order]
-            raise VolumeInconsistencyException('Level:execute_trade_price',
-                                               'Volume (' + str(volume) +
-                                               ') larger than book volume (' +
-                                               str(book_vol) + ')', order_id)
+            raise VolumeInconsistencyException(
+                "Level:execute_trade_price",
+                "Volume ("
+                + str(volume)
+                + ") larger than book volume ("
+                + str(book_vol)
+                + ")",
+                order_id,
+            )

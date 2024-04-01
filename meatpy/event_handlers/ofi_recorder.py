@@ -24,7 +24,7 @@ class OFIRecorder(LOBEventRecorder):
 
         new_lob = lob.copy(max_level=1)
 
-        if(self.previous_lob is not None):
+        if self.previous_lob is not None:
             try:
                 Pb_new = new_lob.bid_levels[0].price
                 qb_new = new_lob.bid_levels[0].volume()
@@ -47,7 +47,7 @@ class OFIRecorder(LOBEventRecorder):
                 Ps_new = new_lob.ask_levels[0].price
                 qs_new = new_lob.ask_levels[0].volume()
             except IndexError:
-                Ps_new = Ps_prev   # So that old shares get counted
+                Ps_new = Ps_prev  # So that old shares get counted
                 qs_new = 0
 
             e_n = 0
@@ -66,17 +66,17 @@ class OFIRecorder(LOBEventRecorder):
     def write_csv(self, file):
         """Write to a file in CSV format"""
         # Write header row
-        file.write('Timestamp,e_n\n')
+        file.write("Timestamp,e_n\n")
 
         # Write content
         for x in self.records:
-            file.write(str(x[0]) + ',' + str(x[1]) + '\n')
+            file.write(str(x[0]) + "," + str(x[1]) + "\n")
 
     def write_csv_header(self, file):
-        file.write('Timestamp,e_n\n')
+        file.write("Timestamp,e_n\n")
 
     def append_csv(self, file):
         # Write content
         for x in self.records:
-            file.write(str(x[0]) + ',' + str(x[1]) + '\n')
+            file.write(str(x[0]) + "," + str(x[1]) + "\n")
         self.records = []

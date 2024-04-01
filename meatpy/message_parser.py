@@ -13,6 +13,7 @@ class MessageParser:
 
     This is an abstract class that should be overloaded for specific
     exchanges and file formats."""
+
     __metaclass__ = abc.ABCMeta  # This in an abstract class
 
     def __init__(self):
@@ -29,14 +30,17 @@ class MessageParser:
         """
         pass
 
+
 class MarketMessage:
     """A messages that has been parsed and ready to be processed by
     a market history.
 
     This is an abstract class that should be overloaded for specific
     exchanges."""
+
     __metaclass__ = abc.ABCMeta  # This in an abstract class
     pass
+
 
 class MessageParsingException(Exception):
     pass

@@ -1,5 +1,5 @@
 """market_processor.py: The market engine that receives message and
-   re-constructs the market history."""
+re-constructs the market history."""
 
 __author__ = "Vincent Grégoire"
 __email__ = "vincent.gregoire@gmail.com"
@@ -16,7 +16,8 @@ class MarketProcessor:
     market.
 
     The MarketProcessor keeps an up-to-date version of
-    the limit order book, unless instructed not to. """
+    the limit order book, unless instructed not to."""
+
     __metaclass__ = abc.ABCMeta  # This in an abstract class
 
     def __init__(self, instrument, book_date):
@@ -56,58 +57,57 @@ class MarketProcessor:
         for x in self.handlers:
             x.message_event(self, timestamp, message)
 
-    def enter_quote_event(self, timestamp, price, volume, order_id,
-                          order_type=None):
+    def enter_quote_event(self, timestamp, price, volume, order_id, order_type=None):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.enter_quote_event(self, timestamp, price, volume, order_id,
-                                order_type)
+            x.enter_quote_event(self, timestamp, price, volume, order_id, order_type)
 
     def cancel_quote_event(self, timestamp, volume, order_id, order_type=None):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.cancel_quote_event(self, timestamp, volume, order_id,
-                                 order_type)
+            x.cancel_quote_event(self, timestamp, volume, order_id, order_type)
 
     def delete_quote_event(self, timestamp, order_id, order_type=None):
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.delete_quote_event(self, timestamp, order_id, order_type)
 
-    def replace_quote_event(self, timestamp, orig_order_id, new_order_id,
-                            price, volume, order_type=None):
+    def replace_quote_event(
+        self, timestamp, orig_order_id, new_order_id, price, volume, order_type=None
+    ):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.replace_quote_event(self, timestamp, orig_order_id, new_order_id,
-                                  price, volume, order_type)
+            x.replace_quote_event(
+                self, timestamp, orig_order_id, new_order_id, price, volume, order_type
+            )
 
-    def execute_trade_event(self, timestamp, volume, order_id, trade_ref,
-                                  order_type=None):
+    def execute_trade_event(
+        self, timestamp, volume, order_id, trade_ref, order_type=None
+    ):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.execute_trade_event(self, timestamp, volume, order_id,
-                                  trade_ref, order_type)
+            x.execute_trade_event(
+                self, timestamp, volume, order_id, trade_ref, order_type
+            )
 
-    def execute_trade_price_event(self, timestamp, volume, order_id,
-                                  trade_ref, price, order_type=None):
+    def execute_trade_price_event(
+        self, timestamp, volume, order_id, trade_ref, price, order_type=None
+    ):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.execute_trade_price_event(self, timestamp, volume, order_id,
-                                        trade_ref, price, order_type)
+            x.execute_trade_price_event(
+                self, timestamp, volume, order_id, trade_ref, price, order_type
+            )
 
-    def auction_trade_event(self, timestamp, volume, price, bid_id,
-                            ask_id):
+    def auction_trade_event(self, timestamp, volume, price, bid_id, ask_id):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.auction_trade_event(self, timestamp, volume, price, bid_id,
-                                  ask_id)
+            x.auction_trade_event(self, timestamp, volume, price, bid_id, ask_id)
 
-    def crossing_trade_event(self, timestamp, volume, price, bid_id,
-                             ask_id):
+    def crossing_trade_event(self, timestamp, volume, price, bid_id, ask_id):
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.crossing_trade_event(self, timestamp, volume, price, bid_id,
-                                   ask_id)
+            x.crossing_trade_event(self, timestamp, volume, price, bid_id, ask_id)
 
     def pre_lob_event(self, timestamp, new_snapshot=True):
         """Prepare the lob for a new event
@@ -117,7 +117,7 @@ class MarketProcessor:
         """
         if self.current_lob is None:
             self.current_lob = LimitOrderBook(timestamp)
-            #self.snapshots.append(self.current_lob)
+            # self.snapshots.append(self.current_lob)
         elif new_snapshot is True:
             self.before_lob_update(timestamp)
             if self.current_lob.timestamp == timestamp:

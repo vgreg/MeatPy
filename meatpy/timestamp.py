@@ -6,7 +6,7 @@ __email__ = "vincent.gregoire@gmail.com"
 from copy import deepcopy
 from datetime import datetime
 
-TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
 class Timestamp(datetime):
@@ -18,6 +18,7 @@ class Timestamp(datetime):
     need to have a __str__() method.
 
     """
+
     def __str__(self):
         return self.strftime(TIMESTAMP_FORMAT)
 
@@ -29,6 +30,11 @@ class Timestamp(datetime):
 
     @classmethod
     def from_datetime(cls, dt):
-        return Timestamp(year=dt.year, month=dt.month, day=dt.day,
-                         hour=dt.hour, minute=dt.minute,
-                         microsecond=dt.microsecond)
+        return Timestamp(
+            year=dt.year,
+            month=dt.month,
+            day=dt.day,
+            hour=dt.hour,
+            minute=dt.minute,
+            microsecond=dt.microsecond,
+        )

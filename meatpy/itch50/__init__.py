@@ -9,4 +9,3 @@ from meatpy.itch50.itch50_exec_trade_recorder import *
 from meatpy.itch50.itch50_ofi_recorder import *
 from meatpy.itch50.itch50_order_event_recorder import *
 from meatpy.itch50.itch50_top_of_book_message_recorder import *
-

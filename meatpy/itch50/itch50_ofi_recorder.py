@@ -30,9 +30,9 @@ class ITCH50OFIRecorder(OFIRecorder):
         if isinstance(message, TradeMessage):
             volume = message.shares
             # OFI decreases when a trade is execute against a hidden bid.
-            if message.bsindicator == b'B':
+            if message.bsindicator == b"B":
                 sign = -1
-            elif message.bsindicator == b'S':
+            elif message.bsindicator == b"S":
                 sign = 1
-            e_n = sign*volume
+            e_n = sign * volume
             self.records.append((timestamp, e_n))
