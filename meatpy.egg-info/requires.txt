@@ -1,4 +1,0 @@
-pytz
-
-[dev]
-check-manifest
