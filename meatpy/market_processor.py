@@ -7,8 +7,10 @@ from decimal import Decimal
 from typing import Optional, Union
 
 from .lob import LimitOrderBook, OrderType
+from .market_event_handler import MarketEventHandler
 from .message_parser import MarketMessage
 from .timestamp import Timestamp
+from .trading_status import TradingStatus
 
 Volume = Union[int, Decimal]
 Price = Union[int, Decimal]
@@ -31,15 +33,15 @@ class MarketProcessor:
     def __init__(
         self,
         instrument: str | bytes,
-        book_date: Optional[datetime.date | datetime.datetime],
+        book_date: Optional[datetime.date | datetime.datetime] = None,
     ):
         """Initializes an empty history for a specific instrument and date."""
-        self.instrument = instrument
-        self.book_date = book_date
-        self.current_lob = None
-        self.track_lob = True
-        self.handlers = []
-        self.trading_status = None
+        self.instrument: str | bytes = instrument
+        self.book_date: datetime.date | datetime.datetime | None = book_date
+        self.current_lob: LimitOrderBook = None
+        self.track_lob: bool = True
+        self.handlers: list[MarketEventHandler] = []
+        self.trading_status: TradingStatus | None = None
 
     @abc.abstractmethod
     def process_message(self, message: MarketMessage):

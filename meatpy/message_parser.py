@@ -17,7 +17,7 @@ class MessageParser:
 
     def __init__(self):
         # Messages is a Symbol-based dict of lists of MarketMessage
-        self.stock_messages = {}
+        self.stock_messages: dict[str | bytes, MarketMessage] = {}
 
     def parse_file(self, infile: Optional[Path | str] = None):
         """Parses a file containing market messages.

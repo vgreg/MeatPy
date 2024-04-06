@@ -1,17 +1,19 @@
 """spot_measures_recorder.py: A recorder for multiple spot (only on current LOB) measures."""
 
 from copy import deepcopy
+from io import TextIOWrapper
+from typing import Any
 
-from ..lob import InexistantValueException
+from ..lob import InexistantValueException, LimitOrderBook
 from .lob_event_recorder import LOBEventRecorder
 
 
 class SpotMeasuresRecorder(LOBEventRecorder):
     def __init__(self):
-        self.measures = []  # List of strings (measure names)
+        self.measures: list[str] = []  # List of strings (measure names)
         LOBEventRecorder.__init__(self)
 
-    def record(self, lob, record_timestamp=None):
+    def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
         if record_timestamp is None:
             new_record = [deepcopy(lob.timestamp)]
         else:
@@ -61,7 +63,7 @@ class SpotMeasuresRecorder(LOBEventRecorder):
 
         self.records.append(new_record)
 
-    def write_csv(self, file, collapse=False):
+    def write_csv(self, file: TextIOWrapper, collapse: bool = False):
         """Write to a file in CSV format"""
         # Write header row
         file.write("Timestamp")
@@ -91,7 +93,7 @@ class SpotMeasuresRecorder(LOBEventRecorder):
             for x in self.records:
                 self.__write_record(file, x)
 
-    def __write_record(self, file, record):
+    def __write_record(self, file: TextIOWrapper, record: list[Any]):
         first = True
         for y in record:
             if not first:
@@ -101,14 +103,14 @@ class SpotMeasuresRecorder(LOBEventRecorder):
             file.write(str(y))
         file.write("\n")
 
-    def write_csv_header(self, file):
+    def write_csv_header(self, file: TextIOWrapper):
         # Write header row
         file.write("Timestamp")
         for x in self.measures:
             file.write("," + x)
         file.write("\n")
 
-    def append_csv(self, file):
+    def append_csv(self, file: TextIOWrapper):
         # Write content
         for x in self.records:
             first = True

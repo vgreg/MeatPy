@@ -1,6 +1,10 @@
 """itch50_market_processor.py: Market processor and order event classes for ITCH5.0"""
 
-from ..market_processor import MarketProcessor
+import datetime
+
+from ..lob import OrderType
+from ..market_processor import MarketProcessor, OrderID, Price, TradeRef, Volume
+from ..timestamp import Timestamp
 from ..trading_status import (
     HaltedTradingStatus,
     PostTradeTradingStatus,
@@ -11,6 +15,7 @@ from ..trading_status import (
 from .itch50_market_message import (
     AddOrderMessage,
     AddOrderMPIDMessage,
+    ITCH50MarketMessage,
     OrderCancelMessage,
     OrderDeleteMessage,
     OrderExecutedMessage,
@@ -31,13 +36,15 @@ class ITCH50MarketProcessor(MarketProcessor):
 
     """
 
-    def __init__(self, instrument, book_date):
+    def __init__(
+        self, instrument: str | bytes, book_date: datetime.date | datetime.datetime
+    ):
         super(ITCH50MarketProcessor, self).__init__(instrument, book_date)
-        self.system_status = b""
-        self.stock_status = b""
-        self.emc_status = b""
+        self.system_status: bytes = b""
+        self.stock_status: bytes = b""
+        self.emc_status: bytes = b""
 
-    def process_message(self, message, new_snapshot=True):
+    def process_message(self, message: ITCH50MarketMessage, new_snapshot: bool = True):
         """Process a MarketMessage
 
         :param message: message to process
@@ -53,9 +60,9 @@ class ITCH50MarketProcessor(MarketProcessor):
         ):
             if self.track_lob:
                 if message.bsindicator == b"B":
-                    order_type = 1
+                    order_type = OrderType.BID
                 elif message.bsindicator == b"S":
-                    order_type = 0
+                    order_type = OrderType.ASK
                 else:
                     raise Exception(
                         "ITCH50MarketProcessor:process_message",
@@ -104,9 +111,9 @@ class ITCH50MarketProcessor(MarketProcessor):
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob.ask_order_on_book(message.origOrderRefNum):
-                    order_type = 0
+                    order_type = OrderType.ASK
                 elif self.current_lob.bid_order_on_book(message.origOrderRefNum):
-                    order_type = 1
+                    order_type = OrderType.BID
                 else:
                     raise Exception(
                         "ITCH50MarketProcessor:process_message",
@@ -125,7 +132,9 @@ class ITCH50MarketProcessor(MarketProcessor):
         elif isinstance(message, StockTradingActionMessage):
             self.process_trading_action_message(message.state, timestamp, new_snapshot)
 
-    def process_system_message(self, code, timestamp, new_snapshot=True):
+    def process_system_message(
+        self, code: bytes, timestamp: Timestamp, new_snapshot: bool = True
+    ):
         """Process a system message"""
         if code in b"OSQMEC":
             self.system_status = code
@@ -138,7 +147,9 @@ class ITCH50MarketProcessor(MarketProcessor):
             )
         self.update_trading_status()
 
-    def process_trading_action_message(self, state, timestamp, new_snapshot=True):
+    def process_trading_action_message(
+        self, state: bytes, timestamp: Timestamp, new_snapshot: bool = True
+    ):
         """Process a stock trading action message"""
         if state in b"HPQT":
             self.stock_status = state
@@ -177,20 +188,26 @@ class ITCH50MarketProcessor(MarketProcessor):
                 + str(self.stock_status),
             )
 
-    def enter_quote(self, timestamp, price, volume, order_id, order_type):
+    def enter_quote(
+        self,
+        timestamp: Timestamp,
+        price: Price,
+        volume: Volume,
+        order_id: OrderID,
+        order_type: OrderType,
+    ):
         """Enter a new quote in the LOB"""
-        # Order_type == 1 for bid, 0 for ask
         self.enter_quote_event(timestamp, price, volume, order_id, order_type)
         self.current_lob.enter_quote(timestamp, price, volume, order_id, order_type)
 
-    def cancel_quote(self, timestamp, volume, order_id):
+    def cancel_quote(self, timestamp: Timestamp, volume: Volume, order_id: OrderID):
         """Cancel a quote from the LOB."""
         # Cancel order from new snapshot, so the snapshot can apply
         # the appropriate ranking according to rules
         self.cancel_quote_event(timestamp, volume, order_id)
         self.current_lob.cancel_quote(volume, order_id)
 
-    def delete_quote(self, timestamp, order_id):
+    def delete_quote(self, timestamp: Timestamp, order_id: OrderID):
         """Delete a quote from the LOB."""
         #
         # Delete order from new snapshot, so the snapshot can apply
@@ -199,7 +216,13 @@ class ITCH50MarketProcessor(MarketProcessor):
         self.current_lob.delete_quote(order_id)
 
     def replace_quote(
-        self, timestamp, orig_order_id, new_order_id, price, volume, order_type
+        self,
+        timestamp: Timestamp,
+        orig_order_id: OrderID,
+        new_order_id: OrderID,
+        price: Price,
+        volume: Volume,
+        order_type: OrderType,
     ):
         """Replace a quote in the LOB."""
         #
@@ -211,7 +234,13 @@ class ITCH50MarketProcessor(MarketProcessor):
         self.current_lob.delete_quote(orig_order_id)
         self.current_lob.enter_quote(timestamp, price, volume, new_order_id, order_type)
 
-    def execute_trade(self, timestamp, volume, order_id, trade_ref):
+    def execute_trade(
+        self,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        trade_ref: TraderRef,
+    ):
         """Execute a on-market trade."""
         #
         # Execute order from new snapshot, so the snapshot can apply
@@ -219,7 +248,14 @@ class ITCH50MarketProcessor(MarketProcessor):
         self.execute_trade_event(timestamp, volume, order_id, trade_ref)
         self.current_lob.execute_trade(timestamp, volume, order_id)
 
-    def execute_trade_price(self, timestamp, volume, order_id, trade_ref, price):
+    def execute_trade_price(
+        self,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        trade_ref: TradeRef,
+        price: Price,
+    ):
         """Execute a on-market trade, bypassing piority."""
         #
         # TODO: Figure out what to do with non-printable executions

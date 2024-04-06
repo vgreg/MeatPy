@@ -1,6 +1,9 @@
 """ofi_recorder.py: A recorder for the changes in order flow imbalance."""
 
+from io import TextIOWrapper
+
 from ..event_handlers.lob_event_recorder import LOBEventRecorder
+from ..lob import LimitOrderBook
 
 """
 See Equation (10) of
@@ -11,10 +14,10 @@ Journal of Financial Econometrics 12(1): 47-88.
 
 class OFIRecorder(LOBEventRecorder):
     def __init__(self):
-        self.previous_lob = None
+        self.previous_lob: LimitOrderBook | None = None
         LOBEventRecorder.__init__(self)
 
-    def record(self, lob, record_timestamp=None):
+    def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
         if record_timestamp is None:
             record_timestamp = lob.timestamp
 
@@ -59,7 +62,7 @@ class OFIRecorder(LOBEventRecorder):
             self.records.append((record_timestamp, e_n))
         self.previous_lob = new_lob
 
-    def write_csv(self, file):
+    def write_csv(self, file: TextIOWrapper):
         """Write to a file in CSV format"""
         # Write header row
         file.write("Timestamp,e_n\n")
@@ -68,10 +71,10 @@ class OFIRecorder(LOBEventRecorder):
         for x in self.records:
             file.write(str(x[0]) + "," + str(x[1]) + "\n")
 
-    def write_csv_header(self, file):
+    def write_csv_header(self, file: TextIOWrapper):
         file.write("Timestamp,e_n\n")
 
-    def append_csv(self, file):
+    def append_csv(self, file: TextIOWrapper):
         # Write content
         for x in self.records:
             file.write(str(x[0]) + "," + str(x[1]) + "\n")

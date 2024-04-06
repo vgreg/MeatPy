@@ -5,7 +5,7 @@ from typing import Optional
 
 class TradingStatus:
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Generic TradingStatus object"
@@ -16,7 +16,7 @@ class TradingStatus:
 
 class PreTradeTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Pre-Trade TradingStatus"
@@ -27,7 +27,7 @@ class PreTradeTradingStatus(TradingStatus):
 
 class TradeTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Trade TradingStatus"
@@ -38,7 +38,7 @@ class TradeTradingStatus(TradingStatus):
 
 class PostTradeTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Post-Trade TradingStatus"
@@ -49,7 +49,7 @@ class PostTradeTradingStatus(TradingStatus):
 
 class HaltedTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Halted TradingStatus"
@@ -60,7 +60,7 @@ class HaltedTradingStatus(TradingStatus):
 
 class QuoteOnlyTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "QuoteOnly TradingStatus"
@@ -71,7 +71,7 @@ class QuoteOnlyTradingStatus(TradingStatus):
 
 class ClosingAuctionTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Closing Auction TradingStatus"
@@ -82,7 +82,7 @@ class ClosingAuctionTradingStatus(TradingStatus):
 
 class ClosedTradingStatus(TradingStatus):
     def __init__(self, details: Optional[str] = None):
-        self.details = details
+        self.details: str | None = details
 
     def __repr__(self):
         return "Closed TradingStatus"

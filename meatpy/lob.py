@@ -4,7 +4,7 @@ from copy import deepcopy
 from enum import Enum
 from math import log
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from .level import ExecutionPriorityException, Level
 from .market_processor import OrderID, Price, Volume
@@ -80,7 +80,7 @@ class LimitOrderBook:
     def level_factory(self, price: Price):
         return Level(price=price)
 
-    def copy(self, max_level: int | None = None):
+    def copy(self, max_level: Optional[int] = None):
         new_lob = LimitOrderBook(deepcopy(self.timestamp), self.timestamp_inc)
         new_lob.timestamp_inc = self.timestamp_inc
         new_lob.decimals_adj = self.decimals_adj
@@ -331,7 +331,7 @@ class LimitOrderBook:
                 "LimitOrderBook:find_order_type", "Order not found: " + str(order_id)
             )
 
-    def find_order(self, order_id: OrderID, order_type: OrderType | None = None):
+    def find_order(self, order_id: OrderID, order_type: Optional[OrderType] = None):
         """Find the order for an order on the book with possibly known type.
 
         Returns a tuple with queue as the first element, level as second,
@@ -380,7 +380,7 @@ class LimitOrderBook:
         volume: Volume,
         order_id: OrderID,
         order_type: OrderType,
-        qualifs: dict[str, Any] | None = None,
+        qualifs: Optional[dict[str, Any]] = None,
     ):
         """Enter the quote in the appropriate queue in the right order
 
@@ -492,7 +492,7 @@ class LimitOrderBook:
         )
 
     def cancel_quote(
-        self, volume: Volume, order_id: OrderID, order_type: OrderType | None = None
+        self, volume: Volume, order_id: OrderID, order_type: Optional[OrderType] = None
     ):
         """Delete the quote from the appropriate queue
 
@@ -507,7 +507,7 @@ class LimitOrderBook:
             if len(queue[i].queue) == 0:
                 del queue[i]
 
-    def delete_quote(self, order_id: OrderID, order_type: OrderType | None = None):
+    def delete_quote(self, order_id: OrderID, order_type: Optional[OrderType] = None):
         """Delete the quote from the appropriate queue
 
         Find the quote, and delete it
@@ -590,7 +590,7 @@ class LimitOrderBook:
         timestamp: Timestamp,
         volume: Volume,
         order_id: OrderID,
-        order_type: OrderType | None = None,
+        order_type: Optional[OrderType] = None,
     ):
         """Apply the effect of the execution on the book
 
