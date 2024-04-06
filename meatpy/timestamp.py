@@ -26,7 +26,7 @@ class Timestamp(datetime):
         return deepcopy(self)
 
     @classmethod
-    def from_datetime(cls, dt):
+    def from_datetime(cls, dt: datetime):
         return Timestamp(
             year=dt.year,
             month=dt.month,

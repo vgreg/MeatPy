@@ -2,6 +2,8 @@
 parsed messages."""
 
 import abc
+from pathlib import Path
+from typing import Optional
 
 
 class MessageParser:
@@ -17,7 +19,7 @@ class MessageParser:
         # Messages is a Symbol-based dict of lists of MarketMessage
         self.stock_messages = {}
 
-    def parse_file(self, infile=None):
+    def parse_file(self, infile: Optional[Path | str] = None):
         """Parses a file containing market messages.
 
         Parses a file and generate corresponding market messages.
