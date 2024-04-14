@@ -1,5 +1,3 @@
-"""itch50_message_parser.py: Message parser class for ITCH 5.0"""
-
 from copy import deepcopy
 
 from itch50_market_message import (

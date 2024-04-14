@@ -1,5 +1,3 @@
-"""lob_event_recorder.py: A generic lob event recorder"""
-
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Any

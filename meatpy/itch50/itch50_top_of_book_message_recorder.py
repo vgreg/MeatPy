@@ -1,5 +1,3 @@
-"""itch50_top_of_book_message_recorder.py: Top of book message recorder class for ITCH 5.0"""
-
 from ..market_event_handler import MarketEventHandler
 from .itch50_market_message import (
     AddOrderMessage,

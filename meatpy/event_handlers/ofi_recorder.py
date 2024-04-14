@@ -1,5 +1,3 @@
-"""ofi_recorder.py: A recorder for the changes in order flow imbalance."""
-
 from io import TextIOWrapper
 
 from ..event_handlers.lob_event_recorder import LOBEventRecorder

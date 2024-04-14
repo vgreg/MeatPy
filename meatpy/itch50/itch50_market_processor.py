@@ -1,5 +1,3 @@
-"""itch50_market_processor.py: Market processor and order event classes for ITCH5.0"""
-
 import datetime
 
 from ..lob import OrderType

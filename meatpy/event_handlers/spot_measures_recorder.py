@@ -1,5 +1,3 @@
-"""spot_measures_recorder.py: A recorder for multiple spot (only on current LOB) measures."""
-
 from copy import deepcopy
 from io import TextIOWrapper
 from typing import Any

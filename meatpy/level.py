@@ -1,8 +1,3 @@
-"""
-This module is for recognizing the level of the LOB and supporting classes.
-"""
-# Level of the LOB and supporting classes
-
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 

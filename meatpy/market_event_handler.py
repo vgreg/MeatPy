@@ -1,5 +1,3 @@
-"""market_event_handler.py: Base class for market event handlers."""
-
 from .lob import LimitOrderBook, OrderType
 from .market_processor import MarketProcessor, OrderID, Price, TradeRef, Volume
 from .message_parser import MarketMessage

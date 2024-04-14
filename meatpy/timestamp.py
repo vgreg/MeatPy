@@ -1,5 +1,3 @@
-"""timestamp.py: A standard timestamp."""
-
 from copy import deepcopy
 from datetime import datetime
 

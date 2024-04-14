@@ -1,7 +1,3 @@
-"""
-This Subpackage is for tracking and recording events that happened in ITCH, version 5.0.
-"""
-
 from .itch50_exec_trade_recorder import ITCH50ExecTradeRecorder
 from .itch50_market_message import (
     AddOrderMessage,

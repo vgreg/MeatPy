@@ -1,6 +1,3 @@
-"""message_parser.py: The parsing engine that reads raw files/feeds and returns
-parsed messages."""
-
 import abc
 from pathlib import Path
 from typing import Optional

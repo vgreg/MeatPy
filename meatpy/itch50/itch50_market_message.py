@@ -1,5 +1,3 @@
-"""itch50_market_message.py: Market message class for ITCH 5.0"""
-
 import struct
 
 from ..message_parser import MarketMessage

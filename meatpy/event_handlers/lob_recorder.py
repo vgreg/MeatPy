@@ -1,5 +1,3 @@
-"""lob_recorder.py: A recorder for limit order book snapshots."""
-
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Optional

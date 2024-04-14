@@ -1,5 +1,3 @@
-"""lob.py: A snapshot of the limit order book."""
-
 from copy import deepcopy
 from enum import Enum
 from math import log

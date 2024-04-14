@@ -1,5 +1,3 @@
-"""trading_status.py: Classes for possible trading states."""
-
 from typing import Optional
 
 
