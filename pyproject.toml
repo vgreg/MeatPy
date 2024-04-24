@@ -2,12 +2,15 @@
 name = "meatpy"
 version = "0.1.0"
 description = "Read and process limit order book data"
-authors = ["Vincent Grégoire <vincent.gregoire@hec.ca>", "Charles Martineau <charles.martineau@utoronto.ca>"]
+authors = [
+    "Vincent Grégoire <vincent.gregoire@hec.ca>",
+    "Charles Martineau <charles.martineau@utoronto.ca>",
+]
 maintainers = ["Vincent Grégoire <vincent.gregoire@hec.ca>"]
 repository = "https://github.com/vgreg/MeatPy"
 license = "BSD-3-Clause"
 readme = "README.md"
-classifiers=[
+classifiers = [
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Education',
     'Intended Audience :: Financial and Insurance Industry',
@@ -22,16 +25,16 @@ pyarrow = { version = "^15.0", optional = true }
 
 [tool.poetry.extras]
 
-rich =["rich"]
+rich = ["rich"]
 pyarrow = ["pyarrow"]
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0"
 ruff = "^0.3"
 pre-commit = "^3.7"
-mkdocs = "^1.5.3"
-mkdocs-material = "^9.5.16"
-mkdocstrings = "^0.24.1"
+sphinx = "^7.2.6"
+sphinx-immaterial = "^0.11.11"
+recommonmark = "^0.7.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.1"
