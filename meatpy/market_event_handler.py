@@ -1,7 +1,8 @@
-"""market_event_handler.py: Base class for market event handlers."""
-
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
+from .lob import LimitOrderBook, OrderType
+from .market_processor import MarketProcessor
+from .message_parser import MarketMessage
+from .timestamp import Timestamp
+from .types import OrderID, Price, TradeRef, Volume
 
 
 class MarketEventHandler:
@@ -10,41 +11,102 @@ class MarketEventHandler:
     The handler gets triggered whenever there is a market event and
     handles the event accordingly.
     """
-    def before_lob_update(self, lob, new_timestamp):
+
+    def before_lob_update(self, lob: LimitOrderBook, new_timestamp: Timestamp):
         """Trigger before a book update (next event timestamp passed)"""
         pass
 
-    def message_event(self, market_processor, timestamp, message):
+    def message_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        message: MarketMessage,
+    ):
         pass
 
-    def enter_quote_event(self, market_processor, timestamp, price, volume,
-                          order_id, order_type=None):
+    def enter_quote_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        price: Price,
+        volume: Volume,
+        order_id: OrderID,
+        order_type: OrderType = None,
+    ):
         pass
 
-    def cancel_quote_event(self, market_processor, timestamp, volume,
-                           order_id, order_type=None):
+    def cancel_quote_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        order_type: OrderType = None,
+    ):
         pass
 
-    def delete_quote_event(self, market_processor, timestamp, order_id,
-                           order_type=None):
+    def delete_quote_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        order_id: OrderID,
+        order_type: OrderType = None,
+    ):
         pass
 
-    def replace_quote_event(self, market_processor, timestamp, orig_order_id,
-                            new_order_id, price, volume, order_type=None):
+    def replace_quote_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        orig_order_id: OrderID,
+        new_order_id: OrderID,
+        price: Price,
+        volume: Volume,
+        order_type: OrderType = None,
+    ):
         pass
 
-    def execute_trade_event(self, market_processor, timestamp, volume,
-                            order_id, trade_ref, order_type=None):
+    def execute_trade_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        trade_ref: TradeRef,
+        order_type: OrderType = None,
+    ):
         pass
 
-    def execute_trade_price_event(self, market_processor, timestamp, volume,
-                                  order_id, trade_ref, price, order_type=None):
+    def execute_trade_price_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        trade_ref: TradeRef,
+        price: Price,
+        order_type: OrderType = None,
+    ):
         pass
 
-    def auction_trade_event(self, market_processor, timestamp, volume, price,
-                            bid_id, ask_id):
+    def auction_trade_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        volume: Volume,
+        price: Price,
+        bid_id: OrderID,
+        ask_id: OrderID,
+    ):
         pass
 
-    def crossing_trade_event(self, market_processor, timestamp, volume, price,
-                            bid_id, ask_id):
+    def crossing_trade_event(
+        self,
+        market_processor: MarketProcessor,
+        timestamp: Timestamp,
+        volume: Volume,
+        price: Price,
+        bid_id: OrderID,
+        ask_id: OrderID,
+    ):
         pass

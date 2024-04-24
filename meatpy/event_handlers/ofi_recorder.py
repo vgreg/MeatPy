@@ -1,7 +1,7 @@
-"""ofi_recorder.py: A recorder for the changes in order flow imbalance."""
+from io import TextIOWrapper
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
+from ..event_handlers.lob_event_recorder import LOBEventRecorder
+from ..lob import LimitOrderBook
 
 """
 See Equation (10) of
@@ -9,22 +9,19 @@ Cont, R., et al. (2013). "The Price Impact of Order Book Events."
 Journal of Financial Econometrics 12(1): 47-88.
 """
 
-# -*- coding: utf-8 -*-
-from meatpy.event_handlers.lob_event_recorder import LOBEventRecorder
-
 
 class OFIRecorder(LOBEventRecorder):
     def __init__(self):
-        self.previous_lob = None
+        self.previous_lob: LimitOrderBook | None = None
         LOBEventRecorder.__init__(self)
 
-    def record(self, lob, record_timestamp=None):
+    def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
         if record_timestamp is None:
             record_timestamp = lob.timestamp
 
         new_lob = lob.copy(max_level=1)
 
-        if(self.previous_lob is not None):
+        if self.previous_lob is not None:
             try:
                 Pb_new = new_lob.bid_levels[0].price
                 qb_new = new_lob.bid_levels[0].volume()
@@ -47,7 +44,7 @@ class OFIRecorder(LOBEventRecorder):
                 Ps_new = new_lob.ask_levels[0].price
                 qs_new = new_lob.ask_levels[0].volume()
             except IndexError:
-                Ps_new = Ps_prev   # So that old shares get counted
+                Ps_new = Ps_prev  # So that old shares get counted
                 qs_new = 0
 
             e_n = 0
@@ -63,20 +60,20 @@ class OFIRecorder(LOBEventRecorder):
             self.records.append((record_timestamp, e_n))
         self.previous_lob = new_lob
 
-    def write_csv(self, file):
+    def write_csv(self, file: TextIOWrapper):
         """Write to a file in CSV format"""
         # Write header row
-        file.write('Timestamp,e_n\n')
+        file.write("Timestamp,e_n\n")
 
         # Write content
         for x in self.records:
-            file.write(str(x[0]) + ',' + str(x[1]) + '\n')
+            file.write(str(x[0]) + "," + str(x[1]) + "\n")
 
-    def write_csv_header(self, file):
-        file.write('Timestamp,e_n\n')
+    def write_csv_header(self, file: TextIOWrapper):
+        file.write("Timestamp,e_n\n")
 
-    def append_csv(self, file):
+    def append_csv(self, file: TextIOWrapper):
         # Write content
         for x in self.records:
-            file.write(str(x[0]) + ',' + str(x[1]) + '\n')
+            file.write(str(x[0]) + "," + str(x[1]) + "\n")
         self.records = []
