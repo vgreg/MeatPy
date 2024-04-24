@@ -1,6 +1,7 @@
 from copy import deepcopy
 
-from itch50_market_message import (
+from ..message_parser import MessageParser
+from .itch50_market_message import (
     AddOrderMessage,
     AddOrderMPIDMessage,
     BrokenTradeMessage,
@@ -24,8 +25,6 @@ from itch50_market_message import (
     SystemEventMessage,
     TradeMessage,
 )
-
-from ..message_parser import MessageParser
 
 
 class ITCH50MessageParser(MessageParser):

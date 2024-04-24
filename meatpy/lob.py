@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 from .level import ExecutionPriorityException, Level
-from .market_processor import OrderID, Price, Volume
 from .timestamp import Timestamp
+from .types import OrderID, Price, Volume
 
 
 class InexistantValueException(Exception):

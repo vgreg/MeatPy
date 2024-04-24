@@ -1,7 +1,7 @@
 import datetime
 
 from ..lob import OrderType
-from ..market_processor import MarketProcessor, OrderID, Price, TradeRef, Volume
+from ..market_processor import MarketProcessor
 from ..timestamp import Timestamp
 from ..trading_status import (
     HaltedTradingStatus,
@@ -10,6 +10,7 @@ from ..trading_status import (
     QuoteOnlyTradingStatus,
     TradeTradingStatus,
 )
+from ..types import OrderID, Price, TradeRef, Volume
 from .itch50_market_message import (
     AddOrderMessage,
     AddOrderMPIDMessage,
@@ -237,7 +238,7 @@ class ITCH50MarketProcessor(MarketProcessor):
         timestamp: Timestamp,
         volume: Volume,
         order_id: OrderID,
-        trade_ref: TraderRef,
+        trade_ref: TradeRef,
     ):
         """Execute a on-market trade."""
         #

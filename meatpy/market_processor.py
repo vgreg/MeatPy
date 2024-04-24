@@ -3,19 +3,13 @@ re-constructs the market history."""
 
 import abc
 import datetime
-from decimal import Decimal
-from typing import Optional, Union
+from typing import Optional
 
 from .lob import LimitOrderBook, OrderType
-from .market_event_handler import MarketEventHandler
 from .message_parser import MarketMessage
 from .timestamp import Timestamp
 from .trading_status import TradingStatus
-
-Volume = Union[int, Decimal]
-Price = Union[int, Decimal]
-OrderID = Union[int, str, bytes]
-TradeRef = Union[int, str, bytes]
+from .types import OrderID, Price, TradeRef, Volume
 
 
 class MarketProcessor:
@@ -40,7 +34,7 @@ class MarketProcessor:
         self.book_date: datetime.date | datetime.datetime | None = book_date
         self.current_lob: LimitOrderBook = None
         self.track_lob: bool = True
-        self.handlers: list[MarketEventHandler] = []
+        self.handlers: list["MarketEventHandler"] = []
         self.trading_status: TradingStatus | None = None
 
     @abc.abstractmethod

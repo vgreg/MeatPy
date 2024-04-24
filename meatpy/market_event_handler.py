@@ -1,7 +1,8 @@
 from .lob import LimitOrderBook, OrderType
-from .market_processor import MarketProcessor, OrderID, Price, TradeRef, Volume
+from .market_processor import MarketProcessor
 from .message_parser import MarketMessage
 from .timestamp import Timestamp
+from .types import OrderID, Price, TradeRef, Volume
 
 
 class MarketEventHandler:
