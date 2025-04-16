@@ -10,6 +10,7 @@ from meatpy.message_parser import MarketMessage
 
 class ITCH50MarketMessage(MarketMessage):
     """A market message in ITCH 4.1 format.
+    Updated to ITCH 5.0 format.
 
 
     """
@@ -30,7 +31,6 @@ class ITCH50MarketMessage(MarketMessage):
         b'G': 'NASDAQ Global Market',
         b'S': 'NASDAQ Capital Market',
         b'Z': 'BATS',
-        b'V': 'Investors’ Exchange',
         b' ': 'Not available'
         }
 
@@ -465,8 +465,8 @@ class MWCBBreachMessage(ITCH50MarketMessage):
 
 
 class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
-    type = b'K'
-    description = "IPO Quoting Period Update Message"
+    type = b'k'
+    description = "Retail Price Improvement Message"
     message_size = struct.calcsize("!HHHI8sIcI") + 1
 
     def __init__(self, message):
@@ -486,44 +486,99 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
 
 class LULDAuctionCollarMessage(ITCH50MarketMessage):
     type = b'J'
-    description = "LULD Auction Collar Message"
-    message_size = struct.calcsize("!HHHI8sIIII") + 1
-
+    description = "Limit Up - Limit Down (LULD) Auction Collar Message"
+    message_size = struct.calcsize("!HHHI8sIIIi") + 1  
     def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.stock,
-         self.auction_collar_reference_price,
+        (self.stock_locate,
+         self.tracking_number,
+         ts1,
+         ts2,
+         self.stock,
+         self.ref_price,
          self.upper_auction_collar_price,
          self.lower_auction_collar_price,
-         self.auction_collar_extension ) = struct.unpack("!HHHI8sIIII",
-                                                         message[1:])
+         self.auction_collar_extension) = struct.unpack("!HHHI8sIIIi", message[1:])
+
         self.set_timestamp(ts1, ts2)
 
     def pack(self):
-        (ts1, ts2) = self.split_timestamp()
-        return struct.pack("!cHHHI8sIIII", self.type, self.stock_locate,
-                           self.tracking_number, ts1, ts2, self.stock,
-                           self.auction_collar_reference_price,
+        ts1, ts2 = self.split_timestamp()
+        return struct.pack("!cHHHI8sIIIi",
+                           self.type,
+                           self.stock_locate,
+                           self.tracking_number,
+                           ts1,
+                           ts2,
+                           self.stock,
+                           self.ref_price,
                            self.upper_auction_collar_price,
                            self.lower_auction_collar_price,
                            self.auction_collar_extension)
-
+    
 
 class OperationalHaltMessage(ITCH50MarketMessage):
-    type = b'h'
+    type = b'H'
     description = "Operational Halt Message"
-    message_size = struct.calcsize("!HHHI8scc") + 1
+    message_size = struct.calcsize("!HHHI8scc") + 1 
 
     def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.stock,
+        (self.stock_locate,
+         self.tracking_number,
+         ts1,
+         ts2,
+         self.stock,
          self.market_code,
-         self.operational_halt_action) = struct.unpack("!HHHI8scc",
-                                                         message[1:])
+         self.halt_action) = struct.unpack("!HHHI8scc", message[1:])
+
         self.set_timestamp(ts1, ts2)
 
     def pack(self):
-        (ts1, ts2) = self.split_timestamp()
-        return struct.pack("!cHHHI8scc", self.type, self.stock_locate,
-                           self.tracking_number, ts1, ts2, self.stock,
+        ts1, ts2 = self.split_timestamp()
+        return struct.pack("!cHHHI8scc",
+                           self.type,
+                           self.stock_locate,
+                           self.tracking_number,
+                           ts1,
+                           ts2,
+                           self.stock,
                            self.market_code,
-                           self.operational_halt_action)
+                           self.halt_action)
+    
+    
+class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
+    type = b'O'
+    description = "Direct Listing with Capital Raise (DLCR) Message"
+    message_size = struct.calcsize("!HHHI8scIIIIQII") + 1  # +1 for message type byte
 
+    def __init__(self, message):
+        (self.stock_locate,
+         self.tracking_number,
+         ts1,
+         ts2,
+         self.stock,
+         self.open_eligibility_status,
+         self.min_allowable_price,
+         self.max_allowable_price,
+         self.near_execution_price,
+         self.near_execution_time,
+         self.lower_price_range_collar,
+         self.upper_price_range_collar) = struct.unpack("!HHHI8scIIIIQII", message[1:])
+
+        self.set_timestamp(ts1, ts2)
+
+    def pack(self):
+        ts1, ts2 = self.split_timestamp()
+        return struct.pack("!cHHHI8scIIIIQII",
+                           self.type,
+                           self.stock_locate,
+                           self.tracking_number,
+                           ts1,
+                           ts2,
+                           self.stock,
+                           self.open_eligibility_status,
+                           self.min_allowable_price,
+                           self.max_allowable_price,
+                           self.near_execution_price,
+                           self.near_execution_time,
+                           self.lower_price_range_collar,
+                           self.upper_price_range_collar)

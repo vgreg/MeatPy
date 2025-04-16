@@ -6,6 +6,7 @@ __email__ = "vincent.gregoire@gmail.com"
 from copy import deepcopy
 import meatpy.itch50.itch50_market_message
 from meatpy.message_parser import MessageParser
+from datetime import datetime
 
 
 class ITCH50MessageParser(MessageParser):
@@ -13,7 +14,7 @@ class ITCH50MessageParser(MessageParser):
 
     """
     def __init__(self):
-        self.keep_messages_types = b'SAFECXDUBHRYPQINLVWKJh'
+        self.keep_messages_types = b'SAFECXDUBHRYPQINLVWK'
         self.skip_stock_messages = False
         self.order_refs = {}
         self.stocks = None
@@ -53,7 +54,6 @@ class ITCH50MessageParser(MessageParser):
     def parse_file(self, file, write=False):
         """Parse the content of the file to generate ITCH50MarketMessage
         objects.
-
         Flag indicates if parsing output is written at the same time instead
         of kept in memory.
         """
@@ -62,59 +62,77 @@ class ITCH50MessageParser(MessageParser):
         self.order_refs = {}
         self.stock_messages = {}
         self.matches = {}
-        self.stock_messages = {}
         self.stock_directory = []
         self.system_messages = []
         self.latest_timestamp = None
 
         maxMessageSize = 52  # Largest possible message in ITCH
-        cachesize = 1024*4
+        cachesize = 1024 * 1024 * 4  # 4MB read buffer
         haveData = True
         EOFreached = False
+
         dataBuffer = file.read(cachesize)
-        buflen = len(dataBuffer)
-        
-        while haveData is True:
-            # Process next message
-            byte = dataBuffer[0:1]
-            if byte != b'\x00':
+        data_view = memoryview(dataBuffer)
+        offset = 0
+        buflen = len(data_view)
+
+        while haveData:
+            # Not enough for even header
+            if offset + 2 > buflen:
+                newData = file.read(cachesize)
+                if not newData:
+                    EOFreached = True
+                dataBuffer = data_view[offset:].tobytes() + newData
+                data_view = memoryview(dataBuffer)
+                buflen = len(data_view)
+                offset = 0
+                continue
+
+            # Check header byte
+            if data_view[offset] != 0:
                 raise Exception('ITCH50MessageParser:ITCH_factory',
-                                'Unexpected byte: ' + str(byte))
-            messageLen = ord(dataBuffer[1:2])
-            message = self.ITCH_factory(dataBuffer[2:2+messageLen])
-            self.process_message(message)
+                                'Unexpected byte: ' + str(data_view[offset]))
 
-            if message.type == b'S':  # System message
-                if message.code == b'C':  # End of messages
-                    break
+            messageLen = data_view[offset + 1]
+            messageEnd = offset + 2 + messageLen
 
-            # Check if we need to write the cache for the stock
+            if messageEnd > buflen:
+                # Need more data
+                newData = file.read(cachesize)
+                if not newData:
+                    EOFreached = True
+                dataBuffer = data_view[offset:].tobytes() + newData
+                data_view = memoryview(dataBuffer)
+                buflen = len(data_view)
+                offset = 0
+                continue
+
+            # Parse message from memoryview
+            message = self.ITCH_factory(data_view[offset + 2:messageEnd])
+            keep_messages_bool = self.process_message(message)
+
+            if not keep_messages_bool:
+                offset = messageEnd
+                continue
+
+            if message.type == b'S' and message.code == b'C':
+                break
+            
             if write and self.counter % self.global_write_trigger == 0:
                 for x in self.stock_messages:
                     self.write_stock(x)
 
-            # Remove the message from buffer
-            dataBuffer = dataBuffer[2+messageLen:]
-            buflen = len(dataBuffer)
-            
-            if EOFreached and (buflen == 0):
-                haveData = False
+            # Advance offset
+            offset = messageEnd
 
-            # If we don't have enough, read more
-            if buflen < maxMessageSize and not EOFreached:
-                newData = file.read(cachesize)
-                if newData == b'':
-                    EOFreached = True
-                    if buflen == 0:
-                        haveData = False
-                else:
-                    dataBuffer = dataBuffer + newData
-                    buflen = len(dataBuffer)
+            if offset >= buflen and EOFreached:
+                haveData = False
 
         # Write all unempty buffers
         if write:
             for x in self.stock_messages:
                 self.write_stock(stock=x, overlook_buffer=True)
+
 
     def write_stock(self, stock, overlook_buffer=False):
         if (len(self.stock_messages[stock]) > self.message_buffer or
@@ -134,11 +152,12 @@ class ITCH50MessageParser(MessageParser):
 
         Initialises the queue if empty"""
         if self.stocks is None or stock in self.stocks:
-	        if self.skip_stock_messages:
-	            return
-	        if stock not in self.stock_messages:
-	            self.stock_messages[stock] = deepcopy(self.system_messages)
-	        self.stock_messages[stock].append(message)
+            if self.skip_stock_messages:
+                return            
+            if stock not in self.stock_messages:
+                self.stock_messages[stock] = list(self.system_messages)
+                self.stock_messages[stock].append(message)
+                return
 
     def process_message(self, message):
         """
@@ -149,10 +168,13 @@ class ITCH50MessageParser(MessageParser):
         self.counter += 1
 
         if self.counter % 1000000 == 0:
-            print( "Processing message no " + str(self.counter))
+            print(f"[{datetime.now()}] Processed {self.counter} messages", flush=True)
 
         if message.type not in self.keep_messages_types:
-            return
+            '''
+            fixed in 2025-03-22 by Seoin Kim
+            '''
+            return False
 
         if message.type in b'R':
             self.stock_directory.append(message)
@@ -162,7 +184,7 @@ class ITCH50MessageParser(MessageParser):
             for x in self.stock_messages:
                 self.append_stock_message(x, message)
             self.system_messages.append(message)
-        elif message.type in b'HYQINKLJh':
+        elif message.type in b'HYQINK':
             if self.stocks is None or message.stock in self.stocks:
                 self.append_stock_message(message.stock, message)
         elif message.type in b'AF':
@@ -191,6 +213,8 @@ class ITCH50MessageParser(MessageParser):
             if self.stocks is None or message.stock in self.stocks:
                 self.append_stock_message(message.stock, message)
                 self.matches[message.match] = message.stock
+        
+        return True
 
     def ITCH_factory(self, message):
         '''
@@ -214,6 +238,10 @@ class ITCH50MessageParser(MessageParser):
             return meatpy.itch50.itch50_market_message.MWCBBreachMessage(message)
         elif msgtype == 'K':
             return meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage(message)
+        elif msgtype == 'J':
+            return meatpy.itch50.itch50_market_message.LULDAuctionCollarMessage(message)
+        elif msgtype == 'H':
+            return meatpy.itch50.itch50_market_message.OperationalHaltMessage(message)
         elif msgtype == 'A':
             return meatpy.itch50.itch50_market_message.AddOrderMessage(message)
         elif msgtype == 'F':
@@ -238,10 +266,8 @@ class ITCH50MessageParser(MessageParser):
             return meatpy.itch50.itch50_market_message.NoiiMessage(message)
         elif msgtype == 'N':
             return meatpy.itch50.itch50_market_message.RpiiMessage(message)
-        elif msgtype == 'J':
-            return meatpy.itch50.itch50_market_message.LULDAuctionCollarMessage(message)
-        elif msgtype == 'h':
-            return meatpy.itch50.itch50_market_message.OperationalHaltMessage(message)
+        elif msgtype == 'O':
+            return meatpy.itch50.itch50_market_message.DirectListingCapitalRaiseMessage(message)
         else:
             raise Exception('ITCH50MessageParser:ITCH_factory',
                             'Unknown message type: '+ str(msgtype))
