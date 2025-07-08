@@ -1,3 +1,8 @@
+"""ITCH 5.0 message parser for market data files.
+
+This module provides the ITCH50MessageParser class, which parses ITCH 5.0 market data files and produces structured message objects for further processing.
+"""
+
 from datetime import datetime
 
 import meatpy.itch50.itch50_market_message
@@ -5,9 +10,24 @@ from meatpy.message_parser import MessageParser
 
 
 class ITCH50MessageParser(MessageParser):
-    """A market message parser for ITCH 5.0 data."""
+    """A market message parser for ITCH 5.0 data.
+
+    Attributes:
+        keep_messages_types: Bytes of message types to keep
+        skip_stock_messages: Whether to skip stock messages
+        order_refs: Mapping of order reference numbers to stocks
+        stocks: List of stocks to parse (None for all)
+        matches: Mapping of match numbers to stocks
+        counter: Message counter
+        stock_directory: List of stock directory messages
+        system_messages: List of system messages
+        output_prefix: Prefix for output files
+        message_buffer: Per-stock buffer size
+        global_write_trigger: Number of messages before writing buffers
+    """
 
     def __init__(self) -> None:
+        """Initialize the ITCH50MessageParser."""
         self.keep_messages_types = b"SAFECXDUBHRYPQINLVWKJh"
         self.skip_stock_messages = False
         self.order_refs = {}
@@ -16,40 +36,33 @@ class ITCH50MessageParser(MessageParser):
         self.counter = 0
         self.stock_directory = []
         self.system_messages = []
-
-        # Output settings
         self.output_prefix = ""
-        self.message_buffer = 2000  # Per stock buffer size
-        self.global_write_trigger = 1000000  # Check if buffers exceeded
+        self.message_buffer = 2000
+        self.global_write_trigger = 1000000
         super(ITCH50MessageParser, self).__init__()
 
     def write_file(self, file, in_messages=None) -> None:
-        """Write the messages to a  csv file in a compatible format
+        """Write messages to a CSV file in a compatible format.
 
-        The messages are written to a file that could be again parsed by
-        the parser. In no messages are provided, the current message queue
-        is used.
-
-        :param file: file to write to
-        :type file: file
-        :param in_messages: messages to output
-        :type in_messages: list of ITCH50MarketMessage
+        Args:
+            file: File object to write to
+            in_messages: Optional list of messages to output
         """
         if in_messages is None:
             messages = self.stock_directory
         else:
             messages = in_messages
-
         for x in messages:
             file.write(b"\x00")
             file.write(chr(x.message_size))
             file.write(x.pack())
 
     def parse_file(self, file, write=False) -> None:
-        """Parse the content of the file to generate ITCH50MarketMessage
-        objects.
-        Flag indicates if parsing output is written at the same time instead
-        of kept in memory.
+        """Parse the content of the file to generate ITCH50MarketMessage objects.
+
+        Args:
+            file: File object to read from
+            write: Whether to write output during parsing
         """
         # Init containers
         self.counter = 0
@@ -59,18 +72,14 @@ class ITCH50MessageParser(MessageParser):
         self.stock_directory = []
         self.system_messages = []
         self.latest_timestamp = None
-
         cachesize = 1024 * 4
         haveData = True
         EOFreached = False
-
         dataBuffer = file.read(cachesize)
         data_view = memoryview(dataBuffer)
         offset = 0
         buflen = len(data_view)
-
         while haveData:
-            # Not enough for even header
             if offset + 2 > buflen:
                 newData = file.read(cachesize)
                 if not newData:
@@ -80,19 +89,14 @@ class ITCH50MessageParser(MessageParser):
                 buflen = len(data_view)
                 offset = 0
                 continue
-
-            # Check header byte
             if data_view[offset] != 0:
                 raise Exception(
                     "ITCH50MessageParser:ITCH_factory",
                     "Unexpected byte: " + str(data_view[offset]),
                 )
-
             messageLen = data_view[offset + 1]
             messageEnd = offset + 2 + messageLen
-
             if messageEnd > buflen:
-                # Need more data
                 newData = file.read(cachesize)
                 if not newData:
                     EOFreached = True
@@ -101,40 +105,35 @@ class ITCH50MessageParser(MessageParser):
                 buflen = len(data_view)
                 offset = 0
                 continue
-
-            # Parse message from memoryview
             message = self.ITCH_factory(data_view[offset + 2 : messageEnd])
             keep_messages_bool = self.process_message(message)
-
             if not keep_messages_bool:
                 offset = messageEnd
                 continue
-
             if message.type == b"S" and message.code == b"C":
                 break
-
             if write and self.counter % self.global_write_trigger == 0:
                 for x in self.stock_messages:
                     self.write_stock(x)
-
-            # Advance offset
             offset = messageEnd
-
             if offset >= buflen and EOFreached:
                 haveData = False
-
-        # Write all unempty buffers
         if write:
             for x in self.stock_messages:
                 self.write_stock(stock=x, overlook_buffer=True)
 
     def write_stock(self, stock, overlook_buffer=False) -> None:
+        """Write buffered messages for a stock to a file.
+
+        Args:
+            stock: Stock symbol
+            overlook_buffer: Whether to write regardless of buffer size
+        """
         if len(self.stock_messages[stock]) > self.message_buffer or overlook_buffer:
             stock_str = stock.decode()
             with open(
                 self.output_prefix + stock_str.strip().replace("*", "8") + ".txt", "a+b"
             ) as file:
-                # * in stock symbols replaced by 8
                 for x in self.stock_messages[stock]:
                     file.write(b"\x00")
                     file.write(bytes([x.message_size]))
@@ -142,9 +141,12 @@ class ITCH50MessageParser(MessageParser):
                 self.stock_messages[stock] = []
 
     def append_stock_message(self, stock, message) -> None:
-        """Append the message to the stock message queue
+        """Append a message to the stock message queue.
 
-        Initialises the queue if empty"""
+        Args:
+            stock: Stock symbol
+            message: Message object to append
+        """
         if self.stocks is None or stock in self.stocks:
             if self.skip_stock_messages:
                 return
@@ -154,27 +156,20 @@ class ITCH50MessageParser(MessageParser):
                 return
 
     def process_message(self, message) -> None:
-        """
-        Looks at the message and decides what to do with it.
+        """Process a message and decide what to do with it.
 
-        Could be keep, discard, send to file, etc.
+        Args:
+            message: The message object to process
         """
         self.counter += 1
-
         if self.counter % 1000000 == 0:
             print(f"[{datetime.now()}] Processed {self.counter} messages", flush=True)
-
         if message.type not in self.keep_messages_types:
-            """
-            fixed in 2025-03-22 by Seoin Kim
-            """
             return False
-
         if message.type in b"R":
             self.stock_directory.append(message)
             self.append_stock_message(message.stock, message)
         elif message.type in b"SVW":
-            # Pass-through all system messages
             for x in self.stock_messages:
                 self.append_stock_message(x, message)
             self.system_messages.append(message)

@@ -1,3 +1,9 @@
+"""ITCH 5.0 top of book message recorder for limit order books.
+
+This module provides the ITCH50TopOfBookMessageRecorder class, which records
+messages that affect the top of the book (best bid/ask) from ITCH 5.0 market data.
+"""
+
 from typing import Any
 
 from ..market_event_handler import MarketEventHandler
@@ -14,11 +20,27 @@ from .itch50_market_message import (
 
 
 class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
+    """Records messages that affect the top of the book from ITCH 5.0 market data.
+
+    This recorder detects and records messages that impact the best bid or ask
+    prices, including order additions, executions, and hidden trades.
+
+    Attributes:
+        records: List of recorded top of book message records
+    """
+
     def __init__(self) -> None:
+        """Initialize the ITCH50TopOfBookMessageRecorder."""
         self.records: list[Any] = []
 
     def message_event(self, market_processor, timestamp, message) -> None:
-        """Detect messages that affect th top of the book and record them"""
+        """Detect messages that affect the top of the book and record them.
+
+        Args:
+            market_processor: The market processor instance
+            timestamp: The timestamp of the message
+            message: The market message to process
+        """
         lob = market_processor.current_lob
         if isinstance(message, AddOrderMessage) or isinstance(
             message, AddOrderMPIDMessage
@@ -278,10 +300,12 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                     self.records.append((timestamp, record))
 
     def write_csv(self, file) -> None:
-        """Write to a file in CSV format"""
-        # Write header row
+        """Write recorded top of book messages to a CSV file.
+
+        Args:
+            file: File object to write to
+        """
         file.write("Timestamp,MessageType,Queue,Price,Volume,OrderID\n")
-        # Write content
         for x in self.records:
             row = (
                 str(x[0])

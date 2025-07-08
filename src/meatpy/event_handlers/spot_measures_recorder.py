@@ -1,3 +1,10 @@
+"""Spot measures event recorder for limit order books.
+
+This module provides the SpotMeasuresRecorder class, which records various spot
+measures (e.g., bid-ask spread, mid quote) from the limit order book and exports
+them to CSV files.
+"""
+
 from copy import deepcopy
 from io import TextIOWrapper
 from typing import Any
@@ -7,16 +14,28 @@ from .lob_event_recorder import LOBEventRecorder
 
 
 class SpotMeasuresRecorder(LOBEventRecorder):
+    """Records spot measures from the limit order book and exports to CSV.
+
+    Attributes:
+        measures: List of measure names to record
+    """
+
     def __init__(self):
+        """Initialize the SpotMeasuresRecorder."""
         self.measures: list[str] = []  # List of strings (measure names)
         LOBEventRecorder.__init__(self)
 
     def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
+        """Record spot measures from the limit order book.
+
+        Args:
+            lob: The current limit order book
+            record_timestamp: Optional timestamp to record
+        """
         if record_timestamp is None:
             new_record = [deepcopy(lob.timestamp)]
         else:
             new_record = [record_timestamp]
-
         for x in self.measures:
             if x == "Bid-Ask Spread":
                 try:
@@ -58,21 +77,22 @@ class SpotMeasuresRecorder(LOBEventRecorder):
                 raise Exception(
                     "SpotMeasuresRecorder:before_lob_update", "Unknown measure: " + x
                 )
-
         self.records.append(new_record)
 
     def write_csv(self, file: TextIOWrapper, collapse: bool = False):
-        """Write to a file in CSV format"""
-        # Write header row
+        """Write recorded spot measures to a CSV file.
+
+        Args:
+            file: File object to write to
+            collapse: Whether to collapse records by timestamp
+        """
         file.write("Timestamp")
         for x in self.measures:
             file.write("," + x)
         file.write("\n")
-
         if collapse:
             last_ts = None
             next_write = None
-            # Write content
             for x in self.records:
                 if last_ts is None:
                     last_ts = x[0]
@@ -87,11 +107,16 @@ class SpotMeasuresRecorder(LOBEventRecorder):
             if next_write is not None:
                 self.__write_record(file, next_write)
         else:
-            # Write content
             for x in self.records:
                 self.__write_record(file, x)
 
     def __write_record(self, file: TextIOWrapper, record: list[Any]):
+        """Write a single record to the CSV file.
+
+        Args:
+            file: File object to write to
+            record: List of values to write as a row
+        """
         first = True
         for y in record:
             if not first:
@@ -102,14 +127,22 @@ class SpotMeasuresRecorder(LOBEventRecorder):
         file.write("\n")
 
     def write_csv_header(self, file: TextIOWrapper):
-        # Write header row
+        """Write the CSV header row to the file.
+
+        Args:
+            file: File object to write the header to
+        """
         file.write("Timestamp")
         for x in self.measures:
             file.write("," + x)
         file.write("\n")
 
     def append_csv(self, file: TextIOWrapper):
-        # Write content
+        """Append spot measure records to a CSV file.
+
+        Args:
+            file: File object to append to
+        """
         for x in self.records:
             first = True
             for y in x:

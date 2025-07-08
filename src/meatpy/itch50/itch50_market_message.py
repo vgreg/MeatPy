@@ -1,10 +1,27 @@
+"""ITCH 5.0 market message types and parsing.
+
+This module provides classes for parsing and representing ITCH 5.0 market data
+messages. It includes all message types defined in the ITCH 5.0 specification,
+from system events to order and trade messages.
+"""
+
 import struct
 
 from ..message_parser import MarketMessage
 
 
 class ITCH50MarketMessage(MarketMessage):
-    """A market message in ITCH 5.0 format."""
+    """A market message in ITCH 5.0 format.
+
+    This is the base class for all ITCH 5.0 message types. It provides
+    common functionality for timestamp handling and message formatting.
+
+    Attributes:
+        timestamp: The timestamp of the message
+        type: The message type identifier
+        description: Human-readable description of the message type
+        message_size: The size of the message in bytes
+    """
 
     sysEventCodes = {
         b"O": "Start of Messages",
@@ -23,7 +40,7 @@ class ITCH50MarketMessage(MarketMessage):
         b"G": "NASDAQ Global Market",
         b"S": "NASDAQ Capital Market",
         b"Z": "BATS",
-        b"V": "Investors’ Exchange",
+        b"V": "Investors' Exchange",
         b" ": "Not available",
     }
 
@@ -88,12 +105,28 @@ class ITCH50MarketMessage(MarketMessage):
     }
 
     def print_out(self, indent):
+        """Print the message description with indentation.
+
+        Args:
+            indent: Indentation string for formatting
+        """
         print(indent + self.description)
 
     def set_timestamp(self, ts1, ts2):
+        """Set the timestamp from two 32-bit components.
+
+        Args:
+            ts1: High 32 bits of the timestamp
+            ts2: Low 32 bits of the timestamp
+        """
         self.timestamp = ts2 | (ts1 << 32)
 
     def split_timestamp(self):
+        """Split the timestamp into two 32-bit components.
+
+        Returns:
+            tuple: (high_32_bits, low_32_bits)
+        """
         ts1 = self.timestamp >> 32
         ts2 = self.timestamp - (ts1 << 32)
         return (ts1, ts2)
