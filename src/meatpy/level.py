@@ -1,4 +1,6 @@
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+from meatpy.timestamp import Timestamp
+
+from .types import OrderID, Price, Qualifiers, Volume
 
 
 class ExecutionPriorityException(Exception):
@@ -30,13 +32,19 @@ class OrderOnBook:
     :type qualifs: dict or None
     """
 
-    def __init__(self, order_id, timestamp, volume, qualifs=None):
+    def __init__(
+        self,
+        order_id: OrderID,
+        timestamp: Timestamp,
+        volume: Volume,
+        qualifs: Qualifiers | None = None,
+    ) -> None:
         self.order_id = order_id
         self.timestamp = timestamp
         self.volume = volume
         self.qualifs = qualifs
 
-    def print_out(self, indent=""):
+    def print_out(self, indent: str = "") -> None:
         """
         Use this function to print information as a log.
 
@@ -55,7 +63,15 @@ class OrderOnBook:
             + ")"
         )
 
-    def write_csv(self, file, timestamp, order_type, level, price, show_age):
+    def write_csv(
+        self,
+        file,
+        timestamp: Timestamp,
+        order_type: str,
+        level: int,
+        price: Price,
+        show_age: bool,
+    ) -> None:
         """
         This method is for writing the data to a csv file.
 
@@ -125,11 +141,17 @@ class Level:
     :type queue: list
     """
 
-    def __init__(self, price):
-        self.price = price
-        self.queue = []
+    def __init__(self, price: Price) -> None:
+        self.price: Price = price
+        self.queue: list[OrderOnBook] = []
 
-    def order_factory(self, order_id, timestamp, volume, qualifs=None):
+    def order_factory(
+        self,
+        order_id: OrderID,
+        timestamp: Timestamp,
+        volume: Volume,
+        qualifs: Qualifiers | None = None,
+    ):
         """
         ########### description ############
         :param order_id:  a number for each order to make them clear
@@ -145,7 +167,7 @@ class Level:
             order_id=order_id, timestamp=timestamp, volume=volume, qualifs=qualifs
         )
 
-    def print_out(self, indent="", level=0):
+    def print_out(self, indent="", level=0) -> None:
         """
 
         :param indent:
@@ -159,13 +181,13 @@ class Level:
     def write_csv(
         self,
         file,
-        timestamp,
-        order_type,
-        level,
-        collapse_orders=False,
-        price=None,
-        show_age=False,
-    ):
+        timestamp: Timestamp,
+        order_type: str,
+        level: int,
+        collapse_orders: bool = False,
+        price: Price | None = None,
+        show_age: bool = False,
+    ) -> None:
         """
 
         :param file:
@@ -246,7 +268,7 @@ class Level:
             for x in self.queue:
                 x.write_csv(file, timestamp, order_type, level, self.price, show_age)
 
-    def order_on_book(self, order_id):
+    def order_on_book(self, order_id: OrderID) -> bool:
         """
         Indicates if the order_id is on the books at the current level.
 
@@ -258,18 +280,16 @@ class Level:
                 return True
         return False
 
-    def volume(self):
+    @property
+    def volume(self) -> Volume:
         """
         Return the total volume for the order
 
         :return:
         """
-        volume = 0
-        for x in self.queue:
-            volume += x.volume
-        return volume
+        return sum(x.volume for x in self.queue)
 
-    def execution_price(self, volume):
+    def execution_price(self, volume) -> tuple[Price, Volume]:
         """
         Indicate the execution price for an order os size volume.
 
@@ -291,7 +311,7 @@ class Level:
 
         return (self.price * volume_acc, volume_acc)
 
-    def find_order_on_book(self, order_id):
+    def find_order_on_book(self, order_id: OrderID) -> int:
         """
         Find the order_id on the books at the current level.
 
@@ -304,7 +324,7 @@ class Level:
                 return x
         return -1
 
-    def cancel_quote(self, order_id, volume, i=None):
+    def cancel_quote(self, order_id: OrderID, volume: Volume, i=None) -> None:
         """
         Cancel order with order_id and volume. Returns true on success,
             false if not in this level
@@ -342,7 +362,7 @@ class Level:
         else:
             self.queue[i].volume -= volume
 
-    def delete_quote(self, order_id, i=None):
+    def delete_quote(self, order_id: OrderID, i: int | None = None) -> bool:
         """
         Delete order with order_id . Returns true on success,
             false if not in this level
@@ -362,7 +382,13 @@ class Level:
         del self.queue[i]
         return True
 
-    def enter_quote(self, timestamp, volume, order_id, qualifs=None):
+    def enter_quote(
+        self,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        qualifs: Qualifiers | None = None,
+    ) -> None:
         """
         Enter the quote at the back of the queue.
 
@@ -375,7 +401,13 @@ class Level:
         """
         self.queue.append(self.order_factory(order_id, timestamp, volume, qualifs))
 
-    def enter_quote_out_of_order(self, timestamp, volume, order_id, qualifs=None):
+    def enter_quote_out_of_order(
+        self,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        qualifs: Qualifiers | None = None,
+    ) -> None:
         """
         Enter the quote in the queue according to timestamp.
 
@@ -397,8 +429,14 @@ class Level:
         self.queue.insert(i, self.order_factory(order_id, timestamp, volume, qualifs))
 
     def enter_quote_at_position(
-        self, timestamp, volume, order_id, position, check_position, qualifs=None
-    ):
+        self,
+        timestamp: Timestamp,
+        volume: Volume,
+        order_id: OrderID,
+        position: int,
+        check_position: bool,
+        qualifs: Qualifiers | None = None,
+    ) -> None:
         """
         Enter the quote in the queue according to  stated position.
 
@@ -442,7 +480,9 @@ class Level:
                 None,
             )
 
-    def execute_trade(self, order_id, volume, timestamp=None):
+    def execute_trade(
+        self, order_id: OrderID, volume: Volume, timestamp: Timestamp | None = None
+    ) -> None:
         """
         Execute the trade with priority.
 
@@ -481,7 +521,9 @@ class Level:
                 order_id,
             )
 
-    def execute_trade_price(self, order_id, volume, timestamp=None):
+    def execute_trade_price(
+        self, order_id: OrderID, volume: Volume, timestamp: Timestamp | None = None
+    ) -> None:
         """
         Execute the trade, bypass priority priority.
 

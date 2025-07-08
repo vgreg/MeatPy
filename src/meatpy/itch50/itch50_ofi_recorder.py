@@ -8,17 +8,21 @@ The recorder follows equation (10) but accounts for trades against
 hidden orders as well.
 """
 
+from typing import Any
+
 from ..event_handlers.ofi_recorder import OFIRecorder
 from .itch50_market_message import TradeMessage
 
 
 class ITCH50OFIRecorder(OFIRecorder):
-    def __init__(self):
-        self.records = []  # List of records, each record is a list of measures
+    def __init__(self) -> None:
+        self.records: list[
+            Any
+        ] = []  # List of records, each record is a list of measures
         self.previous_lob = None
         OFIRecorder.__init__(self)
 
-    def message_event(self, market_processor, timestamp, message):
+    def message_event(self, market_processor, timestamp, message) -> None:
         """Detect trades against hidden orders"""
         # For an hidden order toexecute, it must be first in line
         # (in front of first level), so we record ALL trades againts hidden

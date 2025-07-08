@@ -1,6 +1,5 @@
 import abc
 from pathlib import Path
-from typing import Optional
 
 
 class MessageParser:
@@ -12,11 +11,11 @@ class MessageParser:
 
     __metaclass__ = abc.ABCMeta  # This in an abstract class
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Messages is a Symbol-based dict of lists of MarketMessage
         self.stock_messages: dict[str | bytes, MarketMessage] = {}
 
-    def parse_file(self, infile: Optional[Path | str] = None):
+    def parse_file(self, infile: Path | str | None = None) -> None:
         """Parses a file containing market messages.
 
         Parses a file and generate corresponding market messages.

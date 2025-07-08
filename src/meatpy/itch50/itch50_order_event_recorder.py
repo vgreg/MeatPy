@@ -11,10 +11,10 @@ from .itch50_market_message import (
 
 
 class ITCH50OrderEventRecorder(MarketEventHandler):
-    def __init__(self):
+    def __init__(self) -> None:
         self.records = []
 
-    def message_event(self, market_processor, timestamp, message):
+    def message_event(self, market_processor, timestamp, message) -> None:
         """Detect messages that involve orders and record them"""
         if not (
             isinstance(message, AddOrderMessage)
@@ -134,7 +134,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
         record["bid_size"] = bid_size
         self.records.append((timestamp, record))
 
-    def write_csv(self, file):
+    def write_csv(self, file) -> None:
         """Write to a file in CSV format"""
         # Write header row
         file.write(
