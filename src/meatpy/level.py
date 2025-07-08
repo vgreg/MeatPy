@@ -32,6 +32,16 @@ class VolumeInconsistencyException(Exception):
     pass
 
 
+class OrderNotFoundError(Exception):
+    """Exception raised when an order is not found in the limit order book.
+
+    This exception is raised when attempting to perform operations on an order
+    that does not exist in the specified price level or queue.
+    """
+
+    pass
+
+
 class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
     """An order currently on the book.
 
@@ -290,9 +300,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         if i is None:
             i = self.find_order_on_book(order_id)
             if i == -1:
-                raise Exception(
-                    "Level:cancel_quote", f"Order ID {order_id} not on level"
-                )
+                raise OrderNotFoundError(f"Order ID {order_id} not on level")
         # Check for consistency in volume
         if self.queue[i].volume < volume:
             book_vol = self.queue[i].volume
@@ -324,9 +332,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         if i is None:
             i = self.find_order_on_book(order_id)
             if i == -1:
-                raise Exception(
-                    "Level:delete_quote", f"Order ID {order_id} not on level"
-                )
+                raise OrderNotFoundError(f"Order ID {order_id} not on level")
 
         # Delete order
         del self.queue[i]
@@ -479,10 +485,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
                 break
 
         if order is None:
-            raise Exception(
-                "Level:execute_trade_price",
-                f"Order ID {order_id} not in queue",
-            )
+            raise OrderNotFoundError(f"Order ID {order_id} not in queue")
         if self.queue[order].volume > volume:
             self.queue[order].volume -= volume
         elif self.queue[order].volume == volume:

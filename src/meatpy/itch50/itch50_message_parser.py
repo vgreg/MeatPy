@@ -9,6 +9,26 @@ import meatpy.itch50.itch50_market_message
 from meatpy.message_parser import MessageParser
 
 
+class InvalidMessageFormatError(Exception):
+    """Exception raised when a message has an invalid format.
+
+    This exception is raised when the message format does not match
+    the expected ITCH 5.0 message structure.
+    """
+
+    pass
+
+
+class UnknownMessageTypeError(Exception):
+    """Exception raised when an unknown message type is encountered.
+
+    This exception is raised when the message type is not recognized
+    by the ITCH 5.0 parser.
+    """
+
+    pass
+
+
 class ITCH50MessageParser(MessageParser):
     """A market message parser for ITCH 5.0 data.
 
@@ -90,10 +110,7 @@ class ITCH50MessageParser(MessageParser):
                 offset = 0
                 continue
             if data_view[offset] != 0:
-                raise Exception(
-                    "ITCH50MessageParser:ITCH_factory",
-                    f"Unexpected byte: {data_view[offset]}",
-                )
+                raise InvalidMessageFormatError(f"Unexpected byte: {data_view[offset]}")
             messageLen = data_view[offset + 1]
             messageEnd = offset + 2 + messageLen
             if messageEnd > buflen:
@@ -268,7 +285,4 @@ class ITCH50MessageParser(MessageParser):
                 message
             )
         else:
-            raise Exception(
-                "ITCH50MessageParser:ITCH_factory",
-                f"Unknown message type: {msgtype}",
-            )
+            raise UnknownMessageTypeError(f"Unknown message type: {msgtype}")

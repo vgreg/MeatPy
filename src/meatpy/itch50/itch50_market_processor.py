@@ -6,6 +6,7 @@ market messages to reconstruct the limit order book and handle trading status up
 
 import datetime
 
+from ..level import OrderNotFoundError
 from ..lob import OrderType
 from ..market_processor import MarketProcessor
 from ..message_parser import MarketMessage
@@ -30,6 +31,57 @@ from .itch50_market_message import (
     StockTradingActionMessage,
     SystemEventMessage,
 )
+
+
+class InvalidBuySellIndicatorError(Exception):
+    """Exception raised when an invalid buy/sell indicator is encountered.
+
+    This exception is raised when the buy/sell indicator value is not
+    recognized by the ITCH 5.0 processor.
+    """
+
+    pass
+
+
+class MissingLOBError(Exception):
+    """Exception raised when attempting to perform operations without a LOB.
+
+    This exception is raised when trying to cancel, delete, or replace
+    orders when no limit order book is available.
+    """
+
+    pass
+
+
+class UnknownSystemMessageError(Exception):
+    """Exception raised when an unknown system message is encountered.
+
+    This exception is raised when the system message code is not
+    recognized by the ITCH 5.0 processor.
+    """
+
+    pass
+
+
+class UnknownTradingStateError(Exception):
+    """Exception raised when an unknown trading state is encountered.
+
+    This exception is raised when the trading state code is not
+    recognized by the ITCH 5.0 processor.
+    """
+
+    pass
+
+
+class InvalidTradingStatusError(Exception):
+    """Exception raised when the trading status cannot be determined.
+
+    This exception is raised when the combination of system status,
+    EMC status, and stock status does not correspond to a valid
+    trading status.
+    """
+
+    pass
 
 
 class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]]):
@@ -84,9 +136,8 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                 elif message.bsindicator == b"S":
                     order_type = OrderType.ASK
                 else:
-                    raise Exception(
-                        "ITCH50MarketProcessor:process_message",
-                        f"Wrong value for bsindicator: {message.bsindicator}",
+                    raise InvalidBuySellIndicatorError(
+                        f"Wrong value for bsindicator: {message.bsindicator}"
                     )
                 self.pre_lob_event(timestamp)
                 self.enter_quote(
@@ -119,19 +170,13 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
-                    raise Exception(
-                        "ITCH50MarketProcessor:process_message",
-                        "Cancelling order without LOB.",
-                    )
+                    raise MissingLOBError("Cancelling order without LOB.")
                 if self.current_lob.ask_order_on_book(message.orderRefNum):
                     order_type = OrderType.ASK
                 elif self.current_lob.bid_order_on_book(message.orderRefNum):
                     order_type = OrderType.BID
                 else:
-                    raise Exception(
-                        "ITCH50MarketProcessor:process_message",
-                        "Cancelling missing order.",
-                    )
+                    raise OrderNotFoundError("Cancelling missing order.")
                 self.cancel_quote(
                     timestamp=timestamp,
                     volume=message.cancelShares,

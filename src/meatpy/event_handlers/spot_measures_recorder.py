@@ -13,6 +13,16 @@ from ..lob import InexistantValueException, LimitOrderBook
 from .lob_event_recorder import LOBEventRecorder
 
 
+class UnknownMeasureError(Exception):
+    """Exception raised when an unknown measure is requested.
+
+    This exception is raised when the measure name is not recognized
+    by the spot measures recorder.
+    """
+
+    pass
+
+
 class SpotMeasuresRecorder(LOBEventRecorder):
     """Records spot measures from the limit order book and exports to CSV.
 
@@ -74,9 +84,7 @@ class SpotMeasuresRecorder(LOBEventRecorder):
                     log_quote_slope = ""
                 new_record.append(log_quote_slope)
             else:
-                raise Exception(
-                    "SpotMeasuresRecorder:before_lob_update", "Unknown measure: " + x
-                )
+                raise UnknownMeasureError(f"Unknown measure: {x}")
         self.records.append(new_record)
 
     def write_csv(self, file: TextIOWrapper, collapse: bool = False):
