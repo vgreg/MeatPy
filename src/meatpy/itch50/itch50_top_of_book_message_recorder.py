@@ -307,18 +307,5 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
         """
         file.write("Timestamp,MessageType,Queue,Price,Volume,OrderID\n")
         for x in self.records:
-            row = (
-                str(x[0])
-                + ","
-                + x[1]["MessageType"]
-                + ","
-                + x[1]["Queue"]
-                + ","
-                + str(x[1]["Price"])
-                + ","
-                + str(x[1]["Volume"])
-                + ","
-                + str(x[1]["OrderID"])
-                + "\n"
-            )
+            row = f"{x[0]},{x[1]['MessageType']},{x[1]['Queue']},{x[1]['Price']},{x[1]['Volume']},{x[1]['OrderID']}\n"
             file.write(row)

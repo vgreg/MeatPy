@@ -81,7 +81,7 @@ class OFIRecorder(LOBEventRecorder):
         """
         file.write("Timestamp,e_n\n")
         for x in self.records:
-            file.write(str(x[0]) + "," + str(x[1]) + "\n")
+            file.write(f"{x[0]},{x[1]}\n")
 
     def write_csv_header(self, file: TextIOWrapper):
         """Write the CSV header row to the file.
@@ -98,5 +98,5 @@ class OFIRecorder(LOBEventRecorder):
             file: File object to append to
         """
         for x in self.records:
-            file.write(str(x[0]) + "," + str(x[1]) + "\n")
+            file.write(f"{x[0]},{x[1]}\n")
         self.records = []

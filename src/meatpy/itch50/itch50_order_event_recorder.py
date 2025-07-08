@@ -77,10 +77,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
                 shares = queue[i].queue[j].volume
             except Exception as e:
                 print(
-                    "ITCH50OrderEventRecorder ::"
-                    + str(e)
-                    + " for order ID "
-                    + str(message.orderRefNum)
+                    f"ITCH50OrderEventRecorder ::{e} for order ID {message.orderRefNum}"
                 )
         if isinstance(message, AddOrderMessage):
             record = {
@@ -161,28 +158,5 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             "Timestamp,MessageType,BuySellIndicator,Price,Volume,OrderID,NewOrderID,AskPrice,AskSize,BidPrice,BidSize\n".encode()
         )
         for x in self.records:
-            row = (
-                str(x[0])
-                + ","
-                + str(x[1]["MessageType"])
-                + ","
-                + str(x[1]["bsindicator"])
-                + ","
-                + str(x[1]["price"])
-                + ","
-                + str(x[1]["shares"])
-                + ","
-                + str(x[1]["orderRefNum"])
-                + ","
-                + str(x[1]["newOrderRefNum"])
-                + ","
-                + str(x[1]["ask_price"])
-                + ","
-                + str(x[1]["ask_size"])
-                + ","
-                + str(x[1]["bid_price"])
-                + ","
-                + str(x[1]["bid_size"])
-                + "\n"
-            )
+            row = f"{x[0]},{x[1]['MessageType']},{x[1]['bsindicator']},{x[1]['price']},{x[1]['shares']},{x[1]['orderRefNum']},{x[1]['newOrderRefNum']},{x[1]['ask_price']},{x[1]['ask_size']},{x[1]['bid_price']},{x[1]['bid_size']}\n"
             file.write(row.encode())

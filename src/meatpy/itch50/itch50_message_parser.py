@@ -92,7 +92,7 @@ class ITCH50MessageParser(MessageParser):
             if data_view[offset] != 0:
                 raise Exception(
                     "ITCH50MessageParser:ITCH_factory",
-                    "Unexpected byte: " + str(data_view[offset]),
+                    f"Unexpected byte: {data_view[offset]}",
                 )
             messageLen = data_view[offset + 1]
             messageEnd = offset + 2 + messageLen
@@ -132,7 +132,7 @@ class ITCH50MessageParser(MessageParser):
         if len(self.stock_messages[stock]) > self.message_buffer or overlook_buffer:
             stock_str = stock.decode()
             with open(
-                self.output_prefix + stock_str.strip().replace("*", "8") + ".txt", "a+b"
+                f"{self.output_prefix}{stock_str.strip().replace('*', '8')}.txt", "a+b"
             ) as file:
                 for x in self.stock_messages[stock]:
                     file.write(b"\x00")
@@ -270,5 +270,5 @@ class ITCH50MessageParser(MessageParser):
         else:
             raise Exception(
                 "ITCH50MessageParser:ITCH_factory",
-                "Unknown message type: " + str(msgtype),
+                f"Unknown message type: {msgtype}",
             )

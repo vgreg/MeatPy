@@ -71,7 +71,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         if not isinstance(message, ITCH50MarketMessage):
             raise ValueError(
                 "ITCH50MarketProcessor:process_message",
-                "Message is not an ITCH50MarketMessage: " + str(type(message)),
+                f"Message is not an ITCH50MarketMessage: {type(message)}",
             )
         timestamp = message.timestamp
         self.message_event(timestamp, message)
@@ -86,7 +86,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                 else:
                     raise Exception(
                         "ITCH50MarketProcessor:process_message",
-                        "Wrong value for bsindicator: " + str(message.bsindicator),
+                        f"Wrong value for bsindicator: {message.bsindicator}",
                     )
                 self.pre_lob_event(timestamp)
                 self.enter_quote(
@@ -207,7 +207,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         else:
             raise Exception(
                 "ITCH50MarketProcessor:process_system_message",
-                "Unknown system message: " + str(code),
+                f"Unknown system message: {code}",
             )
         self.update_trading_status()
 
@@ -226,7 +226,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         else:
             raise Exception(
                 "ITCH50MarketProcessor:process_trading_action_message",
-                "Unknown trading state: " + str(state),
+                f"Unknown trading state: {state}",
             )
         self.update_trading_status()
 
@@ -245,12 +245,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         else:
             raise Exception(
                 "ITCH50MarketProcessor:update_trading_status",
-                "Could not determine trading status: "
-                + str(self.system_status)
-                + "/"
-                + str(self.emc_status)
-                + "/"
-                + str(self.stock_status),
+                f"Could not determine trading status: {self.system_status}/{self.emc_status}/{self.stock_status}",
             )
 
     def enter_quote(

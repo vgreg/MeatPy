@@ -60,23 +60,18 @@ class LimitOrderBook:
     def print_out(self, indent: str = "") -> None:
         """Print the content of the limit order book."""
         print(
-            indent
-            + "LOB Snapshot: "
-            + str(self.timestamp)
-            + ","
-            + str(self.timestamp_inc)
-            + " -------------"
+            f"{indent}LOB Snapshot: {self.timestamp},{self.timestamp_inc} -------------"
         )
-        print(indent + " Bid:")
+        print(f"{indent} Bid:")
         i = 0
         for x in self.bid_levels:
             i += 1
-            x.print_out(indent + "  ", i)
-        print(indent + " Ask:")
+            x.print_out(f"{indent}  ", i)
+        print(f"{indent} Ask:")
         i = 0
         for x in self.ask_levels:
             i += 1
-            x.print_out(indent + "  ", i)
+            x.print_out(f"{indent}  ", i)
 
     def level_factory(self, price: Price) -> Level:
         return Level(price=price)
@@ -140,7 +135,7 @@ class LimitOrderBook:
             return int(price / self.decimals_adj)
         raise Exception(
             "LimitOrderBook:adjust_price",
-            "Unknown price type: " + str(type(price)) + " with value " + str(price),
+            f"Unknown price type: {type(price)} with value {price}",
         )
 
     def bid_ask_spread(self) -> Price:
@@ -380,7 +375,7 @@ class LimitOrderBook:
 
         raise Exception(
             "LimitOrderBook:find_order_with_type",
-            "Quote ID (" + str(order_id) + ") missing from queue",
+            f"Quote ID ({order_id}) missing from queue",
         )
 
     #### Order and trade processing

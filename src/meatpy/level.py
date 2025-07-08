@@ -64,15 +64,7 @@ class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
         Args:
             indent: Indentation string for formatting
         """
-        print(
-            indent
-            + str(self.volume)
-            + " shares at "
-            + str(self.timestamp)
-            + " (id "
-            + str(self.order_id)
-            + ")"
-        )
+        print(f"{indent}{self.volume} shares at {self.timestamp} (id {self.order_id})")
 
     def write_csv(
         self,
@@ -96,43 +88,11 @@ class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
         if show_age:
             age = timestamp - self.timestamp
             file.write(
-                (
-                    str(timestamp)
-                    + ","
-                    + order_type
-                    + ","
-                    + str(level)
-                    + ","
-                    + str(price)
-                    + ","
-                    + str(self.order_id)
-                    + ","
-                    + str(self.volume)
-                    + ","
-                    + str(self.timestamp)
-                    + ","
-                    + str(age)
-                    + "\n"
-                ).encode()
+                f"{timestamp},{order_type},{level},{price},{self.order_id},{self.volume},{self.timestamp},{age}\n".encode()
             )
         else:
             file.write(
-                (
-                    str(timestamp)
-                    + ","
-                    + order_type
-                    + ","
-                    + str(level)
-                    + ","
-                    + str(price)
-                    + ","
-                    + str(self.order_id)
-                    + ","
-                    + str(self.volume)
-                    + ","
-                    + str(self.timestamp)
-                    + "\n"
-                ).encode()
+                f"{timestamp},{order_type},{level},{price},{self.order_id},{self.volume},{self.timestamp}\n".encode()
             )
 
 
@@ -188,9 +148,9 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             indent: Indentation string for formatting
             level: Level number for display
         """
-        print(indent + "Price level " + str(level) + ": " + str(self.price))
+        print(f"{indent}Price level {level}: {self.price}")
         for x in self.queue:
-            x.print_out(indent + "  ")
+            x.print_out(f"{indent}  ")
 
     def write_csv(
         self,
@@ -238,45 +198,11 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
                 first_age = timestamp - self.queue[0].timestamp
                 last_age = timestamp - self.queue[-1].timestamp
                 file.write(
-                    (
-                        str(timestamp)
-                        + ","
-                        + order_type
-                        + ","
-                        + str(level)
-                        + ","
-                        + str(price)
-                        + ","
-                        + str(volume)
-                        + ","
-                        + str(n_orders)
-                        + ","
-                        + str(vw_age)
-                        + ","
-                        + str(age)
-                        + ","
-                        + str(first_age)
-                        + ","
-                        + str(last_age)
-                        + "\n"
-                    ).encode()
+                    f"{timestamp},{order_type},{level},{price},{volume},{n_orders},{vw_age},{age},{first_age},{last_age}\n".encode()
                 )
             else:
                 file.write(
-                    (
-                        str(timestamp)
-                        + ","
-                        + order_type
-                        + ","
-                        + str(level)
-                        + ","
-                        + str(price)
-                        + ","
-                        + str(volume)
-                        + ","
-                        + str(n_orders)
-                        + "\n"
-                    ).encode()
+                    f"{timestamp},{order_type},{level},{price},{volume},{n_orders}\n".encode()
                 )
         else:
             for x in self.queue:
@@ -365,7 +291,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             i = self.find_order_on_book(order_id)
             if i == -1:
                 raise Exception(
-                    "Level:cancel_quote", "Order ID " + str(order_id) + " not on level"
+                    "Level:cancel_quote", f"Order ID {order_id} not on level"
                 )
         # Check for consistency in volume
         if self.queue[i].volume < volume:
@@ -373,12 +299,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             del self.queue[i]
             raise VolumeInconsistencyException(
                 "Level:cancel_quote",
-                "Cancel volume ("
-                + str(volume)
-                + ") larger than book volume ("
-                + str(book_vol)
-                + ") for order ID "
-                + str(order_id),
+                f"Cancel volume ({volume}) larger than book volume ({book_vol}) for order ID {order_id}",
                 order_id,
             )
         # Delete order
@@ -404,7 +325,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             i = self.find_order_on_book(order_id)
             if i == -1:
                 raise Exception(
-                    "Level:delete_quote", "Order ID " + str(order_id) + " not on level"
+                    "Level:delete_quote", f"Order ID {order_id} not on level"
                 )
 
         # Delete order
@@ -500,13 +421,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         if raise_error:
             raise ExecutionPriorityException(
                 "Level:enter_quote_at_position",
-                "Order ID "
-                + str(order_id)
-                + " should be at position "
-                + str(i)
-                + ", not "
-                + str(position - 1)
-                + ".",
+                f"Order ID {order_id} should be at position {i}, not {position - 1}.",
                 timestamp,
                 order_id,
                 None,
@@ -526,11 +441,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         if self.queue[0].order_id != order_id:
             raise ExecutionPriorityException(
                 "Level:execute_trade",
-                "Order ID "
-                + str(order_id)
-                + " not first in line, "
-                + str(self.queue[0].order_id)
-                + " is.",
+                f"Order ID {order_id} not first in line, {self.queue[0].order_id} is.",
                 timestamp,
                 order_id,
                 self.queue[0].order_id,
@@ -544,12 +455,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             del self.queue[0]
             raise VolumeInconsistencyException(
                 "Level:execute_trade",
-                "Volume ("
-                + str(volume)
-                + ") larger than book volume ("
-                + str(book_vol)
-                + ") for order "
-                + str(order_id),
+                f"Volume ({volume}) larger than book volume ({book_vol}) for order {order_id}",
                 order_id,
             )
 
@@ -575,7 +481,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         if order is None:
             raise Exception(
                 "Level:execute_trade_price",
-                "Order ID " + str(order_id) + " not in queue",
+                f"Order ID {order_id} not in queue",
             )
         if self.queue[order].volume > volume:
             self.queue[order].volume -= volume
@@ -586,10 +492,6 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             del self.queue[order]
             raise VolumeInconsistencyException(
                 "Level:execute_trade_price",
-                "Volume ("
-                + str(volume)
-                + ") larger than book volume ("
-                + str(book_vol)
-                + ")",
+                f"Volume ({volume}) larger than book volume ({book_vol})",
                 order_id,
             )

@@ -126,20 +126,5 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
             "Timestamp,MessageType,Queue,Price,Volume,OrderID,OrderTimestamp\n".encode()
         )
         for x in self.records:
-            row = (
-                str(x[0])
-                + ","
-                + x[1]["MessageType"]
-                + ","
-                + x[1]["Queue"]
-                + ","
-                + str(x[1]["Price"])
-                + ","
-                + str(x[1]["Volume"])
-                + ","
-                + str(x[1]["OrderID"])
-                + ","
-                + str(x[1]["OrderTimestamp"])
-                + "\n"
-            )
+            row = f"{x[0]},{x[1]['MessageType']},{x[1]['Queue']},{x[1]['Price']},{x[1]['Volume']},{x[1]['OrderID']},{x[1]['OrderTimestamp']}\n"
             file.write(row.encode())
