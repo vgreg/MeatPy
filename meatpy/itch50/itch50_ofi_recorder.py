@@ -8,12 +8,8 @@ The recorder follows equation (10) but accounts for trades against
 hidden orders as well.
 """
 
-__author__ = "Vincent Grégoire"
-__email__ = "vincent.gregoire@gmail.com"
-
-# -*- coding: utf-8 -*-
-from meatpy.event_handlers.ofi_recorder import OFIRecorder
-from meatpy.itch50.itch50_market_message import TradeMessage
+from ..event_handlers.ofi_recorder import OFIRecorder
+from .itch50_market_message import TradeMessage
 
 
 class ITCH50OFIRecorder(OFIRecorder):
@@ -30,9 +26,9 @@ class ITCH50OFIRecorder(OFIRecorder):
         if isinstance(message, TradeMessage):
             volume = message.shares
             # OFI decreases when a trade is execute against a hidden bid.
-            if message.bsindicator == b'B':
+            if message.bsindicator == b"B":
                 sign = -1
-            elif message.bsindicator == b'S':
+            elif message.bsindicator == b"S":
                 sign = 1
-            e_n = sign*volume
+            e_n = sign * volume
             self.records.append((timestamp, e_n))
