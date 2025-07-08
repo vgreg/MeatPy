@@ -2,10 +2,10 @@
 re-constructs the market history."""
 
 import abc
-import datetime
-from typing import Optional
+from datetime import date, datetime
 
 from .lob import LimitOrderBook, OrderType
+from .market_event_handler import MarketEventHandler
 from .message_parser import MarketMessage
 from .timestamp import Timestamp
 from .trading_status import TradingStatus
@@ -27,18 +27,18 @@ class MarketProcessor:
     def __init__(
         self,
         instrument: str | bytes,
-        book_date: Optional[datetime.date | datetime.datetime] = None,
-    ):
+        book_date: date | datetime | None,
+    ) -> None:
         """Initializes an empty history for a specific instrument and date."""
         self.instrument: str | bytes = instrument
-        self.book_date: datetime.date | datetime.datetime | None = book_date
-        self.current_lob: LimitOrderBook = None
+        self.book_date: date | datetime | None = book_date
+        self.current_lob: LimitOrderBook | None = None
         self.track_lob: bool = True
-        self.handlers: list["MarketEventHandler"] = []
+        self.handlers: list[MarketEventHandler] = []
         self.trading_status: TradingStatus | None = None
 
     @abc.abstractmethod
-    def process_message(self, message: MarketMessage):
+    def process_message(self, message: MarketMessage) -> None:
         """Process a MarketMessage
 
         :param message: message to process
@@ -46,17 +46,17 @@ class MarketProcessor:
         """
         return
 
-    def processing_done(self):
+    def processing_done(self) -> None:
         """Clean up time"""
         if self.current_lob is not None:
             self.current_lob.end_of_day()
 
-    def before_lob_update(self, new_timestamp: Timestamp):
+    def before_lob_update(self, new_timestamp: Timestamp) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
-            x.before_lob_update(self, new_timestamp)
+            x.before_lob_update(self.current_lob, new_timestamp)
 
-    def message_event(self, timestamp: Timestamp, message: MarketMessage):
+    def message_event(self, timestamp: Timestamp, message: MarketMessage) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.message_event(self, timestamp, message)
@@ -67,8 +67,8 @@ class MarketProcessor:
         price: Price,
         volume: Volume,
         order_id: OrderID,
-        order_type: Optional[OrderType] = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.enter_quote_event(self, timestamp, price, volume, order_id, order_type)
@@ -78,8 +78,8 @@ class MarketProcessor:
         timestamp: Timestamp,
         volume: Volume,
         order_id: OrderID,
-        order_type: Optional[OrderType] = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.cancel_quote_event(self, timestamp, volume, order_id, order_type)
@@ -88,8 +88,8 @@ class MarketProcessor:
         self,
         timestamp: Timestamp,
         order_id: OrderID,
-        order_type: Optional[OrderType] = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.delete_quote_event(self, timestamp, order_id, order_type)
@@ -101,8 +101,8 @@ class MarketProcessor:
         new_order_id: OrderID,
         price: Price,
         volume: Volume,
-        order_type: Optional[OrderType] = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.replace_quote_event(
@@ -115,8 +115,8 @@ class MarketProcessor:
         volume: Volume,
         order_id: OrderID,
         trade_ref: TradeRef,
-        order_type: Optional[OrderType] = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.execute_trade_event(
@@ -130,8 +130,8 @@ class MarketProcessor:
         order_id: OrderID,
         trade_ref: TradeRef,
         price: Price,
-        order_type: Optional[OrderType] = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.execute_trade_price_event(
@@ -145,7 +145,7 @@ class MarketProcessor:
         price: Price,
         bid_id: OrderID,
         ask_id: OrderID,
-    ):
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.auction_trade_event(self, timestamp, volume, price, bid_id, ask_id)
@@ -157,12 +157,12 @@ class MarketProcessor:
         price: Price,
         bid_id: OrderID,
         ask_id: OrderID,
-    ):
+    ) -> None:
         """Event to pass on to handlers..."""
         for x in self.handlers:
             x.crossing_trade_event(self, timestamp, volume, price, bid_id, ask_id)
 
-    def pre_lob_event(self, timestamp: Timestamp, new_snapshot: bool = True):
+    def pre_lob_event(self, timestamp: Timestamp, new_snapshot: bool = True) -> None:
         """Prepare the lob for a new event
 
         If no current LOB, create one. Otherwise only create a new one if

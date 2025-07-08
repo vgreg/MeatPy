@@ -14,17 +14,17 @@ class Timestamp(datetime):
 
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.strftime(TIMESTAMP_FORMAT)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Timestamp: " + self.__str__()
 
-    def copy(self):
+    def copy(self) -> "Timestamp":
         return deepcopy(self)
 
     @classmethod
-    def from_datetime(cls, dt: datetime):
+    def from_datetime(cls, dt: datetime) -> "Timestamp":
         return Timestamp(
             year=dt.year,
             month=dt.month,

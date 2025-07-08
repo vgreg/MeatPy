@@ -1,3 +1,5 @@
+from typing import Any
+
 from ..market_event_handler import MarketEventHandler
 from .itch50_market_message import (
     OrderExecutedMessage,
@@ -7,10 +9,15 @@ from .itch50_market_message import (
 
 
 class ITCH50ExecTradeRecorder(MarketEventHandler):
-    def __init__(self):
-        self.records = []
+    def __init__(self) -> None:
+        self.records: list[Any] = []
 
-    def message_event(self, market_processor, timestamp, message):
+    def message_event(
+        self,
+        market_processor,
+        timestamp,
+        message,
+    ) -> None:
         """Detect messages that affect th top of the book and record them"""
         lob = market_processor.current_lob
         if isinstance(message, OrderExecutedMessage):
@@ -88,7 +95,7 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
                 self.records.append((timestamp, record))
 
-    def write_csv(self, file):
+    def write_csv(self, file) -> None:
         """Write to a file in CSV format"""
         # Write header row
         file.write(

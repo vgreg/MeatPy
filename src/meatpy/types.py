@@ -1,7 +1,7 @@
 from decimal import Decimal
-from typing import Union
 
-Volume = Union[int, Decimal]
-Price = Union[int, Decimal]
-OrderID = Union[int, str, bytes]
-TradeRef = Union[int, str, bytes]
+Volume = int | Decimal
+Price = int | Decimal
+OrderID = int | str | bytes
+TradeRef = int | str | bytes
+Qualifiers = dict[str, str | int | float | Decimal]

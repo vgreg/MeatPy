@@ -2,6 +2,7 @@ import datetime
 
 from ..lob import OrderType
 from ..market_processor import MarketProcessor
+from ..message_parser import MarketMessage
 from ..timestamp import Timestamp
 from ..trading_status import (
     HaltedTradingStatus,
@@ -37,19 +38,25 @@ class ITCH50MarketProcessor(MarketProcessor):
 
     def __init__(
         self, instrument: str | bytes, book_date: datetime.date | datetime.datetime
-    ):
+    ) -> None:
         super(ITCH50MarketProcessor, self).__init__(instrument, book_date)
         self.system_status: bytes = b""
         self.stock_status: bytes = b""
         self.emc_status: bytes = b""
 
-    def process_message(self, message: ITCH50MarketMessage, new_snapshot: bool = True):
+    def process_message(
+        self, message: MarketMessage, new_snapshot: bool = True
+    ) -> None:
         """Process a MarketMessage
 
         :param message: message to process
         :type message: ITCH50MarketMessage
         """
-
+        if not isinstance(message, ITCH50MarketMessage):
+            raise ValueError(
+                "ITCH50MarketProcessor:process_message",
+                "Message is not an ITCH50MarketMessage: " + str(type(message)),
+            )
         timestamp = message.timestamp
 
         self.message_event(timestamp, message)
@@ -109,6 +116,11 @@ class ITCH50MarketProcessor(MarketProcessor):
         elif isinstance(message, OrderReplaceMessage):
             if self.track_lob:
                 self.pre_lob_event(timestamp)
+                if self.current_lob is None:
+                    raise Exception(
+                        "ITCH50MarketProcessor:process_message",
+                        "Replacing order without LOB.",
+                    )
                 if self.current_lob.ask_order_on_book(message.origOrderRefNum):
                     order_type = OrderType.ASK
                 elif self.current_lob.bid_order_on_book(message.origOrderRefNum):
@@ -133,7 +145,7 @@ class ITCH50MarketProcessor(MarketProcessor):
 
     def process_system_message(
         self, code: bytes, timestamp: Timestamp, new_snapshot: bool = True
-    ):
+    ) -> None:
         """Process a system message"""
         if code in b"OSQMEC":
             self.system_status = code
@@ -148,7 +160,7 @@ class ITCH50MarketProcessor(MarketProcessor):
 
     def process_trading_action_message(
         self, state: bytes, timestamp: Timestamp, new_snapshot: bool = True
-    ):
+    ) -> None:
         """Process a stock trading action message"""
         if state in b"HPQT":
             self.stock_status = state
@@ -159,7 +171,7 @@ class ITCH50MarketProcessor(MarketProcessor):
             )
         self.update_trading_status()
 
-    def update_trading_status(self):
+    def update_trading_status(self) -> None:
         """Update the current trading status"""
         if self.emc_status == b"A" or self.stock_status in b"HP":
             # Halted
@@ -194,19 +206,21 @@ class ITCH50MarketProcessor(MarketProcessor):
         volume: Volume,
         order_id: OrderID,
         order_type: OrderType,
-    ):
+    ) -> None:
         """Enter a new quote in the LOB"""
         self.enter_quote_event(timestamp, price, volume, order_id, order_type)
         self.current_lob.enter_quote(timestamp, price, volume, order_id, order_type)
 
-    def cancel_quote(self, timestamp: Timestamp, volume: Volume, order_id: OrderID):
+    def cancel_quote(
+        self, timestamp: Timestamp, volume: Volume, order_id: OrderID
+    ) -> None:
         """Cancel a quote from the LOB."""
         # Cancel order from new snapshot, so the snapshot can apply
         # the appropriate ranking according to rules
         self.cancel_quote_event(timestamp, volume, order_id)
         self.current_lob.cancel_quote(volume, order_id)
 
-    def delete_quote(self, timestamp: Timestamp, order_id: OrderID):
+    def delete_quote(self, timestamp: Timestamp, order_id: OrderID) -> None:
         """Delete a quote from the LOB."""
         #
         # Delete order from new snapshot, so the snapshot can apply
@@ -222,7 +236,7 @@ class ITCH50MarketProcessor(MarketProcessor):
         price: Price,
         volume: Volume,
         order_type: OrderType,
-    ):
+    ) -> None:
         """Replace a quote in the LOB."""
         #
         # Replace an order, so basilly remov previous instance and introduce
@@ -239,7 +253,7 @@ class ITCH50MarketProcessor(MarketProcessor):
         volume: Volume,
         order_id: OrderID,
         trade_ref: TradeRef,
-    ):
+    ) -> None:
         """Execute a on-market trade."""
         #
         # Execute order from new snapshot, so the snapshot can apply
@@ -254,7 +268,7 @@ class ITCH50MarketProcessor(MarketProcessor):
         order_id: OrderID,
         trade_ref: TradeRef,
         price: Price,
-    ):
+    ) -> None:
         """Execute a on-market trade, bypassing piority."""
         #
         # TODO: Figure out what to do with non-printable executions

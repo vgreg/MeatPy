@@ -1,8 +1,5 @@
-from typing import Optional
-
-
 class TradingStatus:
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -13,7 +10,7 @@ class TradingStatus:
 
 
 class PreTradeTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -24,7 +21,7 @@ class PreTradeTradingStatus(TradingStatus):
 
 
 class TradeTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -35,7 +32,7 @@ class TradeTradingStatus(TradingStatus):
 
 
 class PostTradeTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -46,7 +43,7 @@ class PostTradeTradingStatus(TradingStatus):
 
 
 class HaltedTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -57,7 +54,7 @@ class HaltedTradingStatus(TradingStatus):
 
 
 class QuoteOnlyTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -68,7 +65,7 @@ class QuoteOnlyTradingStatus(TradingStatus):
 
 
 class ClosingAuctionTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):
@@ -79,7 +76,7 @@ class ClosingAuctionTradingStatus(TradingStatus):
 
 
 class ClosedTradingStatus(TradingStatus):
-    def __init__(self, details: Optional[str] = None):
+    def __init__(self, details: str | None = None):
         self.details: str | None = details
 
     def __repr__(self):

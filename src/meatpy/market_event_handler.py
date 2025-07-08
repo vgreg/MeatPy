@@ -12,7 +12,9 @@ class MarketEventHandler:
     handles the event accordingly.
     """
 
-    def before_lob_update(self, lob: LimitOrderBook, new_timestamp: Timestamp):
+    def before_lob_update(
+        self, lob: LimitOrderBook | None, new_timestamp: Timestamp
+    ) -> None:
         """Trigger before a book update (next event timestamp passed)"""
         pass
 
@@ -21,7 +23,7 @@ class MarketEventHandler:
         market_processor: MarketProcessor,
         timestamp: Timestamp,
         message: MarketMessage,
-    ):
+    ) -> None:
         pass
 
     def enter_quote_event(
@@ -31,8 +33,8 @@ class MarketEventHandler:
         price: Price,
         volume: Volume,
         order_id: OrderID,
-        order_type: OrderType = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         pass
 
     def cancel_quote_event(
@@ -41,8 +43,8 @@ class MarketEventHandler:
         timestamp: Timestamp,
         volume: Volume,
         order_id: OrderID,
-        order_type: OrderType = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         pass
 
     def delete_quote_event(
@@ -50,8 +52,8 @@ class MarketEventHandler:
         market_processor: MarketProcessor,
         timestamp: Timestamp,
         order_id: OrderID,
-        order_type: OrderType = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         pass
 
     def replace_quote_event(
@@ -62,8 +64,8 @@ class MarketEventHandler:
         new_order_id: OrderID,
         price: Price,
         volume: Volume,
-        order_type: OrderType = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         pass
 
     def execute_trade_event(
@@ -73,8 +75,8 @@ class MarketEventHandler:
         volume: Volume,
         order_id: OrderID,
         trade_ref: TradeRef,
-        order_type: OrderType = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         pass
 
     def execute_trade_price_event(
@@ -85,8 +87,8 @@ class MarketEventHandler:
         order_id: OrderID,
         trade_ref: TradeRef,
         price: Price,
-        order_type: OrderType = None,
-    ):
+        order_type: OrderType | None = None,
+    ) -> None:
         pass
 
     def auction_trade_event(
@@ -97,7 +99,7 @@ class MarketEventHandler:
         price: Price,
         bid_id: OrderID,
         ask_id: OrderID,
-    ):
+    ) -> None:
         pass
 
     def crossing_trade_event(
@@ -108,5 +110,5 @@ class MarketEventHandler:
         price: Price,
         bid_id: OrderID,
         ask_id: OrderID,
-    ):
+    ) -> None:
         pass

@@ -7,7 +7,7 @@ from meatpy.message_parser import MessageParser
 class ITCH50MessageParser(MessageParser):
     """A market message parser for ITCH 5.0 data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.keep_messages_types = b"SAFECXDUBHRYPQINLVWKJh"
         self.skip_stock_messages = False
         self.order_refs = {}
@@ -23,7 +23,7 @@ class ITCH50MessageParser(MessageParser):
         self.global_write_trigger = 1000000  # Check if buffers exceeded
         super(ITCH50MessageParser, self).__init__()
 
-    def write_file(self, file, in_messages=None):
+    def write_file(self, file, in_messages=None) -> None:
         """Write the messages to a  csv file in a compatible format
 
         The messages are written to a file that could be again parsed by
@@ -45,7 +45,7 @@ class ITCH50MessageParser(MessageParser):
             file.write(chr(x.message_size))
             file.write(x.pack())
 
-    def parse_file(self, file, write=False):
+    def parse_file(self, file, write=False) -> None:
         """Parse the content of the file to generate ITCH50MarketMessage
         objects.
         Flag indicates if parsing output is written at the same time instead
@@ -128,7 +128,7 @@ class ITCH50MessageParser(MessageParser):
             for x in self.stock_messages:
                 self.write_stock(stock=x, overlook_buffer=True)
 
-    def write_stock(self, stock, overlook_buffer=False):
+    def write_stock(self, stock, overlook_buffer=False) -> None:
         if len(self.stock_messages[stock]) > self.message_buffer or overlook_buffer:
             stock_str = stock.decode()
             with open(
@@ -141,7 +141,7 @@ class ITCH50MessageParser(MessageParser):
                     file.write(x.pack())
                 self.stock_messages[stock] = []
 
-    def append_stock_message(self, stock, message):
+    def append_stock_message(self, stock, message) -> None:
         """Append the message to the stock message queue
 
         Initialises the queue if empty"""
@@ -153,7 +153,7 @@ class ITCH50MessageParser(MessageParser):
                 self.stock_messages[stock].append(message)
                 return
 
-    def process_message(self, message):
+    def process_message(self, message) -> None:
         """
         Looks at the message and decides what to do with it.
 
@@ -210,7 +210,7 @@ class ITCH50MessageParser(MessageParser):
 
         return True
 
-    def ITCH_factory(self, message):
+    def ITCH_factory(self, message) -> None:
         """
         Pass this factory an entire bytearray and you will be
         given the appropriate ITCH message
