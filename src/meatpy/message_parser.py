@@ -30,15 +30,14 @@ class MessageParser:
 
         self.stock_messages: dict[str | bytes, MarketMessage] = {}
 
-    def parse_file(self, infile: Path | str | None = None) -> None:
+    def parse_file(self, infile: Path | str) -> None:
         """Parse a file containing market messages.
 
         Parses a file and generates corresponding market messages.
         This is an abstract method that must be implemented by subclasses.
 
         Args:
-            infile: The file to parse. Can be a Path object, string path,
-                   or None for stdin.
+            infile: The file to parse. Can be a Path object or string path.
         """
         pass
 

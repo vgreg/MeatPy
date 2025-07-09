@@ -4,6 +4,7 @@ This module provides the ITCH50MessageParser class, which parses ITCH 5.0 market
 """
 
 from datetime import datetime
+from pathlib import Path
 
 import meatpy.itch50.itch50_market_message
 from meatpy.message_parser import MessageParser
@@ -77,17 +78,19 @@ class ITCH50MessageParser(MessageParser):
             file.write(chr(x.message_size))
             file.write(x.pack())
 
-    def parse_file(self, file, write=False) -> None:
+    def parse_file(self, infile: Path | str, write=False) -> None:
         """Parse the content of the file to generate ITCH50MarketMessage objects.
 
         Args:
-            file: File object to read from
+            infile: The file to parse. Can be a Path object or string path.
             write: Whether to write output during parsing
         """
         # Init containers
         self.counter = 0
         self.order_refs = {}
-        self.stock_messages = {}
+        self.stock_messages: dict[
+            str | bytes, list[meatpy.itch50.itch50_market_message.ITCH50MarketMessage]
+        ] = {}
         self.matches = {}
         self.stock_directory = []
         self.system_messages = []
@@ -95,46 +98,55 @@ class ITCH50MessageParser(MessageParser):
         cachesize = 1024 * 4
         haveData = True
         EOFreached = False
-        dataBuffer = file.read(cachesize)
-        data_view = memoryview(dataBuffer)
-        offset = 0
-        buflen = len(data_view)
-        while haveData:
-            if offset + 2 > buflen:
-                newData = file.read(cachesize)
-                if not newData:
-                    EOFreached = True
-                dataBuffer = data_view[offset:].tobytes() + newData
-                data_view = memoryview(dataBuffer)
-                buflen = len(data_view)
-                offset = 0
-                continue
-            if data_view[offset] != 0:
-                raise InvalidMessageFormatError(f"Unexpected byte: {data_view[offset]}")
-            messageLen = data_view[offset + 1]
-            messageEnd = offset + 2 + messageLen
-            if messageEnd > buflen:
-                newData = file.read(cachesize)
-                if not newData:
-                    EOFreached = True
-                dataBuffer = data_view[offset:].tobytes() + newData
-                data_view = memoryview(dataBuffer)
-                buflen = len(data_view)
-                offset = 0
-                continue
-            message = self.ITCH_factory(data_view[offset + 2 : messageEnd])
-            keep_messages_bool = self.process_message(message)
-            if not keep_messages_bool:
+
+        with open(infile, "rb") as file:
+            dataBuffer = file.read(cachesize)
+            data_view = memoryview(dataBuffer)
+            offset = 0
+            buflen = len(data_view)
+            while haveData:
+                if offset + 2 > buflen:
+                    newData = file.read(cachesize)
+                    if not newData:
+                        EOFreached = True
+                    dataBuffer = data_view[offset:].tobytes() + newData
+                    data_view = memoryview(dataBuffer)
+                    buflen = len(data_view)
+                    offset = 0
+                    continue
+                if data_view[offset] != 0:
+                    raise InvalidMessageFormatError(
+                        f"Unexpected byte: {data_view[offset]}"
+                    )
+                messageLen = data_view[offset + 1]
+                messageEnd = offset + 2 + messageLen
+                if messageEnd > buflen:
+                    newData = file.read(cachesize)
+                    if not newData:
+                        EOFreached = True
+                    dataBuffer = data_view[offset:].tobytes() + newData
+                    data_view = memoryview(dataBuffer)
+                    buflen = len(data_view)
+                    offset = 0
+                    continue
+                message = self.ITCH_factory(data_view[offset + 2 : messageEnd])
+                keep_messages_bool = self.process_message(message)
+                if not keep_messages_bool:
+                    offset = messageEnd
+                    continue
+                if (
+                    isinstance(
+                        message, meatpy.itch50.itch50_market_message.SystemEventMessage
+                    )
+                    and message.code == b"C"
+                ):
+                    break
+                if write and self.counter % self.global_write_trigger == 0:
+                    for x in self.stock_messages:
+                        self.write_stock(x)
                 offset = messageEnd
-                continue
-            if message.type == b"S" and message.code == b"C":
-                break
-            if write and self.counter % self.global_write_trigger == 0:
-                for x in self.stock_messages:
-                    self.write_stock(x)
-            offset = messageEnd
-            if offset >= buflen and EOFreached:
-                haveData = False
+                if offset >= buflen and EOFreached:
+                    haveData = False
         if write:
             for x in self.stock_messages:
                 self.write_stock(stock=x, overlook_buffer=True)
@@ -146,12 +158,15 @@ class ITCH50MessageParser(MessageParser):
             stock: Stock symbol
             overlook_buffer: Whether to write regardless of buffer size
         """
-        if len(self.stock_messages[stock]) > self.message_buffer or overlook_buffer:
+        messages: list[meatpy.itch50.itch50_market_message.ITCH50MarketMessage] = (
+            self.stock_messages.get(stock, [])
+        )
+        if len(messages) > self.message_buffer or overlook_buffer:
             stock_str = stock.decode()
             with open(
                 f"{self.output_prefix}{stock_str.strip().replace('*', '8')}.txt", "a+b"
             ) as file:
-                for x in self.stock_messages[stock]:
+                for x in messages:
                     file.write(b"\x00")
                     file.write(bytes([x.message_size]))
                     file.write(x.pack())
@@ -172,11 +187,14 @@ class ITCH50MessageParser(MessageParser):
                 self.stock_messages[stock].append(message)
                 return
 
-    def process_message(self, message) -> None:
+    def process_message(self, message) -> bool:
         """Process a message and decide what to do with it.
 
         Args:
             message: The message object to process
+
+        Returns:
+            True if the message should be kept, False otherwise
         """
         self.counter += 1
         if self.counter % 1000000 == 0:
@@ -222,7 +240,9 @@ class ITCH50MessageParser(MessageParser):
 
         return True
 
-    def ITCH_factory(self, message) -> None:
+    def ITCH_factory(
+        self, message
+    ) -> meatpy.itch50.itch50_market_message.ITCH50MarketMessage:
         """
         Pass this factory an entire bytearray and you will be
         given the appropriate ITCH message
