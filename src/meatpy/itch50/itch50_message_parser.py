@@ -3,11 +3,38 @@
 This module provides the ITCH50MessageParser class, which parses ITCH 5.0 market data files and produces structured message objects for further processing.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 from pathlib import Path
 
-import meatpy.itch50.itch50_market_message
-from meatpy.message_parser import MessageParser
+from ..message_parser import MessageParser
+from .itch50_market_message import (
+    AddOrderMessage,
+    AddOrderMPIDMessage,
+    BrokenTradeMessage,
+    CrossTradeMessage,
+    DirectListingCapitalRaiseMessage,
+    IPOQuotingPeriodUpdateMessage,
+    ITCH50MarketMessage,
+    LULDAuctionCollarMessage,
+    MarketParticipantPositionMessage,
+    MWCBBreachMessage,
+    MWCBDeclineLevelMessage,
+    NoiiMessage,
+    OperationalHaltMessage,
+    OrderCancelMessage,
+    OrderDeleteMessage,
+    OrderExecutedMessage,
+    OrderExecutedPriceMessage,
+    OrderReplaceMessage,
+    RegSHOMessage,
+    RpiiMessage,
+    StockDirectoryMessage,
+    StockTradingActionMessage,
+    SystemEventMessage,
+    TradeMessage,
+)
 
 
 class InvalidMessageFormatError(Exception):
@@ -51,12 +78,12 @@ class ITCH50MessageParser(MessageParser):
         """Initialize the ITCH50MessageParser."""
         self.keep_messages_types = b"SAFECXDUBHRYPQINLVWKJh"
         self.skip_stock_messages = False
-        self.order_refs = {}
-        self.stocks = None
-        self.matches = {}
+        self.order_refs: dict[int, bytes] = {}
+        self.stocks: list[bytes] | None = None
+        self.matches: dict[int, bytes] = {}
         self.counter = 0
-        self.stock_directory = []
-        self.system_messages = []
+        self.stock_directory: list["ITCH50MarketMessage"] = []
+        self.system_messages: list["ITCH50MarketMessage"] = []
         self.output_prefix = ""
         self.message_buffer = 2000
         self.global_write_trigger = 1000000
@@ -88,9 +115,7 @@ class ITCH50MessageParser(MessageParser):
         # Init containers
         self.counter = 0
         self.order_refs = {}
-        self.stock_messages: dict[
-            str | bytes, list[meatpy.itch50.itch50_market_message.ITCH50MarketMessage]
-        ] = {}
+        self.stock_messages: dict[str | bytes, list[ITCH50MarketMessage]] = {}
         self.matches = {}
         self.stock_directory = []
         self.system_messages = []
@@ -134,12 +159,7 @@ class ITCH50MessageParser(MessageParser):
                 if not keep_messages_bool:
                     offset = messageEnd
                     continue
-                if (
-                    isinstance(
-                        message, meatpy.itch50.itch50_market_message.SystemEventMessage
-                    )
-                    and message.code == b"C"
-                ):
+                if isinstance(message, SystemEventMessage) and message.code == b"C":
                     break
                 if write and self.counter % self.global_write_trigger == 0:
                     for x in self.stock_messages:
@@ -158,9 +178,7 @@ class ITCH50MessageParser(MessageParser):
             stock: Stock symbol
             overlook_buffer: Whether to write regardless of buffer size
         """
-        messages: list[meatpy.itch50.itch50_market_message.ITCH50MarketMessage] = (
-            self.stock_messages.get(stock, [])
-        )
+        messages: list[ITCH50MarketMessage] = self.stock_messages.get(stock, [])
         if len(messages) > self.message_buffer or overlook_buffer:
             stock_str = stock.decode()
             with open(
@@ -240,69 +258,57 @@ class ITCH50MessageParser(MessageParser):
 
         return True
 
-    def ITCH_factory(
-        self, message
-    ) -> meatpy.itch50.itch50_market_message.ITCH50MarketMessage:
+    def ITCH_factory(self, message) -> ITCH50MarketMessage:
         """
         Pass this factory an entire bytearray and you will be
         given the appropriate ITCH message
         """
         msgtype = chr(message[0])
         if msgtype == "S":
-            return meatpy.itch50.itch50_market_message.SystemEventMessage(message)
+            return SystemEventMessage(message)
         elif msgtype == "R":
-            return meatpy.itch50.itch50_market_message.StockDirectoryMessage(message)
+            return StockDirectoryMessage(message)
         elif msgtype == "H":
-            return meatpy.itch50.itch50_market_message.StockTradingActionMessage(
-                message
-            )
+            return StockTradingActionMessage(message)
         elif msgtype == "Y":
-            return meatpy.itch50.itch50_market_message.RegSHOMessage(message)
+            return RegSHOMessage(message)
         elif msgtype == "L":
-            return meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage(
-                message
-            )
+            return MarketParticipantPositionMessage(message)
         elif msgtype == "V":
-            return meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage(message)
+            return MWCBDeclineLevelMessage(message)
         elif msgtype == "W":
-            return meatpy.itch50.itch50_market_message.MWCBBreachMessage(message)
+            return MWCBBreachMessage(message)
         elif msgtype == "K":
-            return meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage(
-                message
-            )
+            return IPOQuotingPeriodUpdateMessage(message)
         elif msgtype == "J":
-            return meatpy.itch50.itch50_market_message.LULDAuctionCollarMessage(message)
+            return LULDAuctionCollarMessage(message)
         elif msgtype == "h":
-            return meatpy.itch50.itch50_market_message.OperationalHaltMessage(message)
+            return OperationalHaltMessage(message)
         elif msgtype == "A":
-            return meatpy.itch50.itch50_market_message.AddOrderMessage(message)
+            return AddOrderMessage(message)
         elif msgtype == "F":
-            return meatpy.itch50.itch50_market_message.AddOrderMPIDMessage(message)
+            return AddOrderMPIDMessage(message)
         elif msgtype == "E":
-            return meatpy.itch50.itch50_market_message.OrderExecutedMessage(message)
+            return OrderExecutedMessage(message)
         elif msgtype == "C":
-            return meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage(
-                message
-            )
+            return OrderExecutedPriceMessage(message)
         elif msgtype == "X":
-            return meatpy.itch50.itch50_market_message.OrderCancelMessage(message)
+            return OrderCancelMessage(message)
         elif msgtype == "D":
-            return meatpy.itch50.itch50_market_message.OrderDeleteMessage(message)
+            return OrderDeleteMessage(message)
         elif msgtype == "U":
-            return meatpy.itch50.itch50_market_message.OrderReplaceMessage(message)
+            return OrderReplaceMessage(message)
         elif msgtype == "P":
-            return meatpy.itch50.itch50_market_message.TradeMessage(message)
+            return TradeMessage(message)
         elif msgtype == "Q":
-            return meatpy.itch50.itch50_market_message.CrossTradeMessage(message)
+            return CrossTradeMessage(message)
         elif msgtype == "B":
-            return meatpy.itch50.itch50_market_message.BrokenTradeMessage(message)
+            return BrokenTradeMessage(message)
         elif msgtype == "I":
-            return meatpy.itch50.itch50_market_message.NoiiMessage(message)
+            return NoiiMessage(message)
         elif msgtype == "N":
-            return meatpy.itch50.itch50_market_message.RpiiMessage(message)
+            return RpiiMessage(message)
         elif msgtype == "O":
-            return meatpy.itch50.itch50_market_message.DirectListingCapitalRaiseMessage(
-                message
-            )
+            return DirectListingCapitalRaiseMessage(message)
         else:
             raise UnknownMessageTypeError(f"Unknown message type: {msgtype}")

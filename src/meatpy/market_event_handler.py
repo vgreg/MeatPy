@@ -4,11 +4,17 @@ This module provides the MarketEventHandler base class that defines the interfac
 for handling various market events during processing.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from .lob import LimitOrderBook, OrderType
-from .market_processor import MarketProcessor
 from .message_parser import MarketMessage
 from .timestamp import Timestamp
 from .types import OrderID, Price, TradeRef, Volume
+
+if TYPE_CHECKING:
+    from .market_processor import MarketProcessor
 
 
 class MarketEventHandler:
