@@ -1,35 +1,59 @@
+"""Limit order book level management.
+
+This module provides classes for managing individual price levels in a limit
+order book, including order queues, execution logic, and CSV export functionality.
+"""
+
+from typing import Generic
+
 from meatpy.timestamp import Timestamp
 
 from .types import OrderID, Price, Qualifiers, Volume
 
 
 class ExecutionPriorityException(Exception):
-    """An exception when market priority (price/time preference) is not respected."""
+    """Exception raised when market priority (price/time preference) is not respected.
+
+    This exception is raised when an order execution violates the priority
+    rules of the limit order book, such as executing an order that is not
+    first in the queue.
+    """
 
     pass
 
 
 class VolumeInconsistencyException(Exception):
-    """An exception when the volume of a trade or cancel is larger than the volume on the book."""
+    """Exception raised when the volume of a trade or cancel is larger than the volume on the book.
+
+    This exception is raised when attempting to execute or cancel a volume
+    that exceeds the available volume at a price level.
+    """
 
     pass
 
 
-class OrderOnBook:
+class OrderNotFoundError(Exception):
+    """Exception raised when an order is not found in the limit order book.
+
+    This exception is raised when attempting to perform operations on an order
+    that does not exist in the specified price level or queue.
+    """
+
+    pass
+
+
+class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
     """An order currently on the book.
 
-    Just a low-level order structure for orders on the book. The order
-    type and price  are irrelevant here, they depend on the queue and
+    This is a low-level order structure for orders on the book. The order
+    type and price are irrelevant here, they depend on the queue and
     level the order belongs to.
 
-    :param order_id:
-    :type order_id: int
-    :param timestamp:
-    :type timestamp:
-    :param volume:
-    :type volume: int
-    :param qualifs: qualifiers
-    :type qualifs: dict or None
+    Attributes:
+        order_id: Unique identifier for the order
+        timestamp: When the order was placed
+        volume: Remaining volume of the order
+        qualifs: Optional qualifiers for the order
     """
 
     def __init__(
@@ -39,29 +63,18 @@ class OrderOnBook:
         volume: Volume,
         qualifs: Qualifiers | None = None,
     ) -> None:
-        self.order_id = order_id
-        self.timestamp = timestamp
-        self.volume = volume
-        self.qualifs = qualifs
+        self.order_id: OrderID = order_id
+        self.timestamp: Timestamp = timestamp
+        self.volume: Volume = volume
+        self.qualifs: Qualifiers | None = qualifs
 
     def print_out(self, indent: str = "") -> None:
-        """
-        Use this function to print information as a log.
+        """Print order information as a log.
 
-
-        :param indent:
-        :type indent: str
-        :return: None
+        Args:
+            indent: Indentation string for formatting
         """
-        print(
-            indent
-            + str(self.volume)
-            + " shares at "
-            + str(self.timestamp)
-            + " (id "
-            + str(self.order_id)
-            + ")"
-        )
+        print(f"{indent}{self.volume} shares at {self.timestamp} (id {self.order_id})")
 
     def write_csv(
         self,
@@ -72,76 +85,45 @@ class OrderOnBook:
         price: Price,
         show_age: bool,
     ) -> None:
-        """
-        This method is for writing the data to a csv file.
+        """Write order data to a CSV file.
 
-        :param file: output path
-        :type file: str
-        :param timestamp:
-        :param order_type:
-        :type order_type: str
-        :param level:
-        :type level: int
-        :param price:
-        :type price: int
-        :param show_age:
-        :type show_age: bool
-        :return: None
+        Args:
+            file: File object to write to
+            timestamp: Current timestamp for the record
+            order_type: Type of order (e.g., 'bid', 'ask')
+            level: Price level number
+            price: Price of the level
+            show_age: Whether to include age information
         """
         if show_age:
             age = timestamp - self.timestamp
             file.write(
-                (
-                    str(timestamp)
-                    + ","
-                    + order_type
-                    + ","
-                    + str(level)
-                    + ","
-                    + str(price)
-                    + ","
-                    + str(self.order_id)
-                    + ","
-                    + str(self.volume)
-                    + ","
-                    + str(self.timestamp)
-                    + ","
-                    + str(age)
-                    + "\n"
-                ).encode()
+                f"{timestamp},{order_type},{level},{price},{self.order_id},{self.volume},{self.timestamp},{age}\n".encode()
             )
         else:
             file.write(
-                (
-                    str(timestamp)
-                    + ","
-                    + order_type
-                    + ","
-                    + str(level)
-                    + ","
-                    + str(price)
-                    + ","
-                    + str(self.order_id)
-                    + ","
-                    + str(self.volume)
-                    + ","
-                    + str(self.timestamp)
-                    + "\n"
-                ).encode()
+                f"{timestamp},{order_type},{level},{price},{self.order_id},{self.volume},{self.timestamp}\n".encode()
             )
 
 
-class Level:
-    """
-    This class ######## description ######
+class Level(Generic[Price, Volume, OrderID, Qualifiers]):
+    """A price level in the limit order book.
 
-    :param price: related price for specific stock
-    :type price: int
-    :param queue: create a queue for orders
-    :type queue: list
+    This class represents a single price level containing a queue of orders
+    at that price. It manages order entry, cancellation, deletion, and
+    execution according to price-time priority.
+
+    Attributes:
+        price: The price of this level
+        queue: List of orders at this price level, ordered by time priority
     """
 
     def __init__(self, price: Price) -> None:
+        """Initialize a price level.
+
+        Args:
+            price: The price for this level
+        """
         self.price: Price = price
         self.queue: list[OrderOnBook] = []
 
@@ -151,32 +133,34 @@ class Level:
         timestamp: Timestamp,
         volume: Volume,
         qualifs: Qualifiers | None = None,
-    ):
-        """
-        ########### description ############
-        :param order_id:  a number for each order to make them clear
-        :type order_id: int
-        :param timestamp: time for orders
-        :param volume: size of the order for trading
-        :type volume: int
-        :param qualifs: qualifiers
-        :type qualifs: dict or None
-        :return:
+    ) -> OrderOnBook:
+        """Create a new OrderOnBook instance.
+
+        Factory method to create OrderOnBook objects with the specified parameters.
+
+        Args:
+            order_id: Unique identifier for the order
+            timestamp: When the order was placed
+            volume: Volume of the order
+            qualifs: Optional qualifiers for the order
+
+        Returns:
+            OrderOnBook: A new order instance
         """
         return OrderOnBook(
             order_id=order_id, timestamp=timestamp, volume=volume, qualifs=qualifs
         )
 
-    def print_out(self, indent="", level=0) -> None:
-        """
+    def print_out(self, indent: str = "", level: int = 0) -> None:
+        """Print the price level information.
 
-        :param indent:
-        :param level:
-        :return:
+        Args:
+            indent: Indentation string for formatting
+            level: Level number for display
         """
-        print(indent + "Price level " + str(level) + ": " + str(self.price))
+        print(f"{indent}Price level {level}: {self.price}")
         for x in self.queue:
-            x.print_out(indent + "  ")
+            x.print_out(f"{indent}  ")
 
     def write_csv(
         self,
@@ -188,16 +172,16 @@ class Level:
         price: Price | None = None,
         show_age: bool = False,
     ) -> None:
-        """
+        """Write level data to a CSV file.
 
-        :param file:
-        :param timestamp:
-        :param order_type:
-        :param level:
-        :param collapse_orders:
-        :param price:
-        :param show_age:
-        :return:
+        Args:
+            file: File object to write to
+            timestamp: Current timestamp for the record
+            order_type: Type of order (e.g., 'bid', 'ask')
+            level: Price level number
+            collapse_orders: Whether to aggregate all orders at this level
+            price: Price to use (defaults to level price if None)
+            show_age: Whether to include age information
         """
         if price is None:
             price = self.price
@@ -224,56 +208,24 @@ class Level:
                 first_age = timestamp - self.queue[0].timestamp
                 last_age = timestamp - self.queue[-1].timestamp
                 file.write(
-                    (
-                        str(timestamp)
-                        + ","
-                        + order_type
-                        + ","
-                        + str(level)
-                        + ","
-                        + str(price)
-                        + ","
-                        + str(volume)
-                        + ","
-                        + str(n_orders)
-                        + ","
-                        + str(vw_age)
-                        + ","
-                        + str(age)
-                        + ","
-                        + str(first_age)
-                        + ","
-                        + str(last_age)
-                        + "\n"
-                    ).encode()
+                    f"{timestamp},{order_type},{level},{price},{volume},{n_orders},{vw_age},{age},{first_age},{last_age}\n".encode()
                 )
             else:
                 file.write(
-                    (
-                        str(timestamp)
-                        + ","
-                        + order_type
-                        + ","
-                        + str(level)
-                        + ","
-                        + str(price)
-                        + ","
-                        + str(volume)
-                        + ","
-                        + str(n_orders)
-                        + "\n"
-                    ).encode()
+                    f"{timestamp},{order_type},{level},{price},{volume},{n_orders}\n".encode()
                 )
         else:
             for x in self.queue:
                 x.write_csv(file, timestamp, order_type, level, self.price, show_age)
 
     def order_on_book(self, order_id: OrderID) -> bool:
-        """
-        Indicates if the order_id is on the books at the current level.
+        """Check if an order is on the book at this level.
 
-        :param order_id: a number for each order to make them clear
-        :return:
+        Args:
+            order_id: The order identifier to search for
+
+        Returns:
+            bool: True if the order is found, False otherwise
         """
         for x in self.queue:
             if x.order_id == order_id:
@@ -282,23 +234,25 @@ class Level:
 
     @property
     def volume(self) -> Volume:
-        """
-        Return the total volume for the order
+        """Get the total volume at this price level.
 
-        :return:
+        Returns:
+            Volume: Sum of all order volumes at this level
         """
         return sum(x.volume for x in self.queue)
 
-    def execution_price(self, volume) -> tuple[Price, Volume]:
-        """
-        Indicate the execution price for an order os size volume.
+    def execution_price(self, volume: Volume) -> tuple[Price, Volume]:
+        """Calculate the execution price for a given volume.
 
-        Returns a tuple, with the first element being the total price and
-        the second element the number of shares, which is
-        min(requested volume, total book volume at current level)
+        Returns a tuple with the total price and the number of shares that
+        can be executed, which is min(requested volume, total book volume
+        at current level).
 
-        :param volume:
-        :return:
+        Args:
+            volume: The volume to calculate execution price for
+
+        Returns:
+            tuple[Price, Volume]: (total_price, executed_volume)
         """
         volume_acc = 0
 
@@ -312,48 +266,48 @@ class Level:
         return (self.price * volume_acc, volume_acc)
 
     def find_order_on_book(self, order_id: OrderID) -> int:
-        """
-        Find the order_id on the books at the current level.
+        """Find the position of an order in the queue.
 
+        Args:
+            order_id: The order identifier to search for
 
-        :param order_id:
-        :return:
+        Returns:
+            int: Index of the order in the queue, or -1 if not found
         """
         for x in range(len(self.queue)):
             if self.queue[x].order_id == order_id:
                 return x
         return -1
 
-    def cancel_quote(self, order_id: OrderID, volume: Volume, i=None) -> None:
-        """
-        Cancel order with order_id and volume. Returns true on success,
-            false if not in this level
+    def cancel_quote(
+        self, order_id: OrderID, volume: Volume, i: int | None = None
+    ) -> None:
+        """Cancel a portion of an order.
 
+        Cancels the specified volume from an order. If the order volume
+        becomes zero, the order is removed from the queue.
 
-        :param order_id:
-        :param volume:
-        :param i:
-        :return:
+        Args:
+            order_id: The order identifier to cancel
+            volume: The volume to cancel
+            i: Optional index of the order in the queue
+
+        Raises:
+            Exception: If the order is not found at this level
+            VolumeInconsistencyException: If cancel volume exceeds order volume
         """
         # Find the quote, and delete it (make sure volumes match)
         if i is None:
             i = self.find_order_on_book(order_id)
             if i == -1:
-                raise Exception(
-                    "Level:cancel_quote", "Order ID " + str(order_id) + " not on level"
-                )
+                raise OrderNotFoundError(f"Order ID {order_id} not on level")
         # Check for consistency in volume
         if self.queue[i].volume < volume:
             book_vol = self.queue[i].volume
             del self.queue[i]
             raise VolumeInconsistencyException(
                 "Level:cancel_quote",
-                "Cancel volume ("
-                + str(volume)
-                + ") larger than book volume ("
-                + str(book_vol)
-                + ") for order ID "
-                + str(order_id),
+                f"Cancel volume ({volume}) larger than book volume ({book_vol}) for order ID {order_id}",
                 order_id,
             )
         # Delete order
@@ -363,20 +317,22 @@ class Level:
             self.queue[i].volume -= volume
 
     def delete_quote(self, order_id: OrderID, i: int | None = None) -> bool:
-        """
-        Delete order with order_id . Returns true on success,
-            false if not in this level
+        """Delete an entire order from the queue.
 
-        :param order_id:
-        :param i:
-        :return:
+        Args:
+            order_id: The order identifier to delete
+            i: Optional index of the order in the queue
+
+        Returns:
+            bool: True on successful deletion
+
+        Raises:
+            Exception: If the order is not found at this level
         """
         if i is None:
             i = self.find_order_on_book(order_id)
             if i == -1:
-                raise Exception(
-                    "Level:delete_quote", "Order ID " + str(order_id) + " not on level"
-                )
+                raise OrderNotFoundError(f"Order ID {order_id} not on level")
 
         # Delete order
         del self.queue[i]
@@ -389,15 +345,15 @@ class Level:
         order_id: OrderID,
         qualifs: Qualifiers | None = None,
     ) -> None:
-        """
-        Enter the quote at the back of the queue.
+        """Enter a new quote at the back of the queue.
 
-        :param timestamp:
-        :param volume:
-        :param order_id:
-        :param qualifs: qualifiers
-        :type qualifs: dict or None
-        :return:
+        Adds a new order to the end of the queue (time priority).
+
+        Args:
+            timestamp: When the order was placed
+            volume: Volume of the order
+            order_id: Unique identifier for the order
+            qualifs: Optional qualifiers for the order
         """
         self.queue.append(self.order_factory(order_id, timestamp, volume, qualifs))
 
@@ -408,16 +364,16 @@ class Level:
         order_id: OrderID,
         qualifs: Qualifiers | None = None,
     ) -> None:
-        """
-        Enter the quote in the queue according to timestamp.
+        """Enter a quote in the queue according to timestamp priority.
 
+        Inserts the order at the correct position based on timestamp,
+        maintaining time priority order.
 
-        :param timestamp:
-        :param volume:
-        :param order_id:
-        :param qualifs: qualifiers
-        :type qualifs: dict or None
-        :return:
+        Args:
+            timestamp: When the order was placed
+            volume: Volume of the order
+            order_id: Unique identifier for the order
+            qualifs: Optional qualifiers for the order
         """
         i = 0
         for x in self.queue:
@@ -437,18 +393,21 @@ class Level:
         check_position: bool,
         qualifs: Qualifiers | None = None,
     ) -> None:
-        """
-        Enter the quote in the queue according to  stated position.
+        """Enter a quote at a specific position in the queue.
 
+        Inserts the order at the specified position, optionally checking
+        if the position is consistent with timestamp priority.
 
-        :param timestamp:
-        :param volume:
-        :param order_id:
-        :param position:
-        :param check_position:
-        :param qualifs: qualifiers
-        :type qualifs: dict or None
-        :return:
+        Args:
+            timestamp: When the order was placed
+            volume: Volume of the order
+            order_id: Unique identifier for the order
+            position: Position in the queue (1-based)
+            check_position: Whether to verify position consistency
+            qualifs: Optional qualifiers for the order
+
+        Raises:
+            ExecutionPriorityException: If position check fails
         """
         raise_error = False
         i = 0
@@ -468,13 +427,7 @@ class Level:
         if raise_error:
             raise ExecutionPriorityException(
                 "Level:enter_quote_at_position",
-                "Order ID "
-                + str(order_id)
-                + " should be at position "
-                + str(i)
-                + ", not "
-                + str(position - 1)
-                + ".",
+                f"Order ID {order_id} should be at position {i}, not {position - 1}.",
                 timestamp,
                 order_id,
                 None,
@@ -494,11 +447,7 @@ class Level:
         if self.queue[0].order_id != order_id:
             raise ExecutionPriorityException(
                 "Level:execute_trade",
-                "Order ID "
-                + str(order_id)
-                + " not first in line, "
-                + str(self.queue[0].order_id)
-                + " is.",
+                f"Order ID {order_id} not first in line, {self.queue[0].order_id} is.",
                 timestamp,
                 order_id,
                 self.queue[0].order_id,
@@ -512,12 +461,7 @@ class Level:
             del self.queue[0]
             raise VolumeInconsistencyException(
                 "Level:execute_trade",
-                "Volume ("
-                + str(volume)
-                + ") larger than book volume ("
-                + str(book_vol)
-                + ") for order "
-                + str(order_id),
+                f"Volume ({volume}) larger than book volume ({book_vol}) for order {order_id}",
                 order_id,
             )
 
@@ -541,10 +485,7 @@ class Level:
                 break
 
         if order is None:
-            raise Exception(
-                "Level:execute_trade_price",
-                "Order ID " + str(order_id) + " not in queue",
-            )
+            raise OrderNotFoundError(f"Order ID {order_id} not in queue")
         if self.queue[order].volume > volume:
             self.queue[order].volume -= volume
         elif self.queue[order].volume == volume:
@@ -554,10 +495,6 @@ class Level:
             del self.queue[order]
             raise VolumeInconsistencyException(
                 "Level:execute_trade_price",
-                "Volume ("
-                + str(volume)
-                + ") larger than book volume ("
-                + str(book_vol)
-                + ")",
+                f"Volume ({volume}) larger than book volume ({book_vol})",
                 order_id,
             )

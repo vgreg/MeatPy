@@ -1,3 +1,9 @@
+"""ITCH 5.0 order event recorder for limit order books.
+
+This module provides the ITCH50OrderEventRecorder class, which records order-related
+events from ITCH 5.0 market data and exports them to CSV files.
+"""
+
 from ..market_event_handler import MarketEventHandler
 from .itch50_market_message import (
     AddOrderMessage,
@@ -11,11 +17,28 @@ from .itch50_market_message import (
 
 
 class ITCH50OrderEventRecorder(MarketEventHandler):
+    """Records order-related events from ITCH 5.0 market data.
+
+    This recorder detects and records various order events including additions,
+    executions, cancellations, deletions, and replacements, along with the
+    current state of the limit order book.
+
+    Attributes:
+        records: List of recorded order event records
+    """
+
     def __init__(self) -> None:
+        """Initialize the ITCH50OrderEventRecorder."""
         self.records = []
 
     def message_event(self, market_processor, timestamp, message) -> None:
-        """Detect messages that involve orders and record them"""
+        """Detect messages that involve orders and record them.
+
+        Args:
+            market_processor: The market processor instance
+            timestamp: The timestamp of the message
+            message: The market message to process
+        """
         if not (
             isinstance(message, AddOrderMessage)
             or isinstance(message, AddOrderMPIDMessage)
@@ -26,13 +49,11 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             or isinstance(message, OrderReplaceMessage)
         ):
             return
-
         lob = market_processor.current_lob
         ask_price = None
         ask_size = None
         bid_price = None
         bid_size = None
-
         # LOB is only initialised after first event.
         if lob is not None:
             if len(lob.ask_levels) > 0:
@@ -41,7 +62,6 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             if len(lob.bid_levels) > 0:
                 bid_price = lob.bid_levels[0].price
                 bid_size = lob.bid_levels[0].volume()
-
         # For OrderExecuted and OrderCancel, find price of corresponding
         # limit order. For OrderDelete also find quantity.
         if (
@@ -51,19 +71,14 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
         ):
             price = None
             shares = None
-
             try:
                 queue, i, j = lob.find_order(message.orderRefNum)
                 price = queue[i].price
                 shares = queue[i].queue[j].volume
             except Exception as e:
                 print(
-                    "ITCH50OrderEventRecorder ::"
-                    + str(e)
-                    + " for order ID "
-                    + str(message.orderRefNum)
+                    f"ITCH50OrderEventRecorder ::{e} for order ID {message.orderRefNum}"
                 )
-
         if isinstance(message, AddOrderMessage):
             record = {
                 "orderRefNum": message.orderRefNum,
@@ -127,7 +142,6 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
                 "newOrderRefNum": message.newOrderRefNum,
                 "MessageType": "OrderReplace",
             }
-
         record["ask_price"] = ask_price
         record["ask_size"] = ask_size
         record["bid_price"] = bid_price
@@ -135,35 +149,14 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
         self.records.append((timestamp, record))
 
     def write_csv(self, file) -> None:
-        """Write to a file in CSV format"""
-        # Write header row
+        """Write recorded order events to a CSV file.
+
+        Args:
+            file: File object to write to
+        """
         file.write(
             "Timestamp,MessageType,BuySellIndicator,Price,Volume,OrderID,NewOrderID,AskPrice,AskSize,BidPrice,BidSize\n".encode()
         )
-        # Write content
         for x in self.records:
-            row = (
-                str(x[0])
-                + ","
-                + str(x[1]["MessageType"])
-                + ","
-                + str(x[1]["bsindicator"])
-                + ","
-                + str(x[1]["price"])
-                + ","
-                + str(x[1]["shares"])
-                + ","
-                + str(x[1]["orderRefNum"])
-                + ","
-                + str(x[1]["newOrderRefNum"])
-                + ","
-                + str(x[1]["ask_price"])
-                + ","
-                + str(x[1]["ask_size"])
-                + ","
-                + str(x[1]["bid_price"])
-                + ","
-                + str(x[1]["bid_size"])
-                + "\n"
-            )
+            row = f"{x[0]},{x[1]['MessageType']},{x[1]['bsindicator']},{x[1]['price']},{x[1]['shares']},{x[1]['orderRefNum']},{x[1]['newOrderRefNum']},{x[1]['ask_price']},{x[1]['ask_size']},{x[1]['bid_price']},{x[1]['bid_size']}\n"
             file.write(row.encode())

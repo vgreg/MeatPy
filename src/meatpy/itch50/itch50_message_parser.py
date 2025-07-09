@@ -1,150 +1,202 @@
-from datetime import datetime
+"""ITCH 5.0 message parser for market data files.
 
-import meatpy.itch50.itch50_market_message
-from meatpy.message_parser import MessageParser
+This module provides the ITCH50MessageParser class, which parses ITCH 5.0 market data files and produces structured message objects for further processing.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from pathlib import Path
+
+from ..message_parser import MessageParser
+from .itch50_market_message import (
+    AddOrderMessage,
+    AddOrderMPIDMessage,
+    BrokenTradeMessage,
+    CrossTradeMessage,
+    DirectListingCapitalRaiseMessage,
+    IPOQuotingPeriodUpdateMessage,
+    ITCH50MarketMessage,
+    LULDAuctionCollarMessage,
+    MarketParticipantPositionMessage,
+    MWCBBreachMessage,
+    MWCBDeclineLevelMessage,
+    NoiiMessage,
+    OperationalHaltMessage,
+    OrderCancelMessage,
+    OrderDeleteMessage,
+    OrderExecutedMessage,
+    OrderExecutedPriceMessage,
+    OrderReplaceMessage,
+    RegSHOMessage,
+    RpiiMessage,
+    StockDirectoryMessage,
+    StockTradingActionMessage,
+    SystemEventMessage,
+    TradeMessage,
+)
+
+
+class InvalidMessageFormatError(Exception):
+    """Exception raised when a message has an invalid format.
+
+    This exception is raised when the message format does not match
+    the expected ITCH 5.0 message structure.
+    """
+
+    pass
+
+
+class UnknownMessageTypeError(Exception):
+    """Exception raised when an unknown message type is encountered.
+
+    This exception is raised when the message type is not recognized
+    by the ITCH 5.0 parser.
+    """
+
+    pass
 
 
 class ITCH50MessageParser(MessageParser):
-    """A market message parser for ITCH 5.0 data."""
+    """A market message parser for ITCH 5.0 data.
+
+    Attributes:
+        keep_messages_types: Bytes of message types to keep
+        skip_stock_messages: Whether to skip stock messages
+        order_refs: Mapping of order reference numbers to stocks
+        stocks: List of stocks to parse (None for all)
+        matches: Mapping of match numbers to stocks
+        counter: Message counter
+        stock_directory: List of stock directory messages
+        system_messages: List of system messages
+        output_prefix: Prefix for output files
+        message_buffer: Per-stock buffer size
+        global_write_trigger: Number of messages before writing buffers
+    """
 
     def __init__(self) -> None:
+        """Initialize the ITCH50MessageParser."""
         self.keep_messages_types = b"SAFECXDUBHRYPQINLVWKJh"
         self.skip_stock_messages = False
-        self.order_refs = {}
-        self.stocks = None
-        self.matches = {}
+        self.order_refs: dict[int, bytes] = {}
+        self.stocks: list[bytes] | None = None
+        self.matches: dict[int, bytes] = {}
         self.counter = 0
-        self.stock_directory = []
-        self.system_messages = []
-
-        # Output settings
+        self.stock_directory: list["ITCH50MarketMessage"] = []
+        self.system_messages: list["ITCH50MarketMessage"] = []
         self.output_prefix = ""
-        self.message_buffer = 2000  # Per stock buffer size
-        self.global_write_trigger = 1000000  # Check if buffers exceeded
+        self.message_buffer = 2000
+        self.global_write_trigger = 1000000
         super(ITCH50MessageParser, self).__init__()
 
     def write_file(self, file, in_messages=None) -> None:
-        """Write the messages to a  csv file in a compatible format
+        """Write messages to a CSV file in a compatible format.
 
-        The messages are written to a file that could be again parsed by
-        the parser. In no messages are provided, the current message queue
-        is used.
-
-        :param file: file to write to
-        :type file: file
-        :param in_messages: messages to output
-        :type in_messages: list of ITCH50MarketMessage
+        Args:
+            file: File object to write to
+            in_messages: Optional list of messages to output
         """
         if in_messages is None:
             messages = self.stock_directory
         else:
             messages = in_messages
-
         for x in messages:
             file.write(b"\x00")
             file.write(chr(x.message_size))
             file.write(x.pack())
 
-    def parse_file(self, file, write=False) -> None:
-        """Parse the content of the file to generate ITCH50MarketMessage
-        objects.
-        Flag indicates if parsing output is written at the same time instead
-        of kept in memory.
+    def parse_file(self, infile: Path | str, write=False) -> None:
+        """Parse the content of the file to generate ITCH50MarketMessage objects.
+
+        Args:
+            infile: The file to parse. Can be a Path object or string path.
+            write: Whether to write output during parsing
         """
         # Init containers
         self.counter = 0
         self.order_refs = {}
-        self.stock_messages = {}
+        self.stock_messages: dict[str | bytes, list[ITCH50MarketMessage]] = {}
         self.matches = {}
         self.stock_directory = []
         self.system_messages = []
         self.latest_timestamp = None
-
         cachesize = 1024 * 4
         haveData = True
         EOFreached = False
 
-        dataBuffer = file.read(cachesize)
-        data_view = memoryview(dataBuffer)
-        offset = 0
-        buflen = len(data_view)
-
-        while haveData:
-            # Not enough for even header
-            if offset + 2 > buflen:
-                newData = file.read(cachesize)
-                if not newData:
-                    EOFreached = True
-                dataBuffer = data_view[offset:].tobytes() + newData
-                data_view = memoryview(dataBuffer)
-                buflen = len(data_view)
-                offset = 0
-                continue
-
-            # Check header byte
-            if data_view[offset] != 0:
-                raise Exception(
-                    "ITCH50MessageParser:ITCH_factory",
-                    "Unexpected byte: " + str(data_view[offset]),
-                )
-
-            messageLen = data_view[offset + 1]
-            messageEnd = offset + 2 + messageLen
-
-            if messageEnd > buflen:
-                # Need more data
-                newData = file.read(cachesize)
-                if not newData:
-                    EOFreached = True
-                dataBuffer = data_view[offset:].tobytes() + newData
-                data_view = memoryview(dataBuffer)
-                buflen = len(data_view)
-                offset = 0
-                continue
-
-            # Parse message from memoryview
-            message = self.ITCH_factory(data_view[offset + 2 : messageEnd])
-            keep_messages_bool = self.process_message(message)
-
-            if not keep_messages_bool:
+        with open(infile, "rb") as file:
+            dataBuffer = file.read(cachesize)
+            data_view = memoryview(dataBuffer)
+            offset = 0
+            buflen = len(data_view)
+            while haveData:
+                if offset + 2 > buflen:
+                    newData = file.read(cachesize)
+                    if not newData:
+                        EOFreached = True
+                    dataBuffer = data_view[offset:].tobytes() + newData
+                    data_view = memoryview(dataBuffer)
+                    buflen = len(data_view)
+                    offset = 0
+                    continue
+                if data_view[offset] != 0:
+                    raise InvalidMessageFormatError(
+                        f"Unexpected byte: {data_view[offset]}"
+                    )
+                messageLen = data_view[offset + 1]
+                messageEnd = offset + 2 + messageLen
+                if messageEnd > buflen:
+                    newData = file.read(cachesize)
+                    if not newData:
+                        EOFreached = True
+                    dataBuffer = data_view[offset:].tobytes() + newData
+                    data_view = memoryview(dataBuffer)
+                    buflen = len(data_view)
+                    offset = 0
+                    continue
+                message = self.ITCH_factory(data_view[offset + 2 : messageEnd])
+                keep_messages_bool = self.process_message(message)
+                if not keep_messages_bool:
+                    offset = messageEnd
+                    continue
+                if isinstance(message, SystemEventMessage) and message.code == b"C":
+                    break
+                if write and self.counter % self.global_write_trigger == 0:
+                    for x in self.stock_messages:
+                        self.write_stock(x)
                 offset = messageEnd
-                continue
-
-            if message.type == b"S" and message.code == b"C":
-                break
-
-            if write and self.counter % self.global_write_trigger == 0:
-                for x in self.stock_messages:
-                    self.write_stock(x)
-
-            # Advance offset
-            offset = messageEnd
-
-            if offset >= buflen and EOFreached:
-                haveData = False
-
-        # Write all unempty buffers
+                if offset >= buflen and EOFreached:
+                    haveData = False
         if write:
             for x in self.stock_messages:
                 self.write_stock(stock=x, overlook_buffer=True)
 
     def write_stock(self, stock, overlook_buffer=False) -> None:
-        if len(self.stock_messages[stock]) > self.message_buffer or overlook_buffer:
+        """Write buffered messages for a stock to a file.
+
+        Args:
+            stock: Stock symbol
+            overlook_buffer: Whether to write regardless of buffer size
+        """
+        messages: list[ITCH50MarketMessage] = self.stock_messages.get(stock, [])
+        if len(messages) > self.message_buffer or overlook_buffer:
             stock_str = stock.decode()
             with open(
-                self.output_prefix + stock_str.strip().replace("*", "8") + ".txt", "a+b"
+                f"{self.output_prefix}{stock_str.strip().replace('*', '8')}.txt", "a+b"
             ) as file:
-                # * in stock symbols replaced by 8
-                for x in self.stock_messages[stock]:
+                for x in messages:
                     file.write(b"\x00")
                     file.write(bytes([x.message_size]))
                     file.write(x.pack())
                 self.stock_messages[stock] = []
 
     def append_stock_message(self, stock, message) -> None:
-        """Append the message to the stock message queue
+        """Append a message to the stock message queue.
 
-        Initialises the queue if empty"""
+        Args:
+            stock: Stock symbol
+            message: Message object to append
+        """
         if self.stocks is None or stock in self.stocks:
             if self.skip_stock_messages:
                 return
@@ -153,28 +205,24 @@ class ITCH50MessageParser(MessageParser):
                 self.stock_messages[stock].append(message)
                 return
 
-    def process_message(self, message) -> None:
-        """
-        Looks at the message and decides what to do with it.
+    def process_message(self, message) -> bool:
+        """Process a message and decide what to do with it.
 
-        Could be keep, discard, send to file, etc.
+        Args:
+            message: The message object to process
+
+        Returns:
+            True if the message should be kept, False otherwise
         """
         self.counter += 1
-
         if self.counter % 1000000 == 0:
             print(f"[{datetime.now()}] Processed {self.counter} messages", flush=True)
-
         if message.type not in self.keep_messages_types:
-            """
-            fixed in 2025-03-22 by Seoin Kim
-            """
             return False
-
         if message.type in b"R":
             self.stock_directory.append(message)
             self.append_stock_message(message.stock, message)
         elif message.type in b"SVW":
-            # Pass-through all system messages
             for x in self.stock_messages:
                 self.append_stock_message(x, message)
             self.system_messages.append(message)
@@ -210,70 +258,57 @@ class ITCH50MessageParser(MessageParser):
 
         return True
 
-    def ITCH_factory(self, message) -> None:
+    def ITCH_factory(self, message) -> ITCH50MarketMessage:
         """
         Pass this factory an entire bytearray and you will be
         given the appropriate ITCH message
         """
         msgtype = chr(message[0])
         if msgtype == "S":
-            return meatpy.itch50.itch50_market_message.SystemEventMessage(message)
+            return SystemEventMessage(message)
         elif msgtype == "R":
-            return meatpy.itch50.itch50_market_message.StockDirectoryMessage(message)
+            return StockDirectoryMessage(message)
         elif msgtype == "H":
-            return meatpy.itch50.itch50_market_message.StockTradingActionMessage(
-                message
-            )
+            return StockTradingActionMessage(message)
         elif msgtype == "Y":
-            return meatpy.itch50.itch50_market_message.RegSHOMessage(message)
+            return RegSHOMessage(message)
         elif msgtype == "L":
-            return meatpy.itch50.itch50_market_message.MarketParticipantPositionMessage(
-                message
-            )
+            return MarketParticipantPositionMessage(message)
         elif msgtype == "V":
-            return meatpy.itch50.itch50_market_message.MWCBDeclineLevelMessage(message)
+            return MWCBDeclineLevelMessage(message)
         elif msgtype == "W":
-            return meatpy.itch50.itch50_market_message.MWCBBreachMessage(message)
+            return MWCBBreachMessage(message)
         elif msgtype == "K":
-            return meatpy.itch50.itch50_market_message.IPOQuotingPeriodUpdateMessage(
-                message
-            )
+            return IPOQuotingPeriodUpdateMessage(message)
         elif msgtype == "J":
-            return meatpy.itch50.itch50_market_message.LULDAuctionCollarMessage(message)
+            return LULDAuctionCollarMessage(message)
         elif msgtype == "h":
-            return meatpy.itch50.itch50_market_message.OperationalHaltMessage(message)
+            return OperationalHaltMessage(message)
         elif msgtype == "A":
-            return meatpy.itch50.itch50_market_message.AddOrderMessage(message)
+            return AddOrderMessage(message)
         elif msgtype == "F":
-            return meatpy.itch50.itch50_market_message.AddOrderMPIDMessage(message)
+            return AddOrderMPIDMessage(message)
         elif msgtype == "E":
-            return meatpy.itch50.itch50_market_message.OrderExecutedMessage(message)
+            return OrderExecutedMessage(message)
         elif msgtype == "C":
-            return meatpy.itch50.itch50_market_message.OrderExecutedPriceMessage(
-                message
-            )
+            return OrderExecutedPriceMessage(message)
         elif msgtype == "X":
-            return meatpy.itch50.itch50_market_message.OrderCancelMessage(message)
+            return OrderCancelMessage(message)
         elif msgtype == "D":
-            return meatpy.itch50.itch50_market_message.OrderDeleteMessage(message)
+            return OrderDeleteMessage(message)
         elif msgtype == "U":
-            return meatpy.itch50.itch50_market_message.OrderReplaceMessage(message)
+            return OrderReplaceMessage(message)
         elif msgtype == "P":
-            return meatpy.itch50.itch50_market_message.TradeMessage(message)
+            return TradeMessage(message)
         elif msgtype == "Q":
-            return meatpy.itch50.itch50_market_message.CrossTradeMessage(message)
+            return CrossTradeMessage(message)
         elif msgtype == "B":
-            return meatpy.itch50.itch50_market_message.BrokenTradeMessage(message)
+            return BrokenTradeMessage(message)
         elif msgtype == "I":
-            return meatpy.itch50.itch50_market_message.NoiiMessage(message)
+            return NoiiMessage(message)
         elif msgtype == "N":
-            return meatpy.itch50.itch50_market_message.RpiiMessage(message)
+            return RpiiMessage(message)
         elif msgtype == "O":
-            return meatpy.itch50.itch50_market_message.DirectListingCapitalRaiseMessage(
-                message
-            )
+            return DirectListingCapitalRaiseMessage(message)
         else:
-            raise Exception(
-                "ITCH50MessageParser:ITCH_factory",
-                "Unknown message type: " + str(msgtype),
-            )
+            raise UnknownMessageTypeError(f"Unknown message type: {msgtype}")

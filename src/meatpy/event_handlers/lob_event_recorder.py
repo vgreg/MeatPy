@@ -1,3 +1,10 @@
+"""Event recorder for limit order book (LOB) events.
+
+This module provides the LOBEventRecorder class, which records LOB events and
+writes them to CSV files, with support for filtering by trading status and
+timestamp.
+"""
+
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Any
@@ -16,7 +23,27 @@ from ..trading_status import (
 
 
 class LOBEventRecorder(MarketEventHandler):
+    """Records limit order book events and manages CSV output.
+
+    Attributes:
+        records: List of recorded measures
+        record_timestamps: Optional list of timestamps to record
+        record_start: Optional start timestamp for recording
+        record_end: Optional end timestamp for recording
+        write_csv_during_recording: Whether to write CSV during recording
+        output_file_name: Output file name for concurrent writing
+        buffer_size: Size of the buffer for records
+        first_write_done: Whether the first write has been completed
+        record_always: Whether to record regardless of trading status
+        record_pretrade: Whether to record during pre-trade status
+        record_trading: Whether to record during trading status
+        record_posttrade: Whether to record during post-trade status
+        record_halted: Whether to record during halted status
+        record_quoteonly: Whether to record during quote-only status
+    """
+
     def __init__(self):
+        """Initialize the LOBEventRecorder with default settings."""
         self.records: list[
             list[Any]
         ] = []  # List of records, each record is a list of measures
@@ -48,9 +75,20 @@ class LOBEventRecorder(MarketEventHandler):
         # when record_always is False
 
     def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
+        """Record the current state of the limit order book.
+
+        Args:
+            lob: The current limit order book
+            record_timestamp: Optional timestamp to record
+        """
         pass
 
     def skip_record(self, lob: LimitOrderBook):
+        """Handle logic when skipping a record due to trading status.
+
+        Args:
+            lob: The current limit order book
+        """
         """Handles what needs to be done at every lob update when not
         recording because of trade status."""
         pass
@@ -58,6 +96,12 @@ class LOBEventRecorder(MarketEventHandler):
     def before_lob_update(
         self, market_processor: MarketProcessor, new_timestamp: Timestamp
     ):
+        """Trigger before a book update (next event timestamp passed).
+
+        Args:
+            market_processor: The market processor instance
+            new_timestamp: The new timestamp for the update
+        """
         lob = market_processor.current_lob
         """Trigger before a book update (next event timestamp passed)"""
 
@@ -109,6 +153,7 @@ class LOBEventRecorder(MarketEventHandler):
             self.write_buffer()
 
     def write_buffer(self):
+        """Write the buffer of records to the output file."""
         if not self.first_write_done:
             with open(self.output_file_name, "w") as file:
                 self.write_csv_header(file)
@@ -118,7 +163,17 @@ class LOBEventRecorder(MarketEventHandler):
             self.append_csv(file)
 
     def write_csv_header(self, file: TextIOWrapper):
+        """Write the CSV header row to the file.
+
+        Args:
+            file: The file object to write the header to
+        """
         pass
 
     def append_csv(self, file: TextIOWrapper):
+        """Append records to the CSV file.
+
+        Args:
+            file: The file object to append records to
+        """
         pass

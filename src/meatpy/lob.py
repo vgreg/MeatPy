@@ -18,6 +18,46 @@ class ExecutionPriorityExceptionList(Exception):
     pass
 
 
+class InvalidPriceTypeError(Exception):
+    """Exception raised when an invalid price type is encountered.
+
+    This exception is raised when the price type is not supported
+    by the limit order book operations.
+    """
+
+    pass
+
+
+class OrderNotFoundError(Exception):
+    """Exception raised when an order is not found in the limit order book.
+
+    This exception is raised when attempting to perform operations on an order
+    that does not exist in the specified price level or queue.
+    """
+
+    pass
+
+
+class InvalidOrderTypeError(Exception):
+    """Exception raised when an invalid order type is encountered.
+
+    This exception is raised when the order type is not supported
+    by the limit order book operations.
+    """
+
+    pass
+
+
+class InvalidPositionError(Exception):
+    """Exception raised when an invalid position is specified.
+
+    This exception is raised when the position specified for order
+    placement is not valid or possible.
+    """
+
+    pass
+
+
 class OrderType(Enum):
     ASK = 0
     BID = 1
@@ -60,23 +100,18 @@ class LimitOrderBook:
     def print_out(self, indent: str = "") -> None:
         """Print the content of the limit order book."""
         print(
-            indent
-            + "LOB Snapshot: "
-            + str(self.timestamp)
-            + ","
-            + str(self.timestamp_inc)
-            + " -------------"
+            f"{indent}LOB Snapshot: {self.timestamp},{self.timestamp_inc} -------------"
         )
-        print(indent + " Bid:")
+        print(f"{indent} Bid:")
         i = 0
         for x in self.bid_levels:
             i += 1
-            x.print_out(indent + "  ", i)
-        print(indent + " Ask:")
+            x.print_out(f"{indent}  ", i)
+        print(f"{indent} Ask:")
         i = 0
         for x in self.ask_levels:
             i += 1
-            x.print_out(indent + "  ", i)
+            x.print_out(f"{indent}  ", i)
 
     def level_factory(self, price: Price) -> Level:
         return Level(price=price)
@@ -138,9 +173,8 @@ class LimitOrderBook:
             return price / self.decimals_adj
         if isinstance(price, int):
             return int(price / self.decimals_adj)
-        raise Exception(
-            "LimitOrderBook:adjust_price",
-            "Unknown price type: " + str(type(price)) + " with value " + str(price),
+        raise InvalidPriceTypeError(
+            f"Unknown price type: {type(price)} with value {price}"
         )
 
     def bid_ask_spread(self) -> Price:
@@ -298,9 +332,7 @@ class LimitOrderBook:
             else:
                 return False
         else:
-            raise Exception(
-                "LimitOrderBook:order_on_book", "Unknown order type: " + order_type
-            )
+            raise InvalidOrderTypeError(f"Unknown order type: {order_type}")
 
     def ask_order_on_book(self, order_id: OrderID) -> bool:
         """Indicate if the order_id is on the ask book.
@@ -337,9 +369,7 @@ class LimitOrderBook:
         elif self.ask_order_on_book(order_id):
             return OrderType.ASK
         else:
-            raise Exception(
-                "LimitOrderBook:find_order_type", "Order not found: " + str(order_id)
-            )
+            raise OrderNotFoundError(f"Order not found: {order_id}")
 
     def find_order(
         self, order_id: OrderID, order_type: OrderType | None = None
@@ -367,10 +397,7 @@ class LimitOrderBook:
             elif order_type == OrderType.BID:
                 queue = self.bid_levels
             else:
-                raise Exception(
-                    "LimitOrderBook:find_order",
-                    "Unknown order type: " + str(order_type),
-                )
+                raise InvalidOrderTypeError(f"Unknown order type: {order_type}")
             i = 0
             while i < len(queue):
                 j = queue[i].find_order_on_book(order_id)
@@ -378,10 +405,7 @@ class LimitOrderBook:
                     return (queue, i, j)
                 i += 1
 
-        raise Exception(
-            "LimitOrderBook:find_order_with_type",
-            "Quote ID (" + str(order_id) + ") missing from queue",
-        )
+        raise OrderNotFoundError(f"Quote ID ({order_id}) missing from queue")
 
     #### Order and trade processing
 
@@ -493,10 +517,7 @@ class LimitOrderBook:
 
         level_position = position - pre_positions
         if level_position < 1:
-            raise Exception(
-                "LimitOrderBook:enter_quote_at_position",
-                "Level position not possible: " + str(level_position),
-            )
+            raise InvalidPositionError(f"Level position not possible: {level_position}")
 
         # Enter the quote on the level
         queue[i].enter_quote_at_position(
@@ -594,10 +615,7 @@ class LimitOrderBook:
         elif not self.bid_order_on_book(bid_id):  # Buy order
             return ask_id
         else:
-            raise Exception(
-                "LimitOrderBook:find_liquidity_maker",
-                "Could not determine maker/taker)",
-            )
+            raise ValueError("Could not determine maker/taker")
 
     def execute_trade_price(
         self,

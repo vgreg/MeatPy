@@ -1,3 +1,8 @@
+"""ITCH 5.0 market data subpackage.
+
+This package provides message types, parsers, processors, and recorders for handling ITCH 5.0 market data in MeatPy.
+"""
+
 from .itch50_exec_trade_recorder import ITCH50ExecTradeRecorder
 from .itch50_market_message import (
     AddOrderMessage,

@@ -1,3 +1,9 @@
+"""ITCH 5.0 execution trade recorder for limit order books.
+
+This module provides the ITCH50ExecTradeRecorder class, which records trade
+executions from ITCH 5.0 market data and exports them to CSV files.
+"""
+
 from typing import Any
 
 from ..market_event_handler import MarketEventHandler
@@ -9,7 +15,17 @@ from .itch50_market_message import (
 
 
 class ITCH50ExecTradeRecorder(MarketEventHandler):
+    """Records trade executions from ITCH 5.0 market data.
+
+    This recorder detects and records trade executions, including both
+    visible and hidden trades, and exports them to CSV format.
+
+    Attributes:
+        records: List of recorded trade execution records
+    """
+
     def __init__(self) -> None:
+        """Initialize the ITCH50ExecTradeRecorder."""
         self.records: list[Any] = []
 
     def message_event(
@@ -18,7 +34,13 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
         timestamp,
         message,
     ) -> None:
-        """Detect messages that affect th top of the book and record them"""
+        """Detect messages that represent trade executions and record them.
+
+        Args:
+            market_processor: The market processor instance
+            timestamp: The timestamp of the message
+            message: The market message to process
+        """
         lob = market_processor.current_lob
         if isinstance(message, OrderExecutedMessage):
             # An executed order will ALWAYS be against top of book
@@ -33,7 +55,6 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 record["Price"] = lob.ask_levels[0].price
                 (queue, i, j) = lob.find_order(message.orderRefNum)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
-
                 self.records.append((timestamp, record))
             elif lob.bid_order_on_book(message.orderRefNum):
                 record = {
@@ -96,27 +117,14 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 self.records.append((timestamp, record))
 
     def write_csv(self, file) -> None:
-        """Write to a file in CSV format"""
-        # Write header row
+        """Write recorded trade executions to a CSV file.
+
+        Args:
+            file: File object to write to
+        """
         file.write(
             "Timestamp,MessageType,Queue,Price,Volume,OrderID,OrderTimestamp\n".encode()
         )
-        # Write content
         for x in self.records:
-            row = (
-                str(x[0])
-                + ","
-                + x[1]["MessageType"]
-                + ","
-                + x[1]["Queue"]
-                + ","
-                + str(x[1]["Price"])
-                + ","
-                + str(x[1]["Volume"])
-                + ","
-                + str(x[1]["OrderID"])
-                + ","
-                + str(x[1]["OrderTimestamp"])
-                + "\n"
-            )
+            row = f"{x[0]},{x[1]['MessageType']},{x[1]['Queue']},{x[1]['Price']},{x[1]['Volume']},{x[1]['OrderID']},{x[1]['OrderTimestamp']}\n"
             file.write(row.encode())
