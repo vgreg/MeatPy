@@ -1,4 +1,4 @@
-"""Tests for ITCH50Parser and ITCH50Writer classes."""
+"""Tests for ITCH50MessageReader and ITCH50Writer classes."""
 
 import struct
 import tempfile
@@ -6,18 +6,16 @@ from pathlib import Path
 
 import pytest
 
-from meatpy.itch50 import ITCH50Parser, ITCH50Writer, SystemEventMessage
+from meatpy.itch50 import ITCH50MessageReader, ITCH50Writer, SystemEventMessage
 
 
 def test_itch50_parser_initialization():
-    """Test ITCH50Parser initialization."""
-    parser = ITCH50Parser()
-    assert parser.keep_message_types is None
-    assert parser.symbols is None
+    """Test ITCH50MessageReader initialization."""
+    parser = ITCH50MessageReader()
+    assert parser.file_path is None
 
-    parser = ITCH50Parser(keep_message_types=b"RAP", symbols=[b"AAPL   "])
-    assert parser.keep_message_types == b"RAP"
-    assert parser.symbols == [b"AAPL   "]
+    parser = ITCH50MessageReader("test_file.itch")
+    assert parser.file_path == Path("test_file.itch")
 
 
 def test_itch50_writer_initialization():
@@ -72,17 +70,17 @@ def test_itch50_writer_process_message():
 
 
 def test_itch50_parser_compression_detection():
-    """Test ITCH50Parser compression detection."""
-    parser = ITCH50Parser()
+    """Test ITCH50MessageReader compression detection."""
+    parser = ITCH50MessageReader()
 
     # Test with a non-existent file (should not crash)
     with pytest.raises(FileNotFoundError):
-        list(parser.parse_file("nonexistent_file.bin"))
+        list(parser.read_file("nonexistent_file.bin"))
 
 
 def test_itch50_parser_context_manager():
-    """Test ITCH50Parser as context manager."""
-    parser = ITCH50Parser("test_file.itch")
+    """Test ITCH50MessageReader as context manager."""
+    parser = ITCH50MessageReader("test_file.itch")
 
     # Test that context manager methods exist
     assert hasattr(parser, "__enter__")
@@ -90,49 +88,41 @@ def test_itch50_parser_context_manager():
 
     # Test context manager usage (should raise FileNotFoundError for non-existent file)
     with pytest.raises(FileNotFoundError):
-        with ITCH50Parser("nonexistent_file.itch") as parser:
+        with ITCH50MessageReader("nonexistent_file.itch") as parser:
             pass
 
 
 def test_itch50_parser_natural_interface():
-    """Test ITCH50Parser natural interface with file_path in constructor."""
+    """Test ITCH50MessageReader natural interface with file_path in constructor."""
     # Test initialization with file path
-    parser = ITCH50Parser("test_file.itch")
+    parser = ITCH50MessageReader("test_file.itch")
     assert parser.file_path == Path("test_file.itch")
-    assert parser.keep_message_types is None
-    assert parser.symbols is None
 
-    # Test initialization with file path and filters
-    parser = ITCH50Parser(
-        "test_file.itch", keep_message_types=b"RAP", symbols=[b"AAPL   "]
-    )
+    # Test initialization with file path (no filters in new interface)
+    parser = ITCH50MessageReader("test_file.itch")
     assert parser.file_path == Path("test_file.itch")
-    assert parser.keep_message_types == b"RAP"
-    assert parser.symbols == [b"AAPL   "]
 
 
 def test_itch50_parser_natural_interface_context_manager():
-    """Test ITCH50Parser natural interface as context manager."""
+    """Test ITCH50MessageReader natural interface as context manager."""
     # Test that context manager methods exist
-    parser = ITCH50Parser("test_file.itch")
+    parser = ITCH50MessageReader("test_file.itch")
     assert hasattr(parser, "__enter__")
     assert hasattr(parser, "__exit__")
     assert hasattr(parser, "__iter__")
 
     # Test that it raises error when no file_path is provided
-    parser_no_path = ITCH50Parser()
+    parser_no_path = ITCH50MessageReader()
     with pytest.raises(ValueError, match="No file_path provided"):
         with parser_no_path:
             pass
 
 
 def test_itch50_parser_legacy_interface():
-    """Test ITCH50Parser legacy interface still works."""
+    """Test ITCH50MessageReader legacy interface still works."""
     # Test initialization without file path
-    parser = ITCH50Parser()
+    parser = ITCH50MessageReader()
     assert parser.file_path is None
-    assert parser.keep_message_types is None
-    assert parser.symbols is None
 
-    # Test that parse_file method still exists
-    assert hasattr(parser, "parse_file")
+    # Test that read_file method exists
+    assert hasattr(parser, "read_file")

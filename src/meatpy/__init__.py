@@ -19,6 +19,7 @@ from .lob import (
 )
 from .market_event_handler import MarketEventHandler
 from .market_processor import MarketProcessor
+from .message_reader import MessageReader
 from .registry import FormatRegistry, registry
 from .trading_status import (
     ClosedTradingStatus,
@@ -60,6 +61,7 @@ __all__ = [
     "create_processor",
     "create_parser",
     "list_available_formats",
+    "MessageReader",
     # Types
     "Price",
     "Volume",
