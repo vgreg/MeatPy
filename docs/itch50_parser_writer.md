@@ -17,6 +17,7 @@ The `ITCH50Parser` class provides a clean generator interface for parsing ITCH 5
 
 ### Features
 
+- **Natural interface**: Pass file path to constructor and iterate directly
 - **Generator interface**: Use `for` loops to iterate through messages
 - **Automatic compression detection**: Supports gzip, bzip2, xz, and zip files
 - **Message filtering**: Filter by message types and symbols
@@ -25,27 +26,38 @@ The `ITCH50Parser` class provides a clean generator interface for parsing ITCH 5
 
 ### Usage
 
+#### Natural Interface (Recommended)
+
 ```python
 from meatpy.itch50 import ITCH50Parser
 
-# Parse all messages (without context manager)
-parser = ITCH50Parser()
-for message in parser.parse_file("data.itch"):
-    print(f"Message: {message.__class__.__name__}")
-
-# Parse with context manager (recommended)
-with ITCH50Parser() as parser:
-    for message in parser.parse_file("data.itch"):
+# Parse all messages (natural interface)
+with ITCH50Parser("data.itch") as parser:
+    for message in parser:
         print(f"Message: {message.__class__.__name__}")
 
 # Parse only specific message types
-with ITCH50Parser(keep_message_types=b"RAP") as parser:  # Stock directory, add order, trade
-    for message in parser.parse_file("data.itch"):
+with ITCH50Parser("data.itch", keep_message_types=b"RAP") as parser:  # Stock directory, add order, trade
+    for message in parser:
         print(f"Message: {message.__class__.__name__}")
 
 # Parse only specific symbols
 symbols = [b"AAPL   ", b"MSFT   "]  # Note: 8-byte padded
-with ITCH50Parser(symbols=symbols) as parser:
+with ITCH50Parser("data.itch", symbols=symbols) as parser:
+    for message in parser:
+        print(f"Message: {message.__class__.__name__}")
+```
+
+#### Legacy Interface (Still Supported)
+
+```python
+# Parse all messages (legacy interface)
+parser = ITCH50Parser()
+for message in parser.parse_file("data.itch"):
+    print(f"Message: {message.__class__.__name__}")
+
+# Parse with context manager (legacy style)
+with ITCH50Parser() as parser:
     for message in parser.parse_file("data.itch"):
         print(f"Message: {message.__class__.__name__}")
 ```
@@ -108,37 +120,27 @@ with ITCH50Writer(
 
 The typical workflow involves using both classes together with context managers:
 
-### Nested Context Managers (Recommended)
+### Natural Interface (Recommended)
 
 ```python
 from meatpy.itch50 import ITCH50Parser, ITCH50Writer
 
 # Single parser with single writer
-with ITCH50Parser() as parser:
+with ITCH50Parser("input.itch") as parser:
     with ITCH50Writer(output_path="output.itch", compress=True) as writer:
-        for message in parser.parse_file("input.itch"):
+        for message in parser:
             writer.process_message(message)
 
 # Multiple writers
-with ITCH50Parser(keep_message_types=b"AFECXDP") as parser:
+with ITCH50Parser("input.itch", keep_message_types=b"AFECXDP") as parser:
     with ITCH50Writer(output_path="orders.itch", compress=True) as order_writer:
         with ITCH50Writer(output_path="trades.itch", compress=True) as trade_writer:
-            for message in parser.parse_file("input.itch"):
+            for message in parser:
                 order_writer.process_message(message)
                 trade_writer.process_message(message)
 ```
 
-### Separate Context Managers
-
-```python
-# Create writer first, then parser
-with ITCH50Writer(output_path="output.itch") as writer:
-    with ITCH50Parser() as parser:
-        for message in parser.parse_file("input.itch"):
-            writer.process_message(message)
-```
-
-### Without Context Managers (Legacy Style)
+### Legacy Interface
 
 ```python
 # Parse and distribute messages
@@ -203,10 +205,10 @@ If you're migrating from the old `ITCH50MessageParser`:
    parser = ITCH50MessageParser()
    parser.parse_file("file.itch", write=True)
 
-   # New (with context managers)
-   with ITCH50Parser() as parser:
+   # New (natural interface)
+   with ITCH50Parser("file.itch") as parser:
        with ITCH50Writer(output_path="output.itch") as writer:
-           for message in parser.parse_file("file.itch"):
+           for message in parser:
                writer.process_message(message)
    ```
 

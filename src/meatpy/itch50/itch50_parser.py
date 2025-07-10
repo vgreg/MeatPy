@@ -68,34 +68,136 @@ class ITCH50Parser:
     supporting automatic detection of compressed files (gzip, bzip2, xz, zip).
 
     Attributes:
+        file_path: Path to the ITCH file to parse
         keep_message_types: Bytes of message types to keep (None for all)
         symbols: List of symbols to parse (None for all)
+        _file_handle: Internal file handle when used as context manager
     """
 
     def __init__(
         self,
+        file_path: Optional[Path | str] = None,
         keep_message_types: Optional[bytes] = None,
         symbols: Optional[list[bytes]] = None,
     ) -> None:
         """Initialize the ITCH50Parser.
 
         Args:
+            file_path: Path to the ITCH file to parse (optional if using parse_file method)
             keep_message_types: Message types to keep (None for all)
             symbols: List of symbols to parse (None for all)
         """
+        self.file_path = Path(file_path) if file_path else None
         self.keep_message_types = keep_message_types
         self.symbols = symbols
+        self._file_handle = None
 
     def __enter__(self):
-        """Context manager entry. Returns self."""
-        self._file_handle = None
+        """Context manager entry. Opens the file if file_path was provided."""
+        if self.file_path is None:
+            raise ValueError("No file_path provided. Use parse_file() method instead.")
+        self._file_handle = self._open_file(self.file_path)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit. Closes any open file handle."""
-        if hasattr(self, "_file_handle") and self._file_handle is not None:
+        """Context manager exit. Closes the file handle."""
+        if self._file_handle is not None:
             self._file_handle.close()
             self._file_handle = None
+
+    def __iter__(self) -> Generator[ITCH50MarketMessage, None, None]:
+        """Make the parser iterable when used as a context manager."""
+        if self._file_handle is None:
+            raise RuntimeError(
+                "Parser must be used as a context manager to be iterable"
+            )
+        yield from self._parse_messages(self._file_handle)
+
+    def parse_file(
+        self, file_path: Path | str
+    ) -> Generator[ITCH50MarketMessage, None, None]:
+        """Parse an ITCH 5.0 file and yield messages one at a time.
+
+        Args:
+            file_path: Path to the ITCH file to parse
+
+        Yields:
+            ITCH50MarketMessage objects
+        """
+        file_path = Path(file_path)
+        with self._open_file(file_path) as file:
+            yield from self._parse_messages(file)
+
+    def _parse_messages(self, file) -> Generator[ITCH50MarketMessage, None, None]:
+        """Internal method to parse messages from an open file handle.
+
+        Args:
+            file: Open file handle to read from
+
+        Yields:
+            ITCH50MarketMessage objects
+        """
+        cachesize = 1024 * 4
+
+        data_buffer = file.read(cachesize)
+        data_view = memoryview(data_buffer)
+        offset = 0
+        buflen = len(data_view)
+        have_data = True
+        eof_reached = False
+
+        while have_data:
+            if offset + 2 > buflen:
+                new_data = file.read(cachesize)
+                if not new_data:
+                    eof_reached = True
+                data_buffer = data_view[offset:].tobytes() + new_data
+                data_view = memoryview(data_buffer)
+                buflen = len(data_view)
+                offset = 0
+                continue
+
+            if data_view[offset] != 0:
+                raise InvalidMessageFormatError(f"Unexpected byte: {data_view[offset]}")
+
+            message_len = data_view[offset + 1]
+            message_end = offset + 2 + message_len
+
+            if message_end > buflen:
+                new_data = file.read(cachesize)
+                if not new_data:
+                    eof_reached = True
+                data_buffer = data_view[offset:].tobytes() + new_data
+                data_view = memoryview(data_buffer)
+                buflen = len(data_view)
+                offset = 0
+                continue
+
+            message = self._create_message(data_view[offset + 2 : message_end])
+
+            # Check if we should keep this message type
+            if (
+                self.keep_message_types is not None
+                and getattr(message.__class__, "type", None)
+                not in self.keep_message_types
+            ):
+                offset = message_end
+                continue
+
+            # Check if we should keep this symbol
+            if (
+                self.symbols is not None
+                and hasattr(message, "stock")
+                and message.stock not in self.symbols
+            ):
+                offset = message_end
+                continue
+
+            yield message
+            offset = message_end
+
+            if offset >= buflen and eof_reached:
+                have_data = False
 
     def _detect_compression(self, file_path: Path) -> tuple[bool, str]:
         """Detect if a file is compressed and determine the compression type.
@@ -149,96 +251,6 @@ class ITCH50Parser:
                 return zip_file.open(zip_file.namelist()[0], "r")
         else:
             raise ValueError(f"Unsupported compression type: {compression_type}")
-
-    def parse_file(
-        self, file_path: Path | str
-    ) -> Generator[ITCH50MarketMessage, None, None]:
-        """Parse an ITCH 5.0 file and yield messages one at a time.
-
-        Args:
-            file_path: Path to the ITCH file to parse
-
-        Yields:
-            ITCH50MarketMessage objects
-        """
-        file_path = Path(file_path)
-        cachesize = 1024 * 4
-
-        # If used as a context manager, keep the file handle open
-        if hasattr(self, "_file_handle"):
-            if self._file_handle is None:
-                self._file_handle = self._open_file(file_path)
-            file = self._file_handle
-            close_file = False
-        else:
-            file = self._open_file(file_path)
-            close_file = True
-
-        try:
-            data_buffer = file.read(cachesize)
-            data_view = memoryview(data_buffer)
-            offset = 0
-            buflen = len(data_view)
-            have_data = True
-            eof_reached = False
-
-            while have_data:
-                if offset + 2 > buflen:
-                    new_data = file.read(cachesize)
-                    if not new_data:
-                        eof_reached = True
-                    data_buffer = data_view[offset:].tobytes() + new_data
-                    data_view = memoryview(data_buffer)
-                    buflen = len(data_view)
-                    offset = 0
-                    continue
-
-                if data_view[offset] != 0:
-                    raise InvalidMessageFormatError(
-                        f"Unexpected byte: {data_view[offset]}"
-                    )
-
-                message_len = data_view[offset + 1]
-                message_end = offset + 2 + message_len
-
-                if message_end > buflen:
-                    new_data = file.read(cachesize)
-                    if not new_data:
-                        eof_reached = True
-                    data_buffer = data_view[offset:].tobytes() + new_data
-                    data_view = memoryview(data_buffer)
-                    buflen = len(data_view)
-                    offset = 0
-                    continue
-
-                message = self._create_message(data_view[offset + 2 : message_end])
-
-                # Check if we should keep this message type
-                if (
-                    self.keep_message_types is not None
-                    and getattr(message.__class__, "type", None)
-                    not in self.keep_message_types
-                ):
-                    offset = message_end
-                    continue
-
-                # Check if we should keep this symbol
-                if (
-                    self.symbols is not None
-                    and hasattr(message, "stock")
-                    and message.stock not in self.symbols
-                ):
-                    offset = message_end
-                    continue
-
-                yield message
-                offset = message_end
-
-                if offset >= buflen and eof_reached:
-                    have_data = False
-        finally:
-            if close_file:
-                file.close()
 
     def _create_message(self, message_data: bytes) -> ITCH50MarketMessage:
         """Create an ITCH50MarketMessage from raw message data.

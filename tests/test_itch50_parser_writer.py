@@ -82,14 +82,57 @@ def test_itch50_parser_compression_detection():
 
 def test_itch50_parser_context_manager():
     """Test ITCH50Parser as context manager."""
-    parser = ITCH50Parser()
+    parser = ITCH50Parser("test_file.itch")
 
     # Test that context manager methods exist
     assert hasattr(parser, "__enter__")
     assert hasattr(parser, "__exit__")
 
-    # Test context manager usage
-    with ITCH50Parser() as parser:
-        assert hasattr(parser, "_file_handle")
-        assert parser._file_handle is None
-        # Should not raise any exceptions
+    # Test context manager usage (should raise FileNotFoundError for non-existent file)
+    with pytest.raises(FileNotFoundError):
+        with ITCH50Parser("nonexistent_file.itch") as parser:
+            pass
+
+
+def test_itch50_parser_natural_interface():
+    """Test ITCH50Parser natural interface with file_path in constructor."""
+    # Test initialization with file path
+    parser = ITCH50Parser("test_file.itch")
+    assert parser.file_path == Path("test_file.itch")
+    assert parser.keep_message_types is None
+    assert parser.symbols is None
+
+    # Test initialization with file path and filters
+    parser = ITCH50Parser(
+        "test_file.itch", keep_message_types=b"RAP", symbols=[b"AAPL   "]
+    )
+    assert parser.file_path == Path("test_file.itch")
+    assert parser.keep_message_types == b"RAP"
+    assert parser.symbols == [b"AAPL   "]
+
+
+def test_itch50_parser_natural_interface_context_manager():
+    """Test ITCH50Parser natural interface as context manager."""
+    # Test that context manager methods exist
+    parser = ITCH50Parser("test_file.itch")
+    assert hasattr(parser, "__enter__")
+    assert hasattr(parser, "__exit__")
+    assert hasattr(parser, "__iter__")
+
+    # Test that it raises error when no file_path is provided
+    parser_no_path = ITCH50Parser()
+    with pytest.raises(ValueError, match="No file_path provided"):
+        with parser_no_path:
+            pass
+
+
+def test_itch50_parser_legacy_interface():
+    """Test ITCH50Parser legacy interface still works."""
+    # Test initialization without file path
+    parser = ITCH50Parser()
+    assert parser.file_path is None
+    assert parser.keep_message_types is None
+    assert parser.symbols is None
+
+    # Test that parse_file method still exists
+    assert hasattr(parser, "parse_file")
