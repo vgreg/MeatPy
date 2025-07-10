@@ -252,7 +252,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         else:
             raise Exception(
                 "ITCH50MarketProcessor:process_system_message",
-                f"Unknown system message: {code}",
+                f"Unknown system message: {code!r}",
             )
         self.update_trading_status()
 
@@ -271,7 +271,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         else:
             raise Exception(
                 "ITCH50MarketProcessor:process_trading_action_message",
-                f"Unknown trading state: {state}",
+                f"Unknown trading state: {state!r}",
             )
         self.update_trading_status()
 
@@ -290,7 +290,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         else:
             raise Exception(
                 "ITCH50MarketProcessor:update_trading_status",
-                f"Could not determine trading status: {self.system_status}/{self.emc_status}/{self.stock_status}",
+                f"Could not determine trading status: {self.system_status!r}/{self.emc_status!r}/{self.stock_status!r}",
             )
 
     def enter_quote(
