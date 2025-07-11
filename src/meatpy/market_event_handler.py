@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .lob import LimitOrderBook, OrderType
-from .message_parser import MarketMessage
+from .message_reader import MarketMessage
 from .timestamp import Timestamp
 from .types import OrderID, Price, TradeRef, Volume
 

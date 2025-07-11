@@ -15,7 +15,17 @@ import zipfile
 from pathlib import Path
 from typing import Generator, Optional
 
-from .message_parser import MarketMessage
+
+class MarketMessage:
+    """A message that has been parsed and is ready to be processed by a market processor.
+
+    This is an abstract class that should be overloaded for specific
+    exchanges. Subclasses should contain the parsed data from raw market
+    messages in a structured format.
+    """
+
+    __metaclass__ = abc.ABCMeta
+    pass
 
 
 class InvalidMessageFormatError(Exception):
@@ -108,25 +118,6 @@ class MessageReader(abc.ABC):
 
         Yields:
             MarketMessage objects
-        """
-        pass
-
-    @abc.abstractmethod
-    def _create_message(self, message_data: bytes) -> MarketMessage:
-        """Create a MarketMessage from raw message data.
-
-        This is an abstract method that must be implemented by subclasses
-        to handle their specific message format and create appropriate
-        MarketMessage instances.
-
-        Args:
-            message_data: Raw message bytes
-
-        Returns:
-            Appropriate MarketMessage subclass instance
-
-        Raises:
-            UnknownMessageTypeError: If message type is not recognized
         """
         pass
 

@@ -1,12 +1,12 @@
 """Tests for the events module."""
 
+from meatpy import MarketMessage
 from meatpy.events import (
     BaseEventHandler,
     MarketEventHandler,
 )
 from meatpy.lob import LimitOrderBook, OrderType
 from meatpy.market_processor import MarketProcessor
-from meatpy.message_parser import MarketMessage
 from meatpy.timestamp import Timestamp
 
 

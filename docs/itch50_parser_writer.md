@@ -6,14 +6,14 @@ This document describes the decoupled ITCH 5.0 parser and writer classes that pr
 
 The original `ITCH50MessageParser` class combined parsing and writing functionality, which made it complex and difficult to use for different scenarios. The new design separates these concerns into two distinct classes:
 
-- **`ITCH50Parser`**: A generator-based parser that yields messages one at a time
+- **`ITCH50MessageReader`**: A generator-based parser that yields messages one at a time
 - **`ITCH50Writer`**: A writer that handles buffering and writing messages to files
 
 Both classes support the context manager protocol (`with` statement) for automatic resource management.
 
-## ITCH50Parser
+## ITCH50MessageReader
 
-The `ITCH50Parser` class provides a clean generator interface for parsing ITCH 5.0 files.
+The `ITCH50MessageReader` class provides a clean generator interface for parsing ITCH 5.0 files.
 
 ### Features
 
@@ -29,21 +29,21 @@ The `ITCH50Parser` class provides a clean generator interface for parsing ITCH 5
 #### Natural Interface (Recommended)
 
 ```python
-from meatpy.itch50 import ITCH50Parser
+from meatpy.itch50 import ITCH50MessageReader
 
 # Parse all messages (natural interface)
-with ITCH50Parser("data.itch") as parser:
+with ITCH50MessageReader("data.itch") as parser:
     for message in parser:
         print(f"Message: {message.__class__.__name__}")
 
 # Parse only specific message types
-with ITCH50Parser("data.itch", keep_message_types=b"RAP") as parser:  # Stock directory, add order, trade
+with ITCH50MessageReader("data.itch", keep_message_types=b"RAP") as parser:  # Stock directory, add order, trade
     for message in parser:
         print(f"Message: {message.__class__.__name__}")
 
 # Parse only specific symbols
 symbols = [b"AAPL   ", b"MSFT   "]  # Note: 8-byte padded
-with ITCH50Parser("data.itch", symbols=symbols) as parser:
+with ITCH50MessageReader("data.itch", symbols=symbols) as parser:
     for message in parser:
         print(f"Message: {message.__class__.__name__}")
 ```
@@ -52,12 +52,12 @@ with ITCH50Parser("data.itch", symbols=symbols) as parser:
 
 ```python
 # Parse all messages (legacy interface)
-parser = ITCH50Parser()
+parser = ITCH50MessageReader()
 for message in parser.parse_file("data.itch"):
     print(f"Message: {message.__class__.__name__}")
 
 # Parse with context manager (legacy style)
-with ITCH50Parser() as parser:
+with ITCH50MessageReader() as parser:
     for message in parser.parse_file("data.itch"):
         print(f"Message: {message.__class__.__name__}")
 ```
@@ -123,16 +123,16 @@ The typical workflow involves using both classes together with context managers:
 ### Natural Interface (Recommended)
 
 ```python
-from meatpy.itch50 import ITCH50Parser, ITCH50Writer
+from meatpy.itch50 import ITCH50MessageReader, ITCH50Writer
 
 # Single parser with single writer
-with ITCH50Parser("input.itch") as parser:
+with ITCH50MessageReader("input.itch") as parser:
     with ITCH50Writer(output_path="output.itch", compress=True) as writer:
         for message in parser:
             writer.process_message(message)
 
 # Multiple writers
-with ITCH50Parser("input.itch", keep_message_types=b"AFECXDP") as parser:
+with ITCH50MessageReader("input.itch", keep_message_types=b"AFECXDP") as parser:
     with ITCH50Writer(output_path="orders.itch", compress=True) as order_writer:
         with ITCH50Writer(output_path="trades.itch", compress=True) as trade_writer:
             for message in parser:
@@ -144,7 +144,7 @@ with ITCH50Parser("input.itch", keep_message_types=b"AFECXDP") as parser:
 
 ```python
 # Parse and distribute messages
-parser = ITCH50Parser(keep_message_types=b"AFECXDP")  # Order and trade messages
+parser = ITCH50MessageReader(keep_message_types=b"AFECXDP")  # Order and trade messages
 order_writer = ITCH50Writer(output_path="orders.itch", compress=True)
 trade_writer = ITCH50Writer(output_path="trades.itch", compress=True)
 
@@ -206,7 +206,7 @@ If you're migrating from the old `ITCH50MessageParser`:
    parser.parse_file("file.itch", write=True)
 
    # New (natural interface)
-   with ITCH50Parser("file.itch") as parser:
+   with ITCH50MessageReader("file.itch") as parser:
        with ITCH50Writer(output_path="output.itch") as writer:
            for message in parser:
                writer.process_message(message)
