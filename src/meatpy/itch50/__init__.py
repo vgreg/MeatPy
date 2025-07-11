@@ -29,7 +29,6 @@ from .itch50_market_message import (
     TradeMessage,
 )
 from .itch50_market_processor import ITCH50MarketProcessor
-from .itch50_message_parser import ITCH50MessageParser
 from .itch50_message_reader import ITCH50MessageReader
 from .itch50_ofi_recorder import ITCH50OFIRecorder
 from .itch50_order_event_recorder import ITCH50OrderEventRecorder

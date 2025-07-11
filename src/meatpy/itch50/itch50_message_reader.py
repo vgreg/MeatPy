@@ -11,30 +11,7 @@ from typing import Generator, Optional
 
 from ..message_reader import MessageReader
 from .itch50_market_message import (
-    AddOrderMessage,
-    AddOrderMPIDMessage,
-    BrokenTradeMessage,
-    CrossTradeMessage,
-    DirectListingCapitalRaiseMessage,
-    IPOQuotingPeriodUpdateMessage,
     ITCH50MarketMessage,
-    LULDAuctionCollarMessage,
-    MarketParticipantPositionMessage,
-    MWCBBreachMessage,
-    MWCBDeclineLevelMessage,
-    NoiiMessage,
-    OperationalHaltMessage,
-    OrderCancelMessage,
-    OrderDeleteMessage,
-    OrderExecutedMessage,
-    OrderExecutedPriceMessage,
-    OrderReplaceMessage,
-    RegSHOMessage,
-    RpiiMessage,
-    StockDirectoryMessage,
-    StockTradingActionMessage,
-    SystemEventMessage,
-    TradeMessage,
 )
 
 
@@ -100,14 +77,17 @@ class ITCH50MessageReader(MessageReader):
         data_view = memoryview(data_buffer)
         offset = 0
         buflen = len(data_view)
-        have_data = True
         eof_reached = False
 
-        while have_data:
+        while True:
+            # Check if we need more data
             if offset + 2 > buflen:
+                if eof_reached:
+                    break
                 new_data = file.read(cachesize)
                 if not new_data:
                     eof_reached = True
+                    break
                 data_buffer = data_view[offset:].tobytes() + new_data
                 data_view = memoryview(data_buffer)
                 buflen = len(data_view)
@@ -120,85 +100,27 @@ class ITCH50MessageReader(MessageReader):
             message_len = data_view[offset + 1]
             message_end = offset + 2 + message_len
 
+            # Check if we have enough data for the complete message
             if message_end > buflen:
+                if eof_reached:
+                    break
                 new_data = file.read(cachesize)
                 if not new_data:
                     eof_reached = True
+                    break
                 data_buffer = data_view[offset:].tobytes() + new_data
                 data_view = memoryview(data_buffer)
                 buflen = len(data_view)
                 offset = 0
                 continue
 
-            message = self._create_message(data_view[offset + 2 : message_end])
+            message = ITCH50MarketMessage.from_bytes(
+                data_view[offset + 2 : message_end].tobytes()
+            )
 
             yield message
             offset = message_end
 
+            # Check if we've reached the end of the buffer and EOF
             if offset >= buflen and eof_reached:
-                have_data = False
-
-    def _create_message(self, message_data: bytes) -> ITCH50MarketMessage:
-        """Create an ITCH50MarketMessage from raw message data.
-
-        Args:
-            message_data: Raw message bytes
-
-        Returns:
-            Appropriate ITCH50MarketMessage subclass instance
-
-        Raises:
-            UnknownMessageTypeError: If message type is not recognized
-        """
-        from ..message_reader import UnknownMessageTypeError
-
-        msgtype = chr(message_data[0])
-
-        if msgtype == "S":
-            return SystemEventMessage(message_data)
-        elif msgtype == "R":
-            return StockDirectoryMessage(message_data)
-        elif msgtype == "H":
-            return StockTradingActionMessage(message_data)
-        elif msgtype == "Y":
-            return RegSHOMessage(message_data)
-        elif msgtype == "L":
-            return MarketParticipantPositionMessage(message_data)
-        elif msgtype == "V":
-            return MWCBDeclineLevelMessage(message_data)
-        elif msgtype == "W":
-            return MWCBBreachMessage(message_data)
-        elif msgtype == "K":
-            return IPOQuotingPeriodUpdateMessage(message_data)
-        elif msgtype == "J":
-            return LULDAuctionCollarMessage(message_data)
-        elif msgtype == "h":
-            return OperationalHaltMessage(message_data)
-        elif msgtype == "A":
-            return AddOrderMessage(message_data)
-        elif msgtype == "F":
-            return AddOrderMPIDMessage(message_data)
-        elif msgtype == "E":
-            return OrderExecutedMessage(message_data)
-        elif msgtype == "C":
-            return OrderExecutedPriceMessage(message_data)
-        elif msgtype == "X":
-            return OrderCancelMessage(message_data)
-        elif msgtype == "D":
-            return OrderDeleteMessage(message_data)
-        elif msgtype == "U":
-            return OrderReplaceMessage(message_data)
-        elif msgtype == "P":
-            return TradeMessage(message_data)
-        elif msgtype == "Q":
-            return CrossTradeMessage(message_data)
-        elif msgtype == "B":
-            return BrokenTradeMessage(message_data)
-        elif msgtype == "I":
-            return NoiiMessage(message_data)
-        elif msgtype == "N":
-            return RpiiMessage(message_data)
-        elif msgtype == "O":
-            return DirectListingCapitalRaiseMessage(message_data)
-        else:
-            raise UnknownMessageTypeError(f"Unknown message type: {msgtype}")
+                break

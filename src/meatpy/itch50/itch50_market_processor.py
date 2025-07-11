@@ -9,7 +9,7 @@ import datetime
 from ..level import OrderNotFoundError
 from ..lob import OrderType
 from ..market_processor import MarketProcessor
-from ..message_parser import MarketMessage
+from ..message_reader import MarketMessage
 from ..timestamp import Timestamp
 from ..trading_status import (
     HaltedTradingStatus,

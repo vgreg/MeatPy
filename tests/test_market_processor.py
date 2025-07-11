@@ -3,10 +3,10 @@
 from datetime import date, datetime
 from unittest.mock import Mock
 
+from meatpy import MarketMessage
 from meatpy.lob import LimitOrderBook, OrderType
 from meatpy.market_event_handler import MarketEventHandler
 from meatpy.market_processor import MarketProcessor
-from meatpy.message_parser import MarketMessage
 from meatpy.timestamp import Timestamp
 from meatpy.types import OrderID, Price, TradeRef, Volume
 

@@ -8,7 +8,7 @@ from typing import Protocol, runtime_checkable
 
 from .lob import LimitOrderBook, OrderType
 from .market_processor import MarketProcessor
-from .message_parser import MarketMessage
+from .message_reader import MarketMessage
 from .timestamp import Timestamp
 from .types import OrderID, Price, TradeRef, Volume
 

@@ -8,7 +8,7 @@ from system events to order and trade messages.
 import json
 import struct
 
-from ..message_parser import MarketMessage
+from ..message_reader import MarketMessage
 
 
 class ITCH50MarketMessage(MarketMessage):
@@ -23,6 +23,10 @@ class ITCH50MarketMessage(MarketMessage):
         description: Human-readable description of the message type
         message_size: The size of the message in bytes
     """
+
+    type: bytes = b"?"
+    description: str = "Unknown Message"
+    message_size: int = 0
 
     sysEventCodes = {
         b"O": "Start of Messages",
@@ -91,14 +95,14 @@ class ITCH50MarketMessage(MarketMessage):
         b"D": "Deleted",
     }
 
-    interest = {
+    interestDescriptions = {
         b"B": "RPI orders avail on buy side",
         b"S": "RPI orders avail on sell side",
         b"A": "RPI orders avail on both sides",
         b"N": "No RPI orders avail",
     }
 
-    crossType = {
+    crossTypeDescriptions = {
         b"O": "NASDAQ Opening Cross",
         b"C": "NASDAQ Closing Cross",
         b"H": "Cross for IPO and Halted Securities",
@@ -148,6 +152,16 @@ class ITCH50MarketMessage(MarketMessage):
         self._add_json_fields(data)
 
         return json.dumps(data, indent=2)
+
+    def to_bytes(self) -> bytes:
+        """Convert the message to bytes.
+
+        Returns:
+            Bytes representation of the message
+        """
+        raise NotImplementedError(
+            f"to_bytes not implemented for {self.__class__.__name__}"
+        )
 
     def _add_json_fields(self, data: dict) -> None:
         """Add message-specific fields to the JSON data.
@@ -216,7 +230,76 @@ class ITCH50MarketMessage(MarketMessage):
             raise ValueError(f"Unknown message type: {message_type}")
 
         message_class = message_classes[message_type]
-        return message_class._from_json_data(data)
+        return message_class._from_json_data(data)  # type: ignore
+
+    @classmethod
+    def from_bytes(cls, message_data: bytes) -> "ITCH50MarketMessage":
+        """Create a message from raw bytes data.
+
+        Args:
+            message_data: Raw message bytes
+
+        Returns:
+            ITCH50MarketMessage instance
+
+        Raises:
+            ValueError: If message type is not recognized
+        """
+        if not message_data:
+            raise ValueError("Empty message data")
+
+        msgtype = message_data[0:1]
+
+        # Map message types to classes
+        message_classes = {
+            b"S": SystemEventMessage,
+            b"R": StockDirectoryMessage,
+            b"H": StockTradingActionMessage,
+            b"Y": RegSHOMessage,
+            b"L": MarketParticipantPositionMessage,
+            b"V": MWCBDeclineLevelMessage,
+            b"W": MWCBBreachMessage,
+            b"K": IPOQuotingPeriodUpdateMessage,
+            b"J": LULDAuctionCollarMessage,
+            b"h": OperationalHaltMessage,
+            b"A": AddOrderMessage,
+            b"F": AddOrderMPIDMessage,
+            b"E": OrderExecutedMessage,
+            b"C": OrderExecutedPriceMessage,
+            b"X": OrderCancelMessage,
+            b"D": OrderDeleteMessage,
+            b"U": OrderReplaceMessage,
+            b"P": TradeMessage,
+            b"Q": CrossTradeMessage,
+            b"B": BrokenTradeMessage,
+            b"I": NoiiMessage,
+            b"N": RpiiMessage,
+            b"O": DirectListingCapitalRaiseMessage,
+        }
+
+        if msgtype not in message_classes:
+            raise ValueError(
+                f"Unknown message type: {msgtype.decode() if isinstance(msgtype, bytes) else msgtype}"
+            )
+
+        message_class = message_classes[msgtype]
+        return message_class._from_bytes_data(message_data)  # type: ignore
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "ITCH50MarketMessage":
+        """Create a message from bytes data.
+
+        This method should be overridden by subclasses to handle their specific fields.
+
+        Args:
+            message_data: Raw message bytes
+
+        Returns:
+            ITCH50MarketMessage instance
+        """
+        raise NotImplementedError(
+            f"_from_bytes_data not implemented for {cls.__name__}"
+        )
 
     @classmethod
     def _from_json_data(cls, data: dict) -> "ITCH50MarketMessage":
@@ -238,13 +321,23 @@ class SystemEventMessage(ITCH50MarketMessage):
     description = "System Event Message"
     message_size = struct.calcsize("!HHHIc") + 1
 
-    def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.code) = struct.unpack(
-            "!HHHIc", message[1:]
-        )
-        self.set_timestamp(ts1, ts2)
+    def __init__(self) -> None:
+        """Initialize a SystemEventMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.code: bytes = b""
 
-    def pack(self):
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "SystemEventMessage":
+        """Create a SystemEventMessage from bytes data."""
+        message = cls()
+        (message.stock_locate, message.tracking_number, ts1, ts2, message.code) = (
+            struct.unpack("!HHHIc", message_data[1:])
+        )
+        message.set_timestamp(ts1, ts2)
+        return message
+
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIc",
@@ -271,9 +364,7 @@ class SystemEventMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "SystemEventMessage":
         """Create a SystemEventMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIc", 0, 0, 0, 0, b" ")
-        message = cls(b"S" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -293,30 +384,51 @@ class StockDirectoryMessage(ITCH50MarketMessage):
     description = "Stock Directory Message"
     message_size = struct.calcsize("!HHHI8sccIcc2scccccIc") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.category: bytes = b""
+        self.status: bytes = b""
+        self.lotsize: int = 0
+        self.lotsonly: bytes = b""
+        self.issue_class: bytes = b""
+        self.issue_sub: bytes = b""
+        self.authenticity: bytes = b""
+        self.shortsale_thresh: bytes = b""
+        self.ipo_flag: bytes = b""
+        self.luld_ref: bytes = b""
+        self.etp_flag: bytes = b""
+        self.etp_leverage: int = 0
+        self.inverse_ind: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "StockDirectoryMessage":
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.category,
-            self.status,
-            self.lotsize,
-            self.lotsonly,
-            self.issue_class,
-            self.issue_sub,
-            self.authenticity,
-            self.shortsale_thresh,
-            self.ipo_flag,
-            self.luld_ref,
-            self.etp_flag,
-            self.etp_leverage,
-            self.inverse_ind,
-        ) = struct.unpack("!HHHI8sccIcc2scccccIc", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.category,
+            message.status,
+            message.lotsize,
+            message.lotsonly,
+            message.issue_class,
+            message.issue_sub,
+            message.authenticity,
+            message.shortsale_thresh,
+            message.ipo_flag,
+            message.luld_ref,
+            message.etp_flag,
+            message.etp_leverage,
+            message.inverse_ind,
+        ) = struct.unpack("!HHHI8sccIcc2scccccIc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8sccIcc2scccccIc",
@@ -390,38 +502,10 @@ class StockDirectoryMessage(ITCH50MarketMessage):
 
     @classmethod
     def _from_json_data(cls, data: dict) -> "StockDirectoryMessage":
-        """Create a StockDirectoryMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHII8sccIc2sccccIcc",
-            0,
-            0,
-            0,
-            0,
-            b"        ",
-            b" ",
-            b" ",
-            0,
-            b" ",
-            b" ",
-            b"  ",
-            b" ",
-            b" ",
-            b" ",
-            b" ",
-            b" ",
-            0,
-            b" ",
-            b" ",
-        )
-        message = cls(b"R" + dummy_data)
-
-        # Set the fields from JSON data
+        message = cls()
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-
-        # Handle string fields
         for field_name in [
             "stock",
             "category",
@@ -434,27 +518,24 @@ class StockDirectoryMessage(ITCH50MarketMessage):
             "etp_flag",
             "inverse_ind",
         ]:
-            value = data.get(field_name, "")
+            value = data.get(
+                field_name, b"" if field_name in ["stock", "issue_sub"] else " "
+            )
             if isinstance(value, str):
                 if field_name == "stock":
-                    value = value.ljust(8).encode()  # Pad to 8 bytes
+                    value = value.ljust(8).encode()
                 elif field_name == "issue_sub":
-                    value = value.ljust(2).encode()  # Pad to 2 bytes
+                    value = value.ljust(2).encode()
                 else:
                     value = value.encode()
             setattr(message, field_name, value)
-
-        # Handle integer fields
         for field_name in ["lotsize", "etp_leverage"]:
             setattr(message, field_name, data.get(field_name, 0))
-
-        # Handle character fields that were treated as integers in JSON
         for field_name in ["shortsale_thresh", "luld_ref"]:
             value = data.get(field_name, " ")
             if isinstance(value, str):
                 value = value.encode()
             setattr(message, field_name, value)
-
         return message
 
 
@@ -463,20 +544,33 @@ class StockTradingActionMessage(ITCH50MarketMessage):
     description = "Stock Trading Message"
     message_size = struct.calcsize("!HHHI8scc4s") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a StockTradingActionMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.state: bytes = b""
+        self.reserved: bytes = b""
+        self.reason: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "StockTradingActionMessage":
+        """Create a StockTradingActionMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.state,
-            self.reserved,
-            self.reason,
-        ) = struct.unpack("!HHHI8scc4s", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.state,
+            message.reserved,
+            message.reason,
+        ) = struct.unpack("!HHHI8scc4s", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8scc4s",
@@ -515,11 +609,7 @@ class StockTradingActionMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "StockTradingActionMessage":
         """Create a StockTradingActionMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHHI8scc4s", 0, 0, 0, 0, b"        ", b" ", b" ", b"    "
-        )
-        message = cls(b"H" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -551,13 +641,29 @@ class RegSHOMessage(ITCH50MarketMessage):
     description = "Reg SHO Short Sale Message"
     message_size = struct.calcsize("!HHHI8sc") + 1
 
-    def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.stock, self.action) = (
-            struct.unpack("!HHHI8sc", message[1:])
-        )
-        self.set_timestamp(ts1, ts2)
+    def __init__(self) -> None:
+        """Initialize a RegSHOMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.action: bytes = b""
 
-    def pack(self):
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "RegSHOMessage":
+        """Create a RegSHOMessage from bytes data."""
+        message = cls()
+        (
+            message.stock_locate,
+            message.tracking_number,
+            ts1,
+            ts2,
+            message.stock,
+            message.action,
+        ) = struct.unpack("!HHHI8sc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
+
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8sc",
@@ -588,9 +694,7 @@ class RegSHOMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "RegSHOMessage":
         """Create a RegSHOMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHI8sc", 0, 0, 0, 0, b"        ", b" ")
-        message = cls(b"Y" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -615,21 +719,37 @@ class MarketParticipantPositionMessage(ITCH50MarketMessage):
     description = "Market Participant Message"
     message_size = struct.calcsize("!HHHI4s8sccc") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a MarketParticipantPositionMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.mpid: bytes = b""
+        self.stock: bytes = b""
+        self.primary_market_maker: bytes = b""
+        self.market_maker_mode: bytes = b""
+        self.state: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(
+        cls, message_data: bytes
+    ) -> "MarketParticipantPositionMessage":
+        """Create a MarketParticipantPositionMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.mpid,
-            self.stock,
-            self.primaryMarketMaker,
-            self.marketMakermode,
-            self.state,
-        ) = struct.unpack("!HHHI4s8sccc", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.mpid,
+            message.stock,
+            message.primary_market_maker,
+            message.market_maker_mode,
+            message.state,
+        ) = struct.unpack("!HHHI4s8sccc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI4s8sccc",
@@ -640,8 +760,8 @@ class MarketParticipantPositionMessage(ITCH50MarketMessage):
             ts2,
             self.mpid,
             self.stock,
-            self.primaryMarketMaker,
-            self.marketMakermode,
+            self.primary_market_maker,
+            self.market_maker_mode,
             self.state,
         )
 
@@ -657,12 +777,12 @@ class MarketParticipantPositionMessage(ITCH50MarketMessage):
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "primaryMarketMaker": self.primaryMarketMaker.decode()
-                if isinstance(self.primaryMarketMaker, bytes)
-                else self.primaryMarketMaker,
-                "marketMakermode": self.marketMakermode.decode()
-                if isinstance(self.marketMakermode, bytes)
-                else self.marketMakermode,
+                "primaryMarketMaker": self.primary_market_maker.decode()
+                if isinstance(self.primary_market_maker, bytes)
+                else self.primary_market_maker,
+                "marketMakermode": self.market_maker_mode.decode()
+                if isinstance(self.market_maker_mode, bytes)
+                else self.market_maker_mode,
                 "state": self.state.decode()
                 if isinstance(self.state, bytes)
                 else self.state,
@@ -672,11 +792,7 @@ class MarketParticipantPositionMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "MarketParticipantPositionMessage":
         """Create a MarketParticipantPositionMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHHI4s8sccc", 0, 0, 0, 0, b"    ", b"        ", b" ", b" ", b" "
-        )
-        message = cls(b"L" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -698,7 +814,12 @@ class MarketParticipantPositionMessage(ITCH50MarketMessage):
             value = data.get(field_name, " ")
             if isinstance(value, str):
                 value = value.encode()
-            setattr(message, field_name, value)
+            if field_name == "primaryMarketMaker":
+                message.primary_market_maker = value
+            elif field_name == "marketMakermode":
+                message.market_maker_mode = value
+            else:
+                message.state = value
 
         return message
 
@@ -708,21 +829,33 @@ class AddOrderMessage(ITCH50MarketMessage):
     description = "Add Order Message"
     message_size = struct.calcsize("!HHHIQcI8sI") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
+        self.bsindicator: bytes = b""
+        self.shares: int = 0
+        self.stock: bytes = b""
+        self.price: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "AddOrderMessage":
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.bsindicator,
-            self.shares,
-            self.stock,
-            self.price,
-        ) = struct.unpack("!HHHIQcI8sI", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.orderRefNum,
+            message.bsindicator,
+            message.shares,
+            message.stock,
+            message.price,
+        ) = struct.unpack("!HHHIQcI8sI", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQcI8sI",
@@ -758,30 +891,21 @@ class AddOrderMessage(ITCH50MarketMessage):
 
     @classmethod
     def _from_json_data(cls, data: dict) -> "AddOrderMessage":
-        """Create an AddOrderMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQcI8sI", 0, 0, 0, 0, 0, b" ", 0, b"        ", 0)
-        message = cls(b"A" + dummy_data)
-
-        # Set the fields from JSON data
+        message = cls()
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
         message.orderRefNum = data.get("orderRefNum", 0)
         message.shares = data.get("shares", 0)
         message.price = data.get("price", 0)
-
-        # Handle string fields
         bsindicator = data.get("bsindicator", " ")
         if isinstance(bsindicator, str):
             bsindicator = bsindicator.encode()
         message.bsindicator = bsindicator
-
         stock = data.get("stock", "")
         if isinstance(stock, str):
             stock = stock.ljust(8).encode()
         message.stock = stock
-
         return message
 
 
@@ -790,22 +914,37 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
     description = "Add Order w/ MPID Message"
     message_size = struct.calcsize("!HHHIQcI8sI4s") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize an AddOrderMPIDMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
+        self.bsindicator: bytes = b""
+        self.shares: int = 0
+        self.stock: bytes = b""
+        self.price: int = 0
+        self.attribution: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "AddOrderMPIDMessage":
+        """Create an AddOrderMPIDMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.bsindicator,
-            self.shares,
-            self.stock,
-            self.price,
-            self.attribution,
-        ) = struct.unpack("!HHHIQcI8sI4s", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.orderRefNum,
+            message.bsindicator,
+            message.shares,
+            message.stock,
+            message.price,
+            message.attribution,
+        ) = struct.unpack("!HHHIQcI8sI4s", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQcI8sI4s",
@@ -846,11 +985,7 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "AddOrderMPIDMessage":
         """Create an AddOrderMPIDMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHHIQcI8sI4s", 0, 0, 0, 0, 0, b" ", 0, b"        ", 0, b"    "
-        )
-        message = cls(b"F" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -884,19 +1019,31 @@ class OrderExecutedMessage(ITCH50MarketMessage):
     description = "Order Executed Message"
     message_size = struct.calcsize("!HHHIQIQ") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize an OrderExecutedMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
+        self.executedShares: int = 0
+        self.matchNumber: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "OrderExecutedMessage":
+        """Create an OrderExecutedMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.executedShares,
-            self.matchNumber,
-        ) = struct.unpack("!HHHIQIQ", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.orderRefNum,
+            message.executedShares,
+            message.matchNumber,
+        ) = struct.unpack("!HHHIQIQ", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQIQ",
@@ -925,9 +1072,7 @@ class OrderExecutedMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "OrderExecutedMessage":
         """Create an OrderExecutedMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQIQ", 0, 0, 0, 0, 0, 0, 0)
-        message = cls(b"E" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -945,21 +1090,35 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
     description = "Order Executed w/ Price Message"
     message_size = struct.calcsize("!HHHIQIQcI") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize an OrderExecutedPriceMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
+        self.executedShares: int = 0
+        self.matchNumber: int = 0
+        self.printable: bytes = b""
+        self.executionPrice: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "OrderExecutedPriceMessage":
+        """Create an OrderExecutedPriceMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.executedShares,
-            self.matchNumber,
-            self.printable,
-            self.executionPrice,
-        ) = struct.unpack("!HHHIQIQcI", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.orderRefNum,
+            message.executedShares,
+            message.matchNumber,
+            message.printable,
+            message.executionPrice,
+        ) = struct.unpack("!HHHIQIQcI", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQIQcI",
@@ -994,9 +1153,7 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "OrderExecutedPriceMessage":
         """Create an OrderExecutedPriceMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQIQcI", 0, 0, 0, 0, 0, 0, 0, b" ", 0)
-        message = cls(b"C" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1020,18 +1177,29 @@ class OrderCancelMessage(ITCH50MarketMessage):
     description = "Order Cancel Message"
     message_size = struct.calcsize("!HHHIQI") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize an OrderCancelMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
+        self.canceledShares: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "OrderCancelMessage":
+        """Create an OrderCancelMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.canceledShares,
-        ) = struct.unpack("!HHHIQI", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.orderRefNum,
+            message.canceledShares,
+        ) = struct.unpack("!HHHIQI", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQI",
@@ -1058,9 +1226,7 @@ class OrderCancelMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "OrderCancelMessage":
         """Create an OrderCancelMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQI", 0, 0, 0, 0, 0, 0)
-        message = cls(b"X" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1077,13 +1243,27 @@ class OrderDeleteMessage(ITCH50MarketMessage):
     description = "Order Delete Message"
     message_size = struct.calcsize("!HHHIQ") + 1
 
-    def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.orderRefNum) = (
-            struct.unpack("!HHHIQ", message[1:])
-        )
-        self.set_timestamp(ts1, ts2)
+    def __init__(self) -> None:
+        """Initialize an OrderDeleteMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
 
-    def pack(self):
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "OrderDeleteMessage":
+        """Create an OrderDeleteMessage from bytes data."""
+        message = cls()
+        (
+            message.stock_locate,
+            message.tracking_number,
+            ts1,
+            ts2,
+            message.orderRefNum,
+        ) = struct.unpack("!HHHIQ", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
+
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQ",
@@ -1108,9 +1288,7 @@ class OrderDeleteMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "OrderDeleteMessage":
         """Create an OrderDeleteMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQ", 0, 0, 0, 0, 0)
-        message = cls(b"D" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1126,20 +1304,31 @@ class OrderReplaceMessage(ITCH50MarketMessage):
     description = "Order Replaced Message"
     message_size = struct.calcsize("!HHHIQQII") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.originalOrderRefNum: int = 0
+        self.newOrderRefNum: int = 0
+        self.shares: int = 0
+        self.price: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "OrderReplaceMessage":
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.originalOrderRefNum,
-            self.newOrderRefNum,
-            self.shares,
-            self.price,
-        ) = struct.unpack("!HHHIQQII", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.originalOrderRefNum,
+            message.newOrderRefNum,
+            message.shares,
+            message.price,
+        ) = struct.unpack("!HHHIQQII", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQQII",
@@ -1170,9 +1359,7 @@ class OrderReplaceMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "OrderReplaceMessage":
         """Create an OrderReplaceMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQQII", 0, 0, 0, 0, 0, 0, 0, 0)
-        message = cls(b"U" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1191,22 +1378,35 @@ class TradeMessage(ITCH50MarketMessage):
     description = "Trade Message"
     message_size = struct.calcsize("!HHHIQcI8sIQ") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.orderRefNum: int = 0
+        self.bsindicator: bytes = b""
+        self.shares: int = 0
+        self.stock: bytes = b""
+        self.price: int = 0
+        self.matchNumber: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "TradeMessage":
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.bsindicator,
-            self.shares,
-            self.stock,
-            self.price,
-            self.matchNumber,
-        ) = struct.unpack("!HHHIQcI8sIQ", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.orderRefNum,
+            message.bsindicator,
+            message.shares,
+            message.stock,
+            message.price,
+            message.matchNumber,
+        ) = struct.unpack("!HHHIQcI8sIQ", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQcI8sIQ",
@@ -1244,14 +1444,7 @@ class TradeMessage(ITCH50MarketMessage):
 
     @classmethod
     def _from_json_data(cls, data: dict) -> "TradeMessage":
-        """Create a TradeMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHHIQcI8sIQ", 0, 0, 0, 0, 0, b" ", 0, b"        ", 0, 0
-        )
-        message = cls(b"P" + dummy_data)
-
-        # Set the fields from JSON data
+        message = cls()
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
@@ -1259,18 +1452,14 @@ class TradeMessage(ITCH50MarketMessage):
         message.shares = data.get("shares", 0)
         message.price = data.get("price", 0)
         message.matchNumber = data.get("matchNumber", 0)
-
-        # Handle string fields
         bsindicator = data.get("bsindicator", " ")
         if isinstance(bsindicator, str):
             bsindicator = bsindicator.encode()
         message.bsindicator = bsindicator
-
         stock = data.get("stock", "")
         if isinstance(stock, str):
             stock = stock.ljust(8).encode()
         message.stock = stock
-
         return message
 
 
@@ -1279,21 +1468,35 @@ class CrossTradeMessage(ITCH50MarketMessage):
     description = "Cross Trade Message"
     message_size = struct.calcsize("!HHHIQ8sIQc") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a CrossTradeMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.shares: int = 0
+        self.stock: bytes = b""
+        self.crossPrice: int = 0
+        self.matchNumber: int = 0
+        self.crossType: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "CrossTradeMessage":
+        """Create a CrossTradeMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.shares,
-            self.stock,
-            self.crossPrice,
-            self.matchNumber,
-            self.crossType,
-        ) = struct.unpack("!HHHIQ8sIQc", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.shares,
+            message.stock,
+            message.crossPrice,
+            message.matchNumber,
+            message.crossType,
+        ) = struct.unpack("!HHHIQ8sIQc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQ8sIQc",
@@ -1330,9 +1533,7 @@ class CrossTradeMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "CrossTradeMessage":
         """Create a CrossTradeMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQ8sIQc", 0, 0, 0, 0, 0, b"        ", 0, 0, b" ")
-        message = cls(b"Q" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1361,13 +1562,25 @@ class BrokenTradeMessage(ITCH50MarketMessage):
     description = "Broken Trade Message"
     message_size = struct.calcsize("!HHHIQ") + 1
 
-    def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.matchNumber) = (
-            struct.unpack("!HHHIQ", message[1:])
-        )
-        self.set_timestamp(ts1, ts2)
+    def __init__(self) -> None:
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.matchNumber: int = 0
 
-    def pack(self):
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "BrokenTradeMessage":
+        message = cls()
+        (
+            message.stock_locate,
+            message.tracking_number,
+            ts1,
+            ts2,
+            message.matchNumber,
+        ) = struct.unpack("!HHHIQ", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
+
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQ",
@@ -1392,9 +1605,7 @@ class BrokenTradeMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "BrokenTradeMessage":
         """Create a BrokenTradeMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQ", 0, 0, 0, 0, 0)
-        message = cls(b"B" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1410,25 +1621,43 @@ class NoiiMessage(ITCH50MarketMessage):
     description = "NOII Message"
     message_size = struct.calcsize("!HHHIQQc8sIIIcc") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a NoiiMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.pairedShares: int = 0
+        self.imbalanceShares: int = 0
+        self.imbalanceDirection: bytes = b""
+        self.stock: bytes = b""
+        self.farPrice: int = 0
+        self.nearPrice: int = 0
+        self.currentReferencePrice: int = 0
+        self.crossType: bytes = b""
+        self.priceVariationIndicator: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "NoiiMessage":
+        """Create a NoiiMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.pairedShares,
-            self.imbalanceShares,
-            self.imbalanceDirection,
-            self.stock,
-            self.farPrice,
-            self.nearPrice,
-            self.currentReferencePrice,
-            self.crossType,
-            self.priceVariationIndicator,
-        ) = struct.unpack("!HHHIQQc8sIIIcc", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.pairedShares,
+            message.imbalanceShares,
+            message.imbalanceDirection,
+            message.stock,
+            message.farPrice,
+            message.nearPrice,
+            message.currentReferencePrice,
+            message.crossType,
+            message.priceVariationIndicator,
+        ) = struct.unpack("!HHHIQQc8sIIIcc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQQc8sIIIcc",
@@ -1477,11 +1706,7 @@ class NoiiMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "NoiiMessage":
         """Create a NoiiMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHHIQQc8sIIIcc", 0, 0, 0, 0, 0, 0, b" ", b"        ", 0, 0, 0, b" ", b" "
-        )
-        message = cls(b"I" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1517,18 +1742,29 @@ class RpiiMessage(ITCH50MarketMessage):
     description = "Retail Price Improvement Message"
     message_size = struct.calcsize("!HHHI8sc") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a RpiiMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.interest: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "RpiiMessage":
+        """Create a RpiiMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.interest,
-        ) = struct.unpack("!HHHI8sc", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.interest,
+        ) = struct.unpack("!HHHI8sc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8sc",
@@ -1559,9 +1795,7 @@ class RpiiMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "RpiiMessage":
         """Create a RpiiMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHI8sc", 0, 0, 0, 0, b"        ", b" ")
-        message = cls(b"N" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1586,19 +1820,31 @@ class MWCBDeclineLevelMessage(ITCH50MarketMessage):
     description = "MWCB Decline Level Message"
     message_size = struct.calcsize("!HHHIQQQ") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a MWCBDeclineLevelMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.level1: int = 0
+        self.level2: int = 0
+        self.level3: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "MWCBDeclineLevelMessage":
+        """Create a MWCBDeclineLevelMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.level1,
-            self.level2,
-            self.level3,
-        ) = struct.unpack("!HHHIQQQ", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.level1,
+            message.level2,
+            message.level3,
+        ) = struct.unpack("!HHHIQQQ", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIQQQ",
@@ -1627,9 +1873,7 @@ class MWCBDeclineLevelMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "MWCBDeclineLevelMessage":
         """Create a MWCBDeclineLevelMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIQQQ", 0, 0, 0, 0, 0, 0, 0)
-        message = cls(b"V" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1647,13 +1891,27 @@ class MWCBBreachMessage(ITCH50MarketMessage):
     description = "MWCB Breach Message"
     message_size = struct.calcsize("!HHHIc") + 1
 
-    def __init__(self, message):
-        (self.stock_locate, self.tracking_number, ts1, ts2, self.breachedLevel) = (
-            struct.unpack("!HHHIc", message[1:])
-        )
-        self.set_timestamp(ts1, ts2)
+    def __init__(self) -> None:
+        """Initialize a MWCBBreachMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.breachedLevel: bytes = b""
 
-    def pack(self):
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "MWCBBreachMessage":
+        """Create a MWCBBreachMessage from bytes data."""
+        message = cls()
+        (
+            message.stock_locate,
+            message.tracking_number,
+            ts1,
+            ts2,
+            message.breachedLevel,
+        ) = struct.unpack("!HHHIc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
+
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHIc",
@@ -1680,9 +1938,7 @@ class MWCBBreachMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "MWCBBreachMessage":
         """Create a MWCBBreachMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHIc", 0, 0, 0, 0, b" ")
-        message = cls(b"W" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1702,20 +1958,33 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
     description = "IPO Quoting Period Update Message"
     message_size = struct.calcsize("!HHHI8sIcI") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize an IPOQuotingPeriodUpdateMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.ipoQuotationReleaseTime: int = 0
+        self.ipoQuotationReleaseQualifier: bytes = b""
+        self.ipoPrice: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "IPOQuotingPeriodUpdateMessage":
+        """Create an IPOQuotingPeriodUpdateMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.ipoQuotationReleaseTime,
-            self.ipoQuotationReleaseQualifier,
-            self.ipoPrice,
-        ) = struct.unpack("!HHHI8sIcI", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.ipoQuotationReleaseTime,
+            message.ipoQuotationReleaseQualifier,
+            message.ipoPrice,
+        ) = struct.unpack("!HHHI8sIcI", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8sIcI",
@@ -1750,9 +2019,7 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "IPOQuotingPeriodUpdateMessage":
         """Create an IPOQuotingPeriodUpdateMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHI8sIcI", 0, 0, 0, 0, b"        ", 0, b" ", 0)
-        message = cls(b"K" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1779,21 +2046,35 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
     description = "LULD Auction Collar Message"
     message_size = struct.calcsize("!HHHI8sIIII") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a LULDAuctionCollarMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.auctionCollarReferencePrice: int = 0
+        self.upperAuctionCollarPrice: int = 0
+        self.lowerAuctionCollarPrice: int = 0
+        self.auctionCollarExtension: int = 0
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "LULDAuctionCollarMessage":
+        """Create a LULDAuctionCollarMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.auctionCollarReferencePrice,
-            self.upperAuctionCollarPrice,
-            self.lowerAuctionCollarPrice,
-            self.auctionCollarExtension,
-        ) = struct.unpack("!HHHI8sIIII", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.auctionCollarReferencePrice,
+            message.upperAuctionCollarPrice,
+            message.lowerAuctionCollarPrice,
+            message.auctionCollarExtension,
+        ) = struct.unpack("!HHHI8sIIII", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8sIIII",
@@ -1828,9 +2109,7 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "LULDAuctionCollarMessage":
         """Create a LULDAuctionCollarMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHI8sIIII", 0, 0, 0, 0, b"        ", 0, 0, 0, 0)
-        message = cls(b"J" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1854,19 +2133,31 @@ class OperationalHaltMessage(ITCH50MarketMessage):
     description = "Operational Halt Message"
     message_size = struct.calcsize("!HHHI8scc") + 1
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize an OperationalHaltMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.haltStatus: bytes = b""
+        self.haltReason: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "OperationalHaltMessage":
+        """Create an OperationalHaltMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.haltStatus,
-            self.haltReason,
-        ) = struct.unpack("!HHHI8scc", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.haltStatus,
+            message.haltReason,
+        ) = struct.unpack("!HHHI8scc", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8scc",
@@ -1901,9 +2192,7 @@ class OperationalHaltMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "OperationalHaltMessage":
         """Create an OperationalHaltMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack("!HHHI8scc", 0, 0, 0, 0, b"        ", b" ", b" ")
-        message = cls(b"h" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)
@@ -1929,25 +2218,45 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
     description = "Direct Listing with Capital Raise (DLCR) Message"
     message_size = struct.calcsize("!HHHI8scIIIIQII") + 1  # +1 for message type byte
 
-    def __init__(self, message):
+    def __init__(self) -> None:
+        """Initialize a DirectListingCapitalRaiseMessage."""
+        self.stock_locate: int = 0
+        self.tracking_number: int = 0
+        self.stock: bytes = b""
+        self.dlcrEventType: bytes = b""
+        self.referencePrice: int = 0
+        self.upperPriceLimit: int = 0
+        self.lowerPriceLimit: int = 0
+        self.maxPriceVariation: int = 0
+        self.quantity: int = 0
+        self.quantityLimit: int = 0
+        self.quantityLimitType: int = 0
+
+    @classmethod
+    def _from_bytes_data(
+        cls, message_data: bytes
+    ) -> "DirectListingCapitalRaiseMessage":
+        """Create a DirectListingCapitalRaiseMessage from bytes data."""
+        message = cls()
         (
-            self.stock_locate,
-            self.tracking_number,
+            message.stock_locate,
+            message.tracking_number,
             ts1,
             ts2,
-            self.stock,
-            self.dlcrEventType,
-            self.referencePrice,
-            self.upperPriceLimit,
-            self.lowerPriceLimit,
-            self.maxPriceVariation,
-            self.quantity,
-            self.quantityLimit,
-            self.quantityLimitType,
-        ) = struct.unpack("!HHHI8scIIIIQII", message[1:])
-        self.set_timestamp(ts1, ts2)
+            message.stock,
+            message.dlcrEventType,
+            message.referencePrice,
+            message.upperPriceLimit,
+            message.lowerPriceLimit,
+            message.maxPriceVariation,
+            message.quantity,
+            message.quantityLimit,
+            message.quantityLimitType,
+        ) = struct.unpack("!HHHI8scIIIIQII", message_data[1:])
+        message.set_timestamp(ts1, ts2)
+        return message
 
-    def pack(self):
+    def to_bytes(self) -> bytes:
         (ts1, ts2) = self.split_timestamp()
         return struct.pack(
             "!cHHHI8scIIIIQII",
@@ -1992,11 +2301,7 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
     @classmethod
     def _from_json_data(cls, data: dict) -> "DirectListingCapitalRaiseMessage":
         """Create a DirectListingCapitalRaiseMessage from JSON data."""
-        # Create a dummy message to get the structure
-        dummy_data = struct.pack(
-            "!HHHI8scIIIIQII", 0, 0, 0, 0, b"        ", b" ", 0, 0, 0, 0, 0, 0, 0
-        )
-        message = cls(b"O" + dummy_data)
+        message = cls()
 
         # Set the fields from JSON data
         message.stock_locate = data.get("stock_locate", 0)

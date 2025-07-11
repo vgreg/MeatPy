@@ -22,7 +22,7 @@ def test_itch50_writer_initialization():
     """Test ITCH50Writer initialization."""
     with tempfile.NamedTemporaryFile() as tmp:
         writer = ITCH50Writer(output_path=tmp.name)
-        assert writer.symbols is None
+        assert writer._symbols is None
         assert writer.output_path == Path(tmp.name)
         assert writer.message_buffer == 2000
         assert writer.compress is False
@@ -35,7 +35,7 @@ def test_itch50_writer_initialization():
             compress=True,
             compression_type="bzip2",
         )
-        assert writer.symbols == [b"AAPL   "]
+        assert writer._symbols == [b"AAPL   "]
         assert writer.message_buffer == 1000
         assert writer.compress is True
         assert writer.compression_type == "bzip2"
@@ -58,7 +58,7 @@ def test_itch50_writer_process_message():
         # Format: type(1) + stock_locate(2) + tracking_number(2) + ts1(4) + ts2(4) + code(1) = 12 bytes
         payload = struct.pack("!HHHIc", 1, 2, 0, 0, b"C")
         message_data = b"S" + payload
-        message = SystemEventMessage(message_data)
+        message = SystemEventMessage.from_bytes(message_data)
 
         # Process the message
         writer.process_message(message)

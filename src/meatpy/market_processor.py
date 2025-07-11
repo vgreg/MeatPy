@@ -11,7 +11,7 @@ from typing import Generic
 
 from .lob import LimitOrderBook, OrderType
 from .market_event_handler import MarketEventHandler
-from .message_parser import MarketMessage
+from .message_reader import MarketMessage
 from .timestamp import Timestamp
 from .trading_status import TradingStatus
 from .types import OrderID, Price, Qualifiers, TradeRef, Volume
