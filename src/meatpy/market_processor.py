@@ -41,7 +41,9 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
     ) -> None:
         """Initialize a market processor"""
 
-        self.current_lob: LimitOrderBook | None = None
+        self.current_lob: (
+            LimitOrderBook[Price, Volume, OrderID, TradeRef, Qualifiers] | None
+        ) = None
         self.track_lob: bool = True
         self.handlers: list[MarketEventHandler] = []
         self.trading_status: TradingStatus | None = None
@@ -260,7 +262,9 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             new_snapshot: Whether to create a new snapshot (default: True)
         """
         if self.current_lob is None:
-            self.current_lob = LimitOrderBook(timestamp)
+            self.current_lob = LimitOrderBook[
+                Price, Volume, OrderID, TradeRef, Qualifiers
+            ](timestamp)
         elif new_snapshot is True:
             self.before_lob_update(timestamp)
             if self.current_lob.timestamp == timestamp:

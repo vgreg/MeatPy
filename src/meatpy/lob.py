@@ -3,11 +3,11 @@ from decimal import Decimal
 from enum import Enum
 from math import log
 from pathlib import Path
-from typing import Any
+from typing import Generic
 
 from .level import ExecutionPriorityException, Level
 from .timestamp import Timestamp
-from .types import OrderID, Price, Volume
+from .types import OrderID, Price, Qualifiers, TradeRef, Volume
 
 
 class InexistantValueException(Exception):
@@ -82,7 +82,7 @@ class OrderType(Enum):
     BID = 1
 
 
-class LimitOrderBook:
+class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
     """A snapshot of a limit order book.
 
     The handling of orders (enter, execute, revise) is standard
@@ -134,7 +134,7 @@ class LimitOrderBook:
             i += 1
             x.print_out(f"{indent}  ", i)
 
-    def level_factory(self, price: Price) -> Level:
+    def from_price(self, price: Price) -> Level:
         """Create a new Level instance with the given price.
 
         Args:
@@ -222,6 +222,7 @@ class LimitOrderBook:
             else Decimal(price)
         )
 
+    @property
     def bid_ask_spread(self) -> Decimal:
         """Return the bid-ask spread.
 
@@ -240,6 +241,7 @@ class LimitOrderBook:
                 "LimitOrderBook:bid_ask_spread", "There is no bid-ask spread"
             )
 
+    @property
     def mid_quote(self) -> Decimal:
         """Return the mid quote.
 
@@ -259,6 +261,7 @@ class LimitOrderBook:
                 "LimitOrderBook:mid quote", "There is no bid-ask spread"
             )
 
+    @property
     def quote_slope(self) -> float:
         """Return the slope between the two levels of depth between the ask and the bid.
 
@@ -271,7 +274,7 @@ class LimitOrderBook:
             InexistantValueException: If there is missing bid or ask price or volume.
         """
         try:
-            return float(self.bid_ask_spread()) / (
+            return float(self.bid_ask_spread) / (
                 log(self.ask_levels[0].volume) + log(self.bid_levels[0].volume)
             )
         except IndexError:
@@ -279,6 +282,7 @@ class LimitOrderBook:
                 "LimitOrderBook:quote_slope", "There missing bid or ask price or volume"
             )
 
+    @property
     def log_quote_slope(self) -> float:
         """Return the log of the slope between the two levels of depth between the ask and the bid.
 
@@ -300,6 +304,7 @@ class LimitOrderBook:
                 "LimitOrderBook:log_quote_slope", "There is no bid-ask spread"
             )
 
+    @property
     def best_bid(self) -> Decimal:
         """Return the best bid.
 
@@ -316,6 +321,7 @@ class LimitOrderBook:
                 "LimitOrderBook:best_bid", "There is no best bid"
             )
 
+    @property
     def best_ask(self) -> Decimal:
         """Return the best ask.
 
@@ -518,7 +524,7 @@ class LimitOrderBook:
         volume: Volume,
         order_id: OrderID,
         order_type: OrderType,
-        qualifs: dict[str, Any] | None = None,
+        qualifs: Qualifiers | None = None,
     ) -> None:
         """Enter the quote in the appropriate queue in the right order.
 
@@ -550,7 +556,7 @@ class LimitOrderBook:
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.level_factory(price))
+            queue.insert(i, self.from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote(timestamp, volume, order_id, qualifs)
 
@@ -588,7 +594,7 @@ class LimitOrderBook:
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.level_factory(price))
+            queue.insert(i, self.from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote_out_of_order(timestamp, volume, order_id, qualifs)
 
@@ -640,7 +646,7 @@ class LimitOrderBook:
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.level_factory(price))
+            queue.insert(i, self.from_price(price))
 
         # Compute the number of positions in front
         pre_positions = 0
