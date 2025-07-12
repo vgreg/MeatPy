@@ -107,10 +107,10 @@ class TestLimitOrderBookBasicOperations:
         self.timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         self.lob = LimitOrderBook(self.timestamp)
 
-    def test_level_factory(self):
-        """Test level_factory method."""
+    def test_from_price(self):
+        """Test from_price method."""
         price = 100
-        level = self.lob.level_factory(price)
+        level = self.lob.from_price(price)
         assert level.price == price
 
     def test_copy_empty_lob(self):

@@ -106,10 +106,21 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             instrument: The instrument/symbol to process
             book_date: The trading date for this processor
         """
-        super(ITCH50MarketProcessor, self).__init__(instrument, book_date)
+
+        super(ITCH50MarketProcessor, self).__init__()
+
+        self.instrument: bytes = (
+            f"{instrument:<8}".encode("ascii")
+            if isinstance(instrument, str)
+            else instrument
+        )
+        self.book_date: datetime.date | datetime.datetime = book_date
         self.system_status: bytes = b""
         self.stock_status: bytes = b""
         self.emc_status: bytes = b""
+
+        self._order_refs: set[int] = set()
+        self._matches: set[int] = set()
 
     def process_message(
         self, message: MarketMessage, new_snapshot: bool = True
@@ -130,6 +141,8 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         if isinstance(message, AddOrderMessage) or isinstance(
             message, AddOrderMPIDMessage
         ):
+            if message.stock != self.instrument:
+                return
             if self.track_lob:
                 if message.bsindicator == b"B":
                     order_type = OrderType.BID
@@ -148,6 +161,9 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     order_type=order_type,
                 )
         elif isinstance(message, OrderExecutedMessage):
+            if message.orderRefNum not in self._order_refs:
+                return
+            self._matches.add(message.match)
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 self.execute_trade(
@@ -157,6 +173,9 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     trade_ref=message.match,
                 )
         elif isinstance(message, OrderExecutedPriceMessage):
+            if message.orderRefNum not in self._order_refs:
+                return
+            self._matches.add(message.match)
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 self.execute_trade_price(
@@ -167,6 +186,8 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     price=message.price,
                 )
         elif isinstance(message, OrderCancelMessage):
+            if message.orderRefNum not in self._order_refs:
+                return
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
@@ -184,6 +205,9 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     order_type=order_type,
                 )
         elif isinstance(message, OrderDeleteMessage):
+            if message.orderRefNum not in self._order_refs:
+                return
+            self._order_refs.remove(message.orderRefNum)
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
@@ -206,6 +230,10 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     order_type=order_type,
                 )
         elif isinstance(message, OrderReplaceMessage):
+            if message.origOrderRefNum not in self._order_refs:
+                return
+            self._order_refs.remove(message.origOrderRefNum)
+            self._order_refs.add(message.newOrderRefNum)
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
@@ -233,6 +261,8 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         elif isinstance(message, SystemEventMessage):
             self.process_system_message(message.code, timestamp, new_snapshot)
         elif isinstance(message, StockTradingActionMessage):
+            if message.stock != self.instrument:
+                return
             self.process_trading_action_message(message.state, timestamp, new_snapshot)
 
     def process_system_message(
@@ -312,7 +342,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         """
         self.enter_quote_event(timestamp, price, volume, order_id, order_type)
         if self.current_lob is not None:
-            self.current_lob.enter_quote(timestamp, volume, order_id)
+            self.current_lob.enter_quote(timestamp, price, volume, order_id, order_type)
 
     def cancel_quote(
         self,
@@ -331,7 +361,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         """
         self.cancel_quote_event(timestamp, volume, order_id, order_type)
         if self.current_lob is not None:
-            self.current_lob.cancel_quote(order_id, volume)
+            self.current_lob.cancel_quote(volume, order_id, order_type)
 
     def delete_quote(
         self,
@@ -348,7 +378,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         """
         self.delete_quote_event(timestamp, order_id, order_type)
         if self.current_lob is not None:
-            self.current_lob.delete_quote(order_id)
+            self.current_lob.delete_quote(order_id, order_type)
 
     def replace_quote(
         self,
@@ -373,8 +403,10 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             timestamp, orig_order_id, new_order_id, price, volume, order_type
         )
         if self.current_lob is not None:
-            self.current_lob.delete_quote(orig_order_id)
-            self.current_lob.enter_quote(timestamp, volume, new_order_id)
+            self.current_lob.delete_quote(orig_order_id, order_type)
+            self.current_lob.enter_quote(
+                timestamp, price, volume, new_order_id, order_type
+            )
 
     def execute_trade(
         self,

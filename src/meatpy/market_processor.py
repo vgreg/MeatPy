@@ -6,7 +6,6 @@ order book history for a specific instrument.
 """
 
 import abc
-from datetime import date, datetime
 from typing import Generic
 
 from .lob import LimitOrderBook, OrderType
@@ -29,8 +28,6 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
     market data formats and protocols.
 
     Attributes:
-        instrument: The instrument/symbol being processed
-        book_date: The trading date for this processor
         current_lob: The current limit order book state
         track_lob: Whether to maintain the limit order book
         handlers: List of event handlers to notify of events
@@ -41,18 +38,12 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
     def __init__(
         self,
-        instrument: str | bytes,
-        book_date: date | datetime | None,
     ) -> None:
-        """Initialize a market processor for a specific instrument and date.
+        """Initialize a market processor"""
 
-        Args:
-            instrument: The instrument/symbol to process
-            book_date: The trading date for this processor
-        """
-        self.instrument: str | bytes = instrument
-        self.book_date: date | datetime | None = book_date
-        self.current_lob: LimitOrderBook | None = None
+        self.current_lob: (
+            LimitOrderBook[Price, Volume, OrderID, TradeRef, Qualifiers] | None
+        ) = None
         self.track_lob: bool = True
         self.handlers: list[MarketEventHandler] = []
         self.trading_status: TradingStatus | None = None
@@ -271,8 +262,9 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             new_snapshot: Whether to create a new snapshot (default: True)
         """
         if self.current_lob is None:
-            self.current_lob = LimitOrderBook(timestamp)
-            # self.snapshots.append(self.current_lob)
+            self.current_lob = LimitOrderBook[
+                Price, Volume, OrderID, TradeRef, Qualifiers
+            ](timestamp)
         elif new_snapshot is True:
             self.before_lob_update(timestamp)
             if self.current_lob.timestamp == timestamp:

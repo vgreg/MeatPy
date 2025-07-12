@@ -74,7 +74,9 @@ class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
         Args:
             indent: Indentation string for formatting
         """
-        print(f"{indent}{self.volume} shares at {self.timestamp} (id {self.order_id})")
+        print(
+            f"{indent}{self.volume} shares entered at {self.timestamp} (id {self.order_id})"
+        )
 
     def write_csv(
         self,
@@ -125,7 +127,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             price: The price for this level
         """
         self.price: Price = price
-        self.queue: list[OrderOnBook] = []
+        self.queue: list[OrderOnBook[Volume, OrderID, Qualifiers]] = []
 
     def order_factory(
         self,
@@ -133,7 +135,7 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         timestamp: Timestamp,
         volume: Volume,
         qualifs: Qualifiers | None = None,
-    ) -> OrderOnBook:
+    ) -> OrderOnBook[Volume, OrderID, Qualifiers]:
         """Create a new OrderOnBook instance.
 
         Factory method to create OrderOnBook objects with the specified parameters.
@@ -191,20 +193,26 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
             for x in self.queue:
                 volume += x.volume
             if show_age:
-                vw_age = None
-                age = None
+                vw_age_acc = None
+                age_acc = None
                 for x in self.queue:
                     order_age = timestamp - x.timestamp
-                    if vw_age is None:
-                        vw_age = order_age * x.volume
+                    if vw_age_acc is None:
+                        vw_age_acc = order_age * x.volume
                     else:
-                        vw_age += order_age * x.volume
-                    if age is None:
-                        age = order_age
+                        vw_age_acc += order_age * x.volume
+                    if age_acc is None:
+                        age_acc = order_age
                     else:
-                        age += order_age
-                vw_age = vw_age / float(volume)
-                age = age / float(n_orders)
+                        age_acc += order_age
+                if vw_age_acc is not None and volume > 0:
+                    vw_age = vw_age_acc / float(volume)
+                else:
+                    vw_age = None
+                if age_acc is not None and n_orders > 0:
+                    age = age_acc / float(n_orders)
+                else:
+                    age = None
                 first_age = timestamp - self.queue[0].timestamp
                 last_age = timestamp - self.queue[-1].timestamp
                 file.write(
@@ -239,7 +247,15 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         Returns:
             Volume: Sum of all order volumes at this level
         """
-        return sum(x.volume for x in self.queue)
+        acc: Volume | None = None
+        for x in self.queue:
+            if x.volume is not None:
+                acc += x.volume
+            else:
+                acc = x.volume
+        if acc is None:
+            raise ValueError("No volume found")
+        return acc
 
     def execution_price(self, volume: Volume) -> tuple[Price, Volume]:
         """Calculate the execution price for a given volume.
@@ -254,11 +270,14 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         Returns:
             tuple[Price, Volume]: (total_price, executed_volume)
         """
-        volume_acc = 0
+        volume_acc: Volume | None = None
 
         for x in self.queue:
             volume_ord = x.volume
-            volume_acc += volume_ord
+            if volume_acc is None:
+                volume_acc = volume_ord
+            else:
+                volume_acc += volume_ord
             if volume_acc >= volume:
                 volume_acc = volume
                 break

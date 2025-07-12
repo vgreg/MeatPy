@@ -3,18 +3,30 @@ from decimal import Decimal
 from enum import Enum
 from math import log
 from pathlib import Path
-from typing import Any
+from typing import Generic
 
 from .level import ExecutionPriorityException, Level
 from .timestamp import Timestamp
-from .types import OrderID, Price, Volume
+from .types import OrderID, Price, Qualifiers, TradeRef, Volume
 
 
 class InexistantValueException(Exception):
+    """Exception raised when a value does not exist in the limit order book.
+
+    This exception is raised when attempting to access values that are not
+    available in the current state of the limit order book.
+    """
+
     pass
 
 
 class ExecutionPriorityExceptionList(Exception):
+    """Exception raised when multiple execution priority errors occur.
+
+    This exception is raised when there are multiple execution priority
+    violations that need to be handled together.
+    """
+
     pass
 
 
@@ -59,12 +71,19 @@ class InvalidPositionError(Exception):
 
 
 class OrderType(Enum):
+    """Enumeration for order types in the limit order book.
+
+    Attributes:
+        ASK: Sell order type (value: 0)
+        BID: Buy order type (value: 1)
+    """
+
     ASK = 0
     BID = 1
 
 
-class LimitOrderBook:
-    """A snapshot a a limit order book
+class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
+    """A snapshot of a limit order book.
 
     The handling of orders (enter, execute, revise) is standard
     and should apply to any exchange that applies price and
@@ -72,17 +91,15 @@ class LimitOrderBook:
     """
 
     def __init__(self, timestamp: Timestamp, timestamp_inc: int = 0) -> None:
-        """Initialize the object with a timestamp and event_type and empty
-        order queues.
+        """Initialize the limit order book with a timestamp and empty order queues.
 
         If there are more than one LimitOrderBook at the same timestamp,
         timestamp_inc is used to rank them in chronological order (first event
         is 0, second is 1, etc.)
 
-        :param timestamp: timestamp of the limit order book
-        :type timestamp: datetime
-        :param timestamp_inc: rank of event at timestamp
-        :type timestamp_inc: int
+        Args:
+            timestamp: Timestamp of the limit order book.
+            timestamp_inc: Rank of event at timestamp, defaults to 0.
         """
         self.timestamp: Timestamp = timestamp
         self.timestamp_inc: int = timestamp_inc
@@ -98,7 +115,11 @@ class LimitOrderBook:
         ] = []  # Buffer for executions out of order
 
     def print_out(self, indent: str = "") -> None:
-        """Print the content of the limit order book."""
+        """Print the content of the limit order book.
+
+        Args:
+            indent: String to prepend to each line for indentation, defaults to "".
+        """
         print(
             f"{indent}LOB Snapshot: {self.timestamp},{self.timestamp_inc} -------------"
         )
@@ -113,10 +134,26 @@ class LimitOrderBook:
             i += 1
             x.print_out(f"{indent}  ", i)
 
-    def level_factory(self, price: Price) -> Level:
+    def from_price(self, price: Price) -> Level:
+        """Create a new Level instance with the given price.
+
+        Args:
+            price: The price for the new level.
+
+        Returns:
+            A new Level instance.
+        """
         return Level(price=price)
 
     def copy(self, max_level: int | None = None) -> "LimitOrderBook":
+        """Create a deep copy of the limit order book.
+
+        Args:
+            max_level: Maximum number of levels to copy, defaults to None (copy all).
+
+        Returns:
+            A deep copy of the limit order book.
+        """
         new_lob = LimitOrderBook(deepcopy(self.timestamp), self.timestamp_inc)
         new_lob.timestamp_inc = self.timestamp_inc
         new_lob.decimals_adj = self.decimals_adj
@@ -136,7 +173,13 @@ class LimitOrderBook:
     def write_csv(
         self, file: str | Path, collapse_orders: bool = False, show_age: bool = False
     ) -> None:
-        """Write rows for the content of the LOB"""
+        """Write the limit order book content to a CSV file.
+
+        Args:
+            file: File path or Path object to write to.
+            collapse_orders: Whether to collapse orders, defaults to False.
+            show_age: Whether to show order age, defaults to False.
+        """
         i = 1
         for x in self.ask_levels:
             x.write_csv(
@@ -164,24 +207,30 @@ class LimitOrderBook:
 
     #### Built-in measures #######
 
-    def adjust_price(self, price: Price) -> Price:
-        if self.decimals_adj is None:
-            return price
-        if isinstance(price, int) and price % self.decimals_adj != 0:
-            return Decimal(price) / self.decimals_adj
-        if isinstance(price, Decimal):
-            return price / self.decimals_adj
-        if isinstance(price, int):
-            return int(price / self.decimals_adj)
-        raise InvalidPriceTypeError(
-            f"Unknown price type: {type(price)} with value {price}"
+    def adjust_price(self, price: Price) -> Decimal:
+        """Adjust the price according to the decimals_adj setting.
+
+        Args:
+            price: The price to adjust.
+
+        Returns:
+            The adjusted price as a Decimal.
+        """
+        return (
+            Decimal(price) / self.decimals_adj
+            if self.decimals_adj is not None
+            else Decimal(price)
         )
 
-    def bid_ask_spread(self) -> Price:
-        """Return the bid-ask spread
+    @property
+    def bid_ask_spread(self) -> Decimal:
+        """Return the bid-ask spread.
 
-        :returns: bid ask spread
-        :rtype: same as price format
+        Returns:
+            The bid-ask spread as a Decimal.
+
+        Raises:
+            InexistantValueException: If there is no bid-ask spread available.
         """
         try:
             return self.adjust_price(
@@ -192,11 +241,15 @@ class LimitOrderBook:
                 "LimitOrderBook:bid_ask_spread", "There is no bid-ask spread"
             )
 
-    def mid_quote(self) -> Price:
-        """Return the mid quote
+    @property
+    def mid_quote(self) -> Decimal:
+        """Return the mid quote.
 
-        :returns: mid quote
-        :rtype: same as price format
+        Returns:
+            The mid quote as a Decimal.
+
+        Raises:
+            InexistantValueException: If there is no bid-ask spread available.
         """
         try:
             return Decimal(
@@ -208,14 +261,20 @@ class LimitOrderBook:
                 "LimitOrderBook:mid quote", "There is no bid-ask spread"
             )
 
+    @property
     def quote_slope(self) -> float:
-        """Return the slope between the two levels of depth between the ask and
-        the bid. Flatter the slope is, the more liquid is the market.
+        """Return the slope between the two levels of depth between the ask and the bid.
 
-        :returns: quote slope
+        Flatter the slope is, the more liquid is the market.
+
+        Returns:
+            The quote slope as a float.
+
+        Raises:
+            InexistantValueException: If there is missing bid or ask price or volume.
         """
         try:
-            return float(self.bid_ask_spread()) / (
+            return float(self.bid_ask_spread) / (
                 log(self.ask_levels[0].volume) + log(self.bid_levels[0].volume)
             )
         except IndexError:
@@ -223,12 +282,17 @@ class LimitOrderBook:
                 "LimitOrderBook:quote_slope", "There missing bid or ask price or volume"
             )
 
+    @property
     def log_quote_slope(self) -> float:
-        """Return the log of the slope between the two levels of depth between
-        the ask and the bid. Flatter the slope is, the more liquid is the
-        market.
+        """Return the log of the slope between the two levels of depth between the ask and the bid.
 
-        :returns: effective spread in percent
+        Flatter the slope is, the more liquid is the market.
+
+        Returns:
+            The effective spread in percent as a float.
+
+        Raises:
+            InexistantValueException: If there is no bid-ask spread available.
         """
         try:
             return float(
@@ -240,11 +304,15 @@ class LimitOrderBook:
                 "LimitOrderBook:log_quote_slope", "There is no bid-ask spread"
             )
 
-    def best_bid(self) -> Price:
-        """Return the best bid
+    @property
+    def best_bid(self) -> Decimal:
+        """Return the best bid.
 
-        :returns: best bid
-        :rtype: same as price format
+        Returns:
+            The best bid as a Decimal.
+
+        Raises:
+            InexistantValueException: If there is no best bid available.
         """
         try:
             return self.adjust_price(self.bid_levels[0].price)
@@ -253,11 +321,15 @@ class LimitOrderBook:
                 "LimitOrderBook:best_bid", "There is no best bid"
             )
 
-    def best_ask(self) -> Price:
-        """Return the best ask
+    @property
+    def best_ask(self) -> Decimal:
+        """Return the best ask.
 
-        :returns: best ask
-        :rtype: same as price format
+        Returns:
+            The best ask as a Decimal.
+
+        Raises:
+            InexistantValueException: If there is no best ask available.
         """
         try:
             return self.adjust_price(self.ask_levels[0].price)
@@ -266,12 +338,19 @@ class LimitOrderBook:
                 "LimitOrderBook:best_ask", "There is no best ask"
             )
 
-    def buy_execution_price(self, volume: Volume) -> tuple[Price, Volume]:
+    def buy_execution_price(self, volume: Volume) -> tuple[Decimal, int]:
         """Compute the execution price for a buy order of a certain volume.
 
         Returns a tuple, with the first element being the total price and
         the second element the number of shares, which is
-        min(requested volume, total book volume)"""
+        min(requested volume, total book volume).
+
+        Args:
+            volume: The volume to execute.
+
+        Returns:
+            A tuple containing (total_price, executed_volume).
+        """
         volume_acc = 0
         price_acc = 0
 
@@ -284,12 +363,19 @@ class LimitOrderBook:
 
         return (self.adjust_price(price_acc), volume_acc)
 
-    def sell_execution_price(self, volume: Volume) -> tuple[Price, Volume]:
+    def sell_execution_price(self, volume: Volume) -> tuple[Decimal, int]:
         """Compute the execution price for a sell order of a certain volume.
 
         Returns a tuple, with the first element being the total price and
         the second element the number of shares, which is
-        min(requested volume, total book volume)"""
+        min(requested volume, total book volume).
+
+        Args:
+            volume: The volume to execute.
+
+        Returns:
+            A tuple containing (total_price, executed_volume).
+        """
         volume_acc = 0
         price_acc = 0
 
@@ -309,10 +395,12 @@ class LimitOrderBook:
     ) -> bool:
         """Indicate if the order_id is on the book.
 
-        :param order_id: Order ID (exchange-specific)
-        :type order_id: int or str
-        :returns: whether the order is on the book
-        :rtype: bool
+        Args:
+            order_id: Order ID (exchange-specific).
+            order_type: Specific order type to check, defaults to None (check both).
+
+        Returns:
+            True if the order is on the book, False otherwise.
         """
         if order_type is None:
             if self.ask_order_on_book(order_id):
@@ -331,16 +419,15 @@ class LimitOrderBook:
                 return True
             else:
                 return False
-        else:
-            raise InvalidOrderTypeError(f"Unknown order type: {order_type}")
 
     def ask_order_on_book(self, order_id: OrderID) -> bool:
         """Indicate if the order_id is on the ask book.
 
-        :param order_id: Order ID (exchange-specific)
-        :type order_id: int or str
-        :returns: whether the order is on the book
-        :rtype: bool
+        Args:
+            order_id: Order ID (exchange-specific).
+
+        Returns:
+            True if the order is on the ask book, False otherwise.
         """
         for x in self.ask_levels:
             if x.order_on_book(order_id):
@@ -350,10 +437,11 @@ class LimitOrderBook:
     def bid_order_on_book(self, order_id: OrderID) -> bool:
         """Indicate if the order_id is on the bid book.
 
-        :param order_id: Order ID (exchange-specific)
-        :type order_id: int or str
-        :returns: whether the order is on the book
-        :rtype: bool
+        Args:
+            order_id: Order ID (exchange-specific).
+
+        Returns:
+            True if the order is on the bid book, False otherwise.
         """
         for x in self.bid_levels:
             if x.order_on_book(order_id):
@@ -363,13 +451,21 @@ class LimitOrderBook:
     def find_order_type(self, order_id: OrderID) -> OrderType:
         """Find the type for an order on the book.
 
-        Returns either 0 or 1."""
+        Args:
+            order_id: Order ID to find the type for.
+
+        Returns:
+            The OrderType (ASK or BID) of the order.
+
+        Raises:
+            OrderNotFoundError: If the order is not found on the book.
+        """
         if self.bid_order_on_book(order_id):
             return OrderType.BID
         elif self.ask_order_on_book(order_id):
             return OrderType.ASK
         else:
-            raise OrderNotFoundError(f"Order not found: {order_id}")
+            raise OrderNotFoundError(f"Order not found: {order_id!r}")
 
     def find_order(
         self, order_id: OrderID, order_type: OrderType | None = None
@@ -377,7 +473,19 @@ class LimitOrderBook:
         """Find the order for an order on the book with possibly known type.
 
         Returns a tuple with queue as the first element, level as second,
-        rank on level as third."""
+        rank on level as third.
+
+        Args:
+            order_id: Order ID to find.
+            order_type: Specific order type to search, defaults to None (search both).
+
+        Returns:
+            A tuple containing (queue, level_index, rank_on_level).
+
+        Raises:
+            OrderNotFoundError: If the order is not found on the book.
+            InvalidOrderTypeError: If an unknown order type is specified.
+        """
         # By default, look at order starting from top of book.
         if order_type is None:
             i = 0
@@ -405,7 +513,7 @@ class LimitOrderBook:
                     return (queue, i, j)
                 i += 1
 
-        raise OrderNotFoundError(f"Quote ID ({order_id}) missing from queue")
+        raise OrderNotFoundError(f"Quote ID ({order_id!r}) missing from queue")
 
     #### Order and trade processing
 
@@ -416,12 +524,20 @@ class LimitOrderBook:
         volume: Volume,
         order_id: OrderID,
         order_type: OrderType,
-        qualifs: dict[str, Any] | None = None,
+        qualifs: Qualifiers | None = None,
     ) -> None:
-        """Enter the quote in the appropriate queue in the right order
+        """Enter the quote in the appropriate queue in the right order.
 
-        Implement price and time priority
-        Assumes the current list is ordered (0=highest priority)
+        Implement price and time priority.
+        Assumes the current list is ordered (0=highest priority).
+
+        Args:
+            timestamp: Timestamp of the quote entry.
+            price: Price of the quote.
+            volume: Volume of the quote.
+            order_id: Order ID for the quote.
+            order_type: Type of the order (ASK or BID).
+            qualifs: Additional qualifications for the quote, defaults to None.
         """
         if order_type == OrderType.ASK:
             queue = self.ask_levels
@@ -440,18 +556,26 @@ class LimitOrderBook:
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.level_factory(price))
+            queue.insert(i, self.from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote(timestamp, volume, order_id, qualifs)
 
     def enter_quote_out_of_order(
         self, timestamp, price, volume, order_id, order_type, qualifs=None
     ) -> None:
-        """Enter the quote in the appropriate queue in the right order
+        """Enter the quote in the appropriate queue in the right order.
 
-        Implement price and time priority
-        Assumes the current list is ordered (0=highest priority)
+        Implement price and time priority.
+        Assumes the current list is ordered (0=highest priority).
         Does not assume the input timestamp is the most recent.
+
+        Args:
+            timestamp: Timestamp of the quote entry.
+            price: Price of the quote.
+            volume: Volume of the quote.
+            order_id: Order ID for the quote.
+            order_type: Type of the order (ASK or BID).
+            qualifs: Additional qualifications for the quote, defaults to None.
         """
         if order_type == OrderType.ASK:
             queue = self.ask_levels
@@ -470,7 +594,7 @@ class LimitOrderBook:
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.level_factory(price))
+            queue.insert(i, self.from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote_out_of_order(timestamp, volume, order_id, qualifs)
 
@@ -485,11 +609,25 @@ class LimitOrderBook:
         check_priority: bool,
         qualifs=None,
     ) -> None:
-        """Enter the quote in the appropriate queue in the right order (global
-        order on the book, no only on level)
+        """Enter the quote in the appropriate queue at a specific position.
 
-        Check for price and time priority if required
-        Assumes the current list is ordered (0=highest priority)
+        Enter the quote in the appropriate queue in the right order (global
+        order on the book, not only on level).
+        Check for price and time priority if required.
+        Assumes the current list is ordered (0=highest priority).
+
+        Args:
+            timestamp: Timestamp of the quote entry.
+            price: Price of the quote.
+            volume: Volume of the quote.
+            order_id: Order ID for the quote.
+            order_type: Type of the order (ASK or BID).
+            position: Global position on the book.
+            check_priority: Whether to check priority constraints.
+            qualifs: Additional qualifications for the quote, defaults to None.
+
+        Raises:
+            InvalidPositionError: If the specified position is not possible.
         """
         if order_type == OrderType.ASK:
             queue = self.ask_levels
@@ -508,7 +646,7 @@ class LimitOrderBook:
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.level_factory(price))
+            queue.insert(i, self.from_price(price))
 
         # Compute the number of positions in front
         pre_positions = 0
@@ -527,9 +665,17 @@ class LimitOrderBook:
     def cancel_quote(
         self, volume: Volume, order_id: OrderID, order_type: OrderType | None = None
     ) -> None:
-        """Delete the quote from the appropriate queue
+        """Delete the quote from the appropriate queue.
 
-        Find the quote, and delete it (make sure volumes match)
+        Find the quote, and delete it (make sure volumes match).
+
+        Args:
+            volume: Volume to cancel.
+            order_id: Order ID to cancel.
+            order_type: Specific order type to search, defaults to None.
+
+        Raises:
+            OrderNotFoundError: If the order is not found.
         """
         (queue, i, j) = self.find_order(order_id, order_type)
 
@@ -543,9 +689,16 @@ class LimitOrderBook:
     def delete_quote(
         self, order_id: OrderID, order_type: OrderType | None = None
     ) -> None:
-        """Delete the quote from the appropriate queue
+        """Delete the quote from the appropriate queue.
 
-        Find the quote, and delete it
+        Find the quote, and delete it.
+
+        Args:
+            order_id: Order ID to delete.
+            order_type: Specific order type to search, defaults to None.
+
+        Raises:
+            OrderNotFoundError: If the order is not found.
         """
         (queue, i, j) = self.find_order(order_id, order_type)
 
@@ -563,11 +716,20 @@ class LimitOrderBook:
         order_id: OrderID,
         order_type: OrderType | None = None,
     ) -> None:
-        """Apply the effect of the execution on the book
+        """Apply the effect of the execution on the book.
 
-        Make sure volume and ID are consistent with
-        current order of book.
-        Order sure be next in line on book, unless a price is specificed.
+        Make sure volume and ID are consistent with current order of book.
+        Order should be next in line on book, unless a price is specified.
+
+        Args:
+            timestamp: Timestamp of the trade execution.
+            volume: Volume to execute.
+            order_id: Order ID to execute.
+            order_type: Specific order type to search, defaults to None.
+
+        Raises:
+            OrderNotFoundError: If the order is not found.
+            ExecutionPriorityExceptionList: If there are execution priority violations.
         """
         (queue, i, j) = self.find_order(order_id, order_type)
         # Should execute at the "best price"
@@ -605,11 +767,29 @@ class LimitOrderBook:
                 del queue[0]
 
     def skip_exception(self, e: Exception) -> bool:
-        """Indicate if the exception should be skipped."""
+        """Indicate if the exception should be skipped.
+
+        Args:
+            e: The exception to check.
+
+        Returns:
+            True if the exception should be skipped, False otherwise.
+        """
         return False
 
     def find_liquidity_maker(self, ask_id: OrderID, bid_id: OrderID) -> OrderID:
-        """Find which of the two orders is already on the book."""
+        """Find which of the two orders is already on the book.
+
+        Args:
+            ask_id: The ask order ID.
+            bid_id: The bid order ID.
+
+        Returns:
+            The OrderID of the order that is already on the book (the maker).
+
+        Raises:
+            ValueError: If it cannot be determined which order is the maker.
+        """
         if not self.ask_order_on_book(ask_id):  # Sell order
             return bid_id
         elif not self.bid_order_on_book(bid_id):  # Buy order
@@ -624,11 +804,19 @@ class LimitOrderBook:
         order_id: OrderID,
         order_type: OrderType | None = None,
     ) -> None:
-        """Apply the effect of the execution on the book
+        """Apply the effect of the execution on the book at a specific price.
 
-        Make sure volume and ID are consistent with
-        current order of book.
-        Order sure be next in line on book, unless a price is specificed.
+        Make sure volume and ID are consistent with current order of book.
+        Order should be next in line on book, unless a price is specified.
+
+        Args:
+            timestamp: Timestamp of the trade execution.
+            volume: Volume to execute.
+            order_id: Order ID to execute.
+            order_type: Specific order type to search, defaults to None.
+
+        Raises:
+            OrderNotFoundError: If the order is not found.
         """
         (queue, i, j) = self.find_order(order_id, order_type)
 
@@ -638,7 +826,11 @@ class LimitOrderBook:
             del queue[i]
 
     def end_of_day(self) -> None:
-        """Identify issues if this is the end of trading day."""
+        """Identify issues if this is the end of trading day.
+
+        Raises:
+            ExecutionPriorityExceptionList: If there are remaining execution errors.
+        """
         # 1) Raise remaining exceptions.
         if len(self.execution_errors_buffer) > 0:
             raise ExecutionPriorityExceptionList(
