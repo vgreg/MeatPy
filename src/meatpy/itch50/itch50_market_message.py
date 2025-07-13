@@ -51,21 +51,19 @@ class ITCH50MarketMessage(MarketMessage):
 
     finStatusbsindicators = {
         b"D": "Deficient",
-        b"E": "Deliquent",
+        b"E": "Delinquent",
         b"Q": "Bankrupt",
         b"S": "Suspended",
         b"G": "Deficient and Bankrupt",
-        b"H": "Deficient and Deliquent",
-        b"J": "Delinquent and Bankrput",
+        b"H": "Deficient and Delinquent",
+        b"J": "Delinquent and Bankrupt",
         b"K": "Deficient, Delinquent and Bankrupt",
         b"C": "Creations and/or Redemptions Suspended for Exchange Traded Product",
-        b"N": "Normal (Defualt): Issuer Is NOT Deficient, Delinquent, or Bankrupt",
+        b"N": "Normal (Default): Issuer Is NOT Deficient, Delinquent, or Bankrupt",
         b" ": "Not available. Firms should refer to SIAC feeds for code if needed",
     }
 
     roundLotsOnly = {b"Y": "Only round lots", b"N": "Odd and Mixed lots"}
-
-    # These list get overriden in individual messages... still relevant?
 
     tradingStates = {
         b"H": "Halted across all U.S. equity markets / SROs",
@@ -172,6 +170,82 @@ class ITCH50MarketMessage(MarketMessage):
             data: Dictionary to add fields to
         """
         pass
+
+    @classmethod
+    def validate_code(cls, code: bytes, code_dict: dict) -> bool:
+        """Validate that a code exists in the given code dictionary.
+
+        Args:
+            code: The code to validate
+            code_dict: Dictionary containing valid codes
+
+        Returns:
+            True if code is valid, False otherwise
+        """
+        return code in code_dict
+
+    @classmethod
+    def get_code_description(cls, code: bytes, code_dict: dict) -> str:
+        """Get the description for a given code.
+
+        Args:
+            code: The code to look up
+            code_dict: Dictionary containing codes and descriptions
+
+        Returns:
+            Description string, or 'Unknown' if code not found
+        """
+        return code_dict.get(code, "Unknown")
+
+    @classmethod
+    def validate_system_event_code(cls, code: bytes) -> bool:
+        """Validate a system event code."""
+        return cls.validate_code(code, cls.sysEventCodes)
+
+    @classmethod
+    def validate_market_code(cls, code: bytes) -> bool:
+        """Validate a market code."""
+        return cls.validate_code(code, cls.market)
+
+    @classmethod
+    def validate_financial_status_indicator(cls, code: bytes) -> bool:
+        """Validate a financial status indicator."""
+        return cls.validate_code(code, cls.finStatusbsindicators)
+
+    @classmethod
+    def validate_trading_state(cls, code: bytes) -> bool:
+        """Validate a trading state code."""
+        return cls.validate_code(code, cls.tradingStates)
+
+    @classmethod
+    def validate_market_maker_mode(cls, code: bytes) -> bool:
+        """Validate a market maker mode code."""
+        return cls.validate_code(code, cls.marketMakerModes)
+
+    @classmethod
+    def validate_market_participant_state(cls, code: bytes) -> bool:
+        """Validate a market participant state code."""
+        return cls.validate_code(code, cls.marketParticipantStates)
+
+    @classmethod
+    def validate_interest_description(cls, code: bytes) -> bool:
+        """Validate an interest description code."""
+        return cls.validate_code(code, cls.interestDescriptions)
+
+    @classmethod
+    def validate_cross_type(cls, code: bytes) -> bool:
+        """Validate a cross type code."""
+        return cls.validate_code(code, cls.crossTypeDescriptions)
+
+    def validate(self) -> bool:
+        """Validate all codes in this message.
+
+        This method should be overridden by subclasses to validate their specific codes.
+
+        Returns:
+            True if all codes are valid, False otherwise
+        """
+        return True
 
     @classmethod
     def from_json(cls, json_str: str) -> "ITCH50MarketMessage":
@@ -378,6 +452,10 @@ class SystemEventMessage(ITCH50MarketMessage):
 
         return message
 
+    def validate(self) -> bool:
+        """Validate all codes in this SystemEventMessage."""
+        return self.validate_system_event_code(self.code)
+
 
 class StockDirectoryMessage(ITCH50MarketMessage):
     type = b"R"
@@ -538,6 +616,14 @@ class StockDirectoryMessage(ITCH50MarketMessage):
             setattr(message, field_name, value)
         return message
 
+    def validate(self) -> bool:
+        """Validate all codes in this StockDirectoryMessage."""
+        return (
+            self.validate_market_code(self.category)
+            and self.validate_financial_status_indicator(self.status)
+            and self.validate_code(self.lotsonly, self.roundLotsOnly)
+        )
+
 
 class StockTradingActionMessage(ITCH50MarketMessage):
     type = b"H"
@@ -634,6 +720,10 @@ class StockTradingActionMessage(ITCH50MarketMessage):
         message.reason = reason
 
         return message
+
+    def validate(self) -> bool:
+        """Validate all codes in this StockTradingActionMessage."""
+        return self.validate_trading_state(self.state)
 
 
 class RegSHOMessage(ITCH50MarketMessage):
@@ -822,6 +912,14 @@ class MarketParticipantPositionMessage(ITCH50MarketMessage):
                 message.state = value
 
         return message
+
+    def validate(self) -> bool:
+        """Validate all codes in this MarketParticipantPositionMessage."""
+        return (
+            self.validate_code(self.primary_market_maker, self.primaryMarketMaker)
+            and self.validate_market_maker_mode(self.market_maker_mode)
+            and self.validate_market_participant_state(self.state)
+        )
 
 
 class AddOrderMessage(ITCH50MarketMessage):
@@ -1556,6 +1654,10 @@ class CrossTradeMessage(ITCH50MarketMessage):
 
         return message
 
+    def validate(self) -> bool:
+        """Validate all codes in this CrossTradeMessage."""
+        return self.validate_cross_type(self.crossType)
+
 
 class BrokenTradeMessage(ITCH50MarketMessage):
     type = b"B"
@@ -1736,6 +1838,10 @@ class NoiiMessage(ITCH50MarketMessage):
 
         return message
 
+    def validate(self) -> bool:
+        """Validate all codes in this NoiiMessage."""
+        return self.validate_cross_type(self.crossType)
+
 
 class RpiiMessage(ITCH50MarketMessage):
     type = b"N"
@@ -1813,6 +1919,10 @@ class RpiiMessage(ITCH50MarketMessage):
         message.interest = interest
 
         return message
+
+    def validate(self) -> bool:
+        """Validate all codes in this RpiiMessage."""
+        return self.validate_interest_description(self.interest)
 
 
 class MWCBDeclineLevelMessage(ITCH50MarketMessage):
