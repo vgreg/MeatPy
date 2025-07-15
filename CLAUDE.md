@@ -23,8 +23,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Pre-commit hooks include: ruff linting/formatting, trailing whitespace, file checks
 
 ### Documentation
-- Documentation is built with Sphinx in the `docs/` directory
-- Latest docs available at: https://meatpy.readthedocs.io/en/latest/
+- `uv run mkdocs serve` - Start local documentation server for development
+- `uv run mkdocs build` - Build documentation for production
+- Documentation is built with MkDocs and Material theme in the `docs/` directory
+- Latest docs available at: https://www.vincentgregoire.com/MeatPy
+- Automatically deployed to GitHub Pages on main branch pushes
 
 ## Architecture Overview
 
@@ -85,7 +88,7 @@ Comprehensive trading status tracking:
 - `tests/` - Test suite with unit, integration, and performance tests
 - `examples/` - Usage examples and demonstrations
 - `samples/` - Sample processing scripts for ITCH 5.0
-- `docs/` - Sphinx documentation source
+- `docs/` - MkDocs documentation source
 - `rules/` - Development rules and guidelines
 
 ## Key Development Notes
