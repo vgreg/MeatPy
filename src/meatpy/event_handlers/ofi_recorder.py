@@ -21,11 +21,11 @@ class OFIRecorder(LOBEventRecorder):
         previous_lob: The previous limit order book snapshot
     """
 
-    def __init__(self, writer=None):
+    def __init__(self, writer):
         """Initialize the OFIRecorder.
 
         Args:
-            writer: Optional data writer for output
+            writer: DataWriter instance for output
         """
         self.previous_lob: LimitOrderBook | None = None
         LOBEventRecorder.__init__(self, writer=writer)
@@ -105,11 +105,11 @@ class OFIRecorder(LOBEventRecorder):
             file.write(f"{x[0]},{x[1]}\n")
         self.records = []
 
-    def _get_writer_schema(self):
+    def get_schema(self):
         """Get schema definition for the data writer."""
         return {"fields": {"Timestamp": "string", "e_n": "int64"}}
 
-    def _format_records_for_writer(self, records):
+    def format_records_for_writer(self, records):
         """Format OFI records for the data writer."""
         formatted_records = []
         for timestamp, e_n in records:

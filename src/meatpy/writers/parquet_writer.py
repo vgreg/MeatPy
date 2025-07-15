@@ -262,7 +262,15 @@ class ParquetWriter(DataWriter):
         table = self._records_to_table(records)
 
         if self._writer is None:
-            raise RuntimeError("Writer not initialized. Call write_records first.")
+            # Initialize writer if not already done
+            self._writer = pq.ParquetWriter(
+                self.output_path,
+                table.schema,
+                compression=self.compression,
+                write_statistics=True,
+                use_dictionary=False,
+                version="1.0",
+            )
 
         self._writer.write_table(table)
 

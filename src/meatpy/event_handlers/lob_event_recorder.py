@@ -7,7 +7,7 @@ timestamp.
 
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ..lob import LimitOrderBook
 from ..market_event_handler import MarketEventHandler
@@ -51,12 +51,11 @@ class LOBEventRecorder(MarketEventHandler):
         writer: Optional data writer for pluggable output formats
     """
 
-    def __init__(self, writer: Optional["DataWriter"] = None):
+    def __init__(self, writer: "DataWriter"):
         """Initialize the LOBEventRecorder with default settings.
 
         Args:
-            writer: Optional data writer for output. If provided, enables
-                   pluggable output format support.
+            writer: DataWriter instance for output
         """
         self.records: list[
             list[Any]
@@ -87,8 +86,8 @@ class LOBEventRecorder(MarketEventHandler):
         self.record_quoteonly: bool = False
         # Indicates which trading status should be recorded, only matters
         # when record_always is False
-        self.writer: Optional["DataWriter"] = writer
-        # Optional data writer for pluggable output formats
+        self.writer: "DataWriter" = writer
+        # DataWriter instance for pluggable output formats
 
     def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
         """Record the current state of the limit order book.
@@ -169,7 +168,7 @@ class LOBEventRecorder(MarketEventHandler):
             self.write_buffer()
 
         # If using a data writer, buffer records for writing
-        if self.writer is not None and len(self.records) >= self.buffer_size:
+        if len(self.records) >= self.buffer_size:
             self.flush_to_writer()
 
     def write_buffer(self):
@@ -200,21 +199,18 @@ class LOBEventRecorder(MarketEventHandler):
 
     def flush_to_writer(self):
         """Flush records to the configured data writer."""
-        if self.writer is None:
-            return
-
-        if not self.first_write_done and hasattr(self, "_get_writer_schema"):
-            schema = self._get_writer_schema()
-            self.writer.set_schema(schema)
+        if not self.first_write_done and hasattr(self, "get_schema"):
+            schema = self.get_schema()
+            self.writer.write_header(schema)
             self.first_write_done = True
 
-        formatted_records = self._format_records_for_writer(self.records)
+        formatted_records = self.format_records_for_writer(self.records)
         if formatted_records:
-            self.writer.buffer_record(formatted_records)
+            self.writer.append_records(formatted_records)
 
         self.records = []
 
-    def _get_writer_schema(self):
+    def get_schema(self):
         """Get schema definition for the data writer.
 
         Subclasses should override this method to provide format-specific schema.
@@ -224,7 +220,7 @@ class LOBEventRecorder(MarketEventHandler):
         """
         return {"fields": {}}
 
-    def _format_records_for_writer(self, records):
+    def format_records_for_writer(self, records):
         """Format records for the data writer.
 
         Subclasses should override this method to format records appropriately.
@@ -239,6 +235,5 @@ class LOBEventRecorder(MarketEventHandler):
 
     def close_writer(self):
         """Close the data writer and flush any remaining records."""
-        if self.writer is not None:
-            self.flush_to_writer()
-            self.writer.close()
+        self.flush_to_writer()
+        self.writer.close()

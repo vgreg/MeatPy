@@ -21,12 +21,12 @@ class LOBRecorder(LOBEventRecorder):
         show_age: Whether to include order age in output
     """
 
-    def __init__(self, max_depth: Optional[int] = None, writer=None):
+    def __init__(self, writer, max_depth: Optional[int] = None):
         """Initialize the LOBRecorder.
 
         Args:
+            writer: DataWriter instance for output
             max_depth: Maximum depth of the book to record (None for all)
-            writer: Optional data writer for output
         """
         self.max_depth: int | None = max_depth
         self.collapse_orders: bool = True
@@ -98,7 +98,7 @@ class LOBRecorder(LOBEventRecorder):
             else:
                 return "Timestamp,Type,Level,Price,Order ID,Volume,Order Timestamp\n"
 
-    def _get_writer_schema(self):
+    def get_schema(self):
         """Get schema definition for the data writer."""
         if self.show_age:
             if self.collapse_orders:
@@ -154,7 +154,7 @@ class LOBRecorder(LOBEventRecorder):
                     }
                 }
 
-    def _format_records_for_writer(self, records):
+    def format_records_for_writer(self, records):
         """Format LOB records for the data writer."""
         formatted_records = []
         for lob in records:
@@ -165,9 +165,8 @@ class LOBRecorder(LOBEventRecorder):
     def _convert_lob_to_records(self, lob):
         """Convert a single LOB snapshot to records."""
         import io
-        from ..lob import LimitOrderBook
 
-        if not isinstance(lob, LimitOrderBook):
+        if not hasattr(lob, "write_csv"):
             return []
 
         temp_output = io.BytesIO()
