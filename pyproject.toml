@@ -10,13 +10,18 @@ maintainers = [{ name = "Vincent Grégoire", email = "vincent.gregoire@hec.ca" }
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pyarrow>=20.0.0",
+]
 classifiers = [
     "Intended Audience :: Education",
     "Intended Audience :: Financial and Insurance Industry",
     "Topic :: Office/Business :: Financial",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=10.0.0"]
 
 [project.urls]
 Repository = "https://github.com/vgreg/MeatPy"
