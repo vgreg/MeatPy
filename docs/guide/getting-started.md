@@ -51,7 +51,7 @@ with ITCH50MessageReader("market_data.txt.gz") as reader:
         processor.process_message(message)
 
         # Access order book for a specific symbol
-        if message.message_type == b'A':  # Add order message
+        if message.type == b'A':  # Add order message
             symbol = message.stock.decode()
             lob = processor.get_lob(symbol)
             if lob:
