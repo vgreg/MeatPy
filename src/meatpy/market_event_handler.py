@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .lob import LimitOrderBook, OrderType
+from .lob import OrderType
 from .message_reader import MarketMessage
 from .timestamp import Timestamp
 from .types import OrderID, Price, TradeRef, Volume
@@ -27,14 +27,14 @@ class MarketEventHandler:
     """
 
     def before_lob_update(
-        self, lob: LimitOrderBook | None, new_timestamp: Timestamp
+        self, market_processor: MarketProcessor, new_timestamp: Timestamp
     ) -> None:
         """Handle event before a limit order book update.
 
         This method is called before the LOB is updated with a new timestamp.
 
         Args:
-            lob: The current limit order book, or None if not available
+            market_processor: The market processor instance
             new_timestamp: The new timestamp for the upcoming update
         """
         pass

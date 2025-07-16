@@ -1,0 +1,64 @@
+site_name: MeatPy
+site_description: A framework for processing high-frequency financial market data
+site_author: Vincent Grégoire, Charles Martineau
+site_url: https://www.vincentgregoire.com/MeatPy
+
+repo_name: vgreg/MeatPy
+repo_url: https://github.com/vgreg/MeatPy
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - User Guide:
+    - Getting Started: guide/getting-started.md
+    - Listing Symbols: guide/01_listing_symbols.ipynb
+    - Extracting Symbols: guide/02_extracting_symbols.ipynb
+    - Top of Book Snapshots: guide/03_top_of_book_snapshots.ipynb
+    - Full LOB Snapshots: guide/04_full_lob_snapshots.ipynb
+  - Contributing: contributing.md
+
+plugins:
+  - search
+  - autorefs
+  - mkdocs-jupyter:
+      execute: false
+      allow_errors: false
+      include_source: true

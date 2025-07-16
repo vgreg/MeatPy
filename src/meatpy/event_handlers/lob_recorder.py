@@ -21,16 +21,24 @@ class LOBRecorder(LOBEventRecorder):
         show_age: Whether to include order age in output
     """
 
-    def __init__(self, writer, max_depth: Optional[int] = None):
+    def __init__(
+        self,
+        writer,
+        max_depth: Optional[int] = None,
+        collapse_orders: bool = True,
+        show_age: bool = False,
+    ):
         """Initialize the LOBRecorder.
 
         Args:
             writer: DataWriter instance for output
             max_depth: Maximum depth of the book to record (None for all)
+            collapse_orders: Whether to aggregate orders by level
+            show_age: Whether to include order age in output
         """
         self.max_depth: int | None = max_depth
-        self.collapse_orders: bool = True
-        self.show_age: bool = False
+        self.collapse_orders: bool = collapse_orders
+        self.show_age: bool = show_age
         LOBEventRecorder.__init__(self, writer=writer)
 
     def record(self, lob: LimitOrderBook, record_timestamp=None):

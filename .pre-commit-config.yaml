@@ -16,8 +16,10 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         additional_dependencies: [ruff]
+        exclude: \.ipynb$
       - id: ruff-format
         additional_dependencies: [ruff]
+        exclude: \.ipynb$
 
   - repo: local
     hooks:

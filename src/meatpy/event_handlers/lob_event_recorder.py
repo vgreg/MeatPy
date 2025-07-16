@@ -20,14 +20,7 @@ from ..trading_status import (
     QuoteOnlyTradingStatus,
     TradeTradingStatus,
 )
-
-try:
-    from ..writers import DataWriter
-
-    HAS_WRITERS = True
-except ImportError:
-    HAS_WRITERS = False
-    DataWriter = None
+from ..writers import DataWriter
 
 
 class LOBEventRecorder(MarketEventHandler):
@@ -51,7 +44,7 @@ class LOBEventRecorder(MarketEventHandler):
         writer: Optional data writer for pluggable output formats
     """
 
-    def __init__(self, writer: "DataWriter"):
+    def __init__(self, writer: DataWriter):
         """Initialize the LOBEventRecorder with default settings.
 
         Args:
@@ -89,7 +82,7 @@ class LOBEventRecorder(MarketEventHandler):
         self.writer: "DataWriter" = writer
         # DataWriter instance for pluggable output formats
 
-    def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
+    def record(self, lob: LimitOrderBook, record_timestamp: Timestamp):
         """Record the current state of the limit order book.
 
         Args:
@@ -118,8 +111,8 @@ class LOBEventRecorder(MarketEventHandler):
             new_timestamp: The new timestamp for the update
         """
         lob = market_processor.current_lob
-        """Trigger before a book update (next event timestamp passed)"""
-
+        if lob is None:
+            return
         skip = False
 
         if self.record_always is False:
@@ -153,13 +146,13 @@ class LOBEventRecorder(MarketEventHandler):
         if self.record_timestamps is None:
             if self.record_start is None or self.record_start <= new_timestamp:
                 if self.record_end is None or self.record_end >= new_timestamp:
-                    self.record(lob)
+                    self.record(lob, new_timestamp)
         else:
             while (
                 len(self.record_timestamps) > 0
-                and new_timestamp > self.record_timestamps[-1]
+                and new_timestamp > self.record_timestamps[0]
             ):
-                record_timestamp = self.record_timestamps.pop()
+                record_timestamp = self.record_timestamps.pop(0)
                 self.record(lob, record_timestamp)
 
         if self.write_csv_during_recording is True and self.buffer_size < len(
