@@ -75,7 +75,7 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             new_timestamp: The new timestamp for the upcoming update
         """
         for x in self.handlers:
-            x.before_lob_update(self.current_lob, new_timestamp)
+            x.before_lob_update(self, new_timestamp)
 
     def message_event(self, timestamp: Timestamp, message: MarketMessage) -> None:
         """Notify handlers of a raw message event.

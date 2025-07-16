@@ -49,14 +49,10 @@ nav:
   - Installation: installation.md
   - User Guide:
     - Getting Started: guide/getting-started.md
-    - Examples: guide/examples.md
-  - Notebooks:
     - Listing Symbols: guide/01_listing_symbols.ipynb
     - Extracting Symbols: guide/02_extracting_symbols.ipynb
     - Top of Book Snapshots: guide/03_top_of_book_snapshots.ipynb
     - Full LOB Snapshots: guide/04_full_lob_snapshots.ipynb
-  - API Reference:
-    - Overview: api/overview.md
   - Contributing: contributing.md
 
 plugins:

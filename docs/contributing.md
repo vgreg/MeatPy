@@ -8,7 +8,7 @@ We welcome contributions to MeatPy! This document provides guidelines for contri
 
 - Python 3.11 or higher
 - Git
-- `uv` package manager (recommended) or `pip`
+- `uv` package manager
 
 ### Setting Up Development Environment
 
@@ -45,24 +45,11 @@ We use several tools to maintain code quality:
 
 ### Running Tests
 
+It is best to run tests locally before submitting changes to ensure everything works as expected. Tests are also executed automatically in the CI pipeline when you create a pull request.
+
 ```bash
 # Run all tests
 uv run pytest
-
-# Run tests with coverage
-uv run pytest --cov=meatpy
-
-# Run specific test file
-uv run pytest tests/test_lob.py
-
-# Run only fast tests (skip slow integration tests)
-uv run pytest -m "not slow"
-
-# Run only unit tests
-uv run pytest -m unit
-
-# Run only integration tests
-uv run pytest -m integration
 ```
 
 ### Code Formatting and Linting
@@ -76,20 +63,17 @@ uv run ruff check
 
 # Fix auto-fixable linting issues
 uv run ruff check --fix
-
-# Run all pre-commit hooks
-uv run pre-commit run --all-files
 ```
 
 ## Contribution Guidelines
 
 ### Code Style
 
-- Follow PEP 8 style guidelines
+- Follow Ruff (black) style guidelines
 - Use type hints for all public APIs
 - Write descriptive variable and function names
 - Keep functions focused and modular
-- Add docstrings to all public classes and methods
+- Add Google-style docstrings to all public classes and methods
 
 Example:
 ```python
@@ -179,89 +163,6 @@ For new features:
 - Consider backward compatibility
 - Discuss performance implications for large datasets
 
-### Code Contributions
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature-name`
-3. **Make your changes** following the guidelines above
-4. **Add tests** for new functionality
-5. **Update documentation** if needed
-6. **Run the test suite** to ensure nothing breaks
-7. **Commit your changes** with clear messages
-8. **Push to your fork**: `git push origin feature-name`
-9. **Create a pull request**
-
-## Pull Request Process
-
-1. **Ensure CI passes**: All tests and checks must pass
-2. **Update documentation**: Include any necessary documentation updates
-3. **Add tests**: New features require corresponding tests
-4. **Describe changes**: Provide a clear description of what the PR does
-5. **Reference issues**: Link to any related issues
-6. **Request review**: Tag maintainers for review
-
-### PR Template
-
-```markdown
-## Description
-Brief description of the changes
-
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Documentation update
-- [ ] Performance improvement
-- [ ] Refactoring
-
-## Testing
-- [ ] Added new tests
-- [ ] All tests pass
-- [ ] Manual testing performed
-
-## Documentation
-- [ ] Updated docstrings
-- [ ] Updated user documentation
-- [ ] Added examples if applicable
-
-## Checklist
-- [ ] Code follows project style guidelines
-- [ ] Self-review of the code completed
-- [ ] Changes generate no new warnings
-- [ ] Added tests that prove the fix/feature works
-```
-
-## Performance Considerations
-
-When contributing code that processes market data:
-
-- **Memory efficiency**: Be mindful of memory usage for large datasets
-- **Processing speed**: Profile code for performance bottlenecks
-- **Scalability**: Consider how changes affect processing of large files
-- **Resource usage**: Monitor CPU and I/O usage patterns
-
-## Architecture Guidelines
-
-### Adding New Data Formats
-
-To add support for a new market data format:
-
-1. Create a new module under `src/meatpy/[format_name]/`
-2. Implement `MessageReader` subclass for the format
-3. Implement `MarketProcessor` subclass if needed
-4. Define message types and validation
-5. Add comprehensive tests
-6. Update documentation
-
-### Event Handler Development
-
-When creating new event handlers:
-
-1. Inherit from `MarketEventHandler`
-2. Implement required abstract methods
-3. Consider memory usage for long-running processes
-4. Provide clear configuration options
-5. Add examples and documentation
-
 ## Getting Help
 
 - **Discussions**: Use GitHub Discussions for questions
@@ -280,7 +181,6 @@ When creating new event handlers:
 Contributors will be acknowledged in:
 
 - Release notes for significant contributions
-- Project documentation
 - GitHub contributors list
 
 Thank you for contributing to MeatPy!
