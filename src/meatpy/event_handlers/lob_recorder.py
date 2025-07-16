@@ -56,14 +56,34 @@ class LOBRecorder(LOBEventRecorder):
     def write_csv(self, outfile: TextIOWrapper, collapse_orders=False, show_age=False):
         """Write recorded LOB snapshots to a CSV file.
 
+        This method now uses the new direct data access approach for better performance.
+
         Args:
             outfile: File object to write to
             collapse_orders: Whether to aggregate orders by level
             show_age: Whether to include order age in output
         """
         outfile.write(self.get_csv_header(collapse_orders, show_age).encode())
-        for x in self.records:
-            x.write_csv(outfile, collapse_orders, show_age)
+        for lob in self.records:
+            # Use the new direct data access method
+            records = lob.to_records(
+                collapse_orders=collapse_orders,
+                show_age=show_age,
+                max_depth=self.max_depth,
+            )
+            for record in records:
+                # Convert record back to CSV format
+                if show_age:
+                    if collapse_orders:
+                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']},{record['Volume-Weighted Average Age']},{record['Average Age']},{record['First Age']},{record['Last Age']}\n"
+                    else:
+                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']},{record['Age']}\n"
+                else:
+                    if collapse_orders:
+                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']}\n"
+                    else:
+                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']}\n"
+                outfile.write(line.encode())
 
     def write_csv_header(self, outfile: TextIOWrapper):
         """Write the CSV header row to the file.
@@ -79,8 +99,27 @@ class LOBRecorder(LOBEventRecorder):
         Args:
             outfile: File path or object to append to
         """
-        for x in self.records:
-            x.write_csv(outfile, self.collapse_orders, self.show_age)
+        with open(outfile, "ab") as file:
+            for lob in self.records:
+                # Use the new direct data access method
+                records = lob.to_records(
+                    collapse_orders=self.collapse_orders,
+                    show_age=self.show_age,
+                    max_depth=self.max_depth,
+                )
+                for record in records:
+                    # Convert record back to CSV format
+                    if self.show_age:
+                        if self.collapse_orders:
+                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']},{record['Volume-Weighted Average Age']},{record['Average Age']},{record['First Age']},{record['Last Age']}\n"
+                        else:
+                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']},{record['Age']}\n"
+                    else:
+                        if self.collapse_orders:
+                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']}\n"
+                        else:
+                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']}\n"
+                    file.write(line.encode())
         self.records = []
 
     def get_csv_header(self, collapse_orders: bool = False, show_age: bool = False):
@@ -171,77 +210,13 @@ class LOBRecorder(LOBEventRecorder):
         return formatted_records
 
     def _convert_lob_to_records(self, lob):
-        """Convert a single LOB snapshot to records."""
-        import io
-
-        if not hasattr(lob, "write_csv"):
+        """Convert a single LOB snapshot to records using direct data access."""
+        if not hasattr(lob, "to_records"):
             return []
 
-        temp_output = io.BytesIO()
-        lob.write_csv(temp_output, self.collapse_orders, self.show_age)
-        temp_output.seek(0)
-
-        csv_content = temp_output.read().decode("utf-8")
-        lines = csv_content.strip().split("\n")
-
-        records = []
-        for line in lines:
-            if line.strip():
-                values = line.split(",")
-                if self.show_age:
-                    if self.collapse_orders:
-                        records.append(
-                            {
-                                "Timestamp": values[0],
-                                "Type": values[1],
-                                "Level": int(values[2]) if values[2] else 0,
-                                "Price": float(values[3]) if values[3] else 0.0,
-                                "Volume": int(values[4]) if values[4] else 0,
-                                "N Orders": int(values[5]) if values[5] else 0,
-                                "Volume-Weighted Average Age": float(values[6])
-                                if values[6]
-                                else 0.0,
-                                "Average Age": float(values[7]) if values[7] else 0.0,
-                                "First Age": float(values[8]) if values[8] else 0.0,
-                                "Last Age": float(values[9]) if values[9] else 0.0,
-                            }
-                        )
-                    else:
-                        records.append(
-                            {
-                                "Timestamp": values[0],
-                                "Type": values[1],
-                                "Level": int(values[2]) if values[2] else 0,
-                                "Price": float(values[3]) if values[3] else 0.0,
-                                "Order ID": int(values[4]) if values[4] else 0,
-                                "Volume": int(values[5]) if values[5] else 0,
-                                "Order Timestamp": values[6],
-                                "Age": float(values[7]) if values[7] else 0.0,
-                            }
-                        )
-                else:
-                    if self.collapse_orders:
-                        records.append(
-                            {
-                                "Timestamp": values[0],
-                                "Type": values[1],
-                                "Level": int(values[2]) if values[2] else 0,
-                                "Price": float(values[3]) if values[3] else 0.0,
-                                "Volume": int(values[4]) if values[4] else 0,
-                                "N Orders": int(values[5]) if values[5] else 0,
-                            }
-                        )
-                    else:
-                        records.append(
-                            {
-                                "Timestamp": values[0],
-                                "Type": values[1],
-                                "Level": int(values[2]) if values[2] else 0,
-                                "Price": float(values[3]) if values[3] else 0.0,
-                                "Order ID": int(values[4]) if values[4] else 0,
-                                "Volume": int(values[5]) if values[5] else 0,
-                                "Order Timestamp": values[6],
-                            }
-                        )
-
-        return records
+        # Use the new direct data access method instead of CSV round-trip
+        return lob.to_records(
+            collapse_orders=self.collapse_orders,
+            show_age=self.show_age,
+            max_depth=self.max_depth,
+        )

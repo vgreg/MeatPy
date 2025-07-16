@@ -37,6 +37,113 @@ class MockLimitOrderBook:
             new_lob.ask_levels = self.ask_levels[:max_level] if self.ask_levels else []
         return new_lob
 
+    def to_records(self, collapse_orders=True, show_age=False, max_depth=None):
+        """Mock to_records method for testing."""
+        records = []
+
+        if collapse_orders:
+            if show_age:
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Bid",
+                        "Level": 1,
+                        "Price": float(self.bid_levels[0].price),
+                        "Volume": self.bid_levels[0].volume(),
+                        "N Orders": 1,
+                        "Volume-Weighted Average Age": 0.0,
+                        "Average Age": 0.0,
+                        "First Age": 0.0,
+                        "Last Age": 0.0,
+                    }
+                )
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Ask",
+                        "Level": 1,
+                        "Price": float(self.ask_levels[0].price),
+                        "Volume": self.ask_levels[0].volume(),
+                        "N Orders": 1,
+                        "Volume-Weighted Average Age": 0.0,
+                        "Average Age": 0.0,
+                        "First Age": 0.0,
+                        "Last Age": 0.0,
+                    }
+                )
+            else:
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Bid",
+                        "Level": 1,
+                        "Price": float(self.bid_levels[0].price),
+                        "Volume": self.bid_levels[0].volume(),
+                        "N Orders": 1,
+                    }
+                )
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Ask",
+                        "Level": 1,
+                        "Price": float(self.ask_levels[0].price),
+                        "Volume": self.ask_levels[0].volume(),
+                        "N Orders": 1,
+                    }
+                )
+        else:
+            if show_age:
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Bid",
+                        "Level": 1,
+                        "Price": float(self.bid_levels[0].price),
+                        "Order ID": 1001,
+                        "Volume": self.bid_levels[0].volume(),
+                        "Order Timestamp": self.timestamp,
+                        "Age": 0.0,
+                    }
+                )
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Ask",
+                        "Level": 1,
+                        "Price": float(self.ask_levels[0].price),
+                        "Order ID": 1002,
+                        "Volume": self.ask_levels[0].volume(),
+                        "Order Timestamp": self.timestamp,
+                        "Age": 0.0,
+                    }
+                )
+            else:
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Bid",
+                        "Level": 1,
+                        "Price": float(self.bid_levels[0].price),
+                        "Order ID": 1001,
+                        "Volume": self.bid_levels[0].volume(),
+                        "Order Timestamp": self.timestamp,
+                    }
+                )
+                records.append(
+                    {
+                        "Timestamp": self.timestamp,
+                        "Type": "Ask",
+                        "Level": 1,
+                        "Price": float(self.ask_levels[0].price),
+                        "Order ID": 1002,
+                        "Volume": self.ask_levels[0].volume(),
+                        "Order Timestamp": self.timestamp,
+                    }
+                )
+
+        return records
+
     def write_csv(self, file, collapse_orders=True, show_age=False):
         """Mock CSV writing for testing."""
         if collapse_orders:
