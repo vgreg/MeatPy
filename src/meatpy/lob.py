@@ -133,7 +133,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             i += 1
             x.print_out(f"{indent}  ", i)
 
-    def from_price(self, price: Price) -> Level:
+    def create_level_from_price(self, price: Price) -> Level:
         """Create a new Level instance with the given price.
 
         Args:
@@ -595,7 +595,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.from_price(price))
+            queue.insert(i, self.create_level_from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote(timestamp, volume, order_id, qualifs)
 
@@ -633,7 +633,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.from_price(price))
+            queue.insert(i, self.create_level_from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote_out_of_order(timestamp, volume, order_id, qualifs)
 
@@ -685,7 +685,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.from_price(price))
+            queue.insert(i, self.create_level_from_price(price))
 
         # Compute the number of positions in front
         pre_positions = 0

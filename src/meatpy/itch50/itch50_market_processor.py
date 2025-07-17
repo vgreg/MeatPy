@@ -7,7 +7,7 @@ market messages to reconstruct the limit order book and handle trading status up
 import datetime
 
 from ..level import OrderNotFoundError
-from ..lob import OrderType
+from ..lob import LimitOrderBook, OrderType
 from ..market_processor import MarketProcessor
 from ..message_reader import MarketMessage
 from ..timestamp import Timestamp
@@ -97,9 +97,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         emc_status: Current EMC status code
     """
 
-    def __init__(
-        self, instrument: str | bytes, book_date: datetime.date | datetime.datetime
-    ) -> None:
+    def __init__(self, instrument: str | bytes, book_date: datetime.datetime) -> None:
         """Initialize the ITCH50MarketProcessor.
 
         Args:
@@ -114,13 +112,28 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             if isinstance(instrument, str)
             else instrument
         )
-        self.book_date: datetime.date | datetime.datetime = book_date
+        self.book_date: datetime.datetime = book_date
         self.system_status: bytes = b""
         self.stock_status: bytes = b""
         self.emc_status: bytes = b""
 
         self._order_refs: set[int] = set()
         self._matches: set[int] = set()
+
+    def adjust_timestamp(self, raw_timestamp: int) -> Timestamp:
+        """Adjust the raw timestamp to a datetime object.
+
+        Args:
+            raw_timestamp: The raw timestamp in nanoseconds
+
+        Returns:
+            A Timestamp object representing the adjusted time
+        """
+
+        # Raw timestamp is in nanoseconds since midnight
+        return Timestamp.from_datetime(
+            self.book_date + datetime.timedelta(microseconds=raw_timestamp // 1000)
+        )
 
     def process_message(
         self, message: MarketMessage, new_snapshot: bool = True
@@ -136,7 +149,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                 "ITCH50MarketProcessor:process_message",
                 f"Message is not an ITCH50MarketMessage: {type(message)}",
             )
-        timestamp = message.timestamp
+        timestamp = self.adjust_timestamp(message.timestamp)
         self.message_event(timestamp, message)
         if isinstance(message, AddOrderMessage) or isinstance(
             message, AddOrderMPIDMessage
@@ -447,3 +460,21 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         self.execute_trade_price_event(timestamp, volume, order_id, trade_ref, price)
         if self.current_lob is not None:
             self.current_lob.execute_trade_price(timestamp, volume, order_id)
+
+    def create_lob(self, timestamp: Timestamp) -> None:
+        """Create a new limit order book.
+
+        This method is called to create a new LOB at the specified timestamp.
+        It notifies handlers before the update.
+
+        Args:
+            timestamp: The timestamp for the new limit order book
+        """
+        super().create_lob(timestamp)
+        if isinstance(self.current_lob, LimitOrderBook):
+            self.current_lob.decimals_adj = 10000
+        else:
+            raise RuntimeError(
+                "ITCH50MarketProcessor:create_lob",
+                "Post-creation LOB is not a LimitOrderBook instance.",
+            )

@@ -262,9 +262,7 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             new_snapshot: Whether to create a new snapshot (default: True)
         """
         if self.current_lob is None:
-            self.current_lob = LimitOrderBook[
-                Price, Volume, OrderID, TradeRef, Qualifiers
-            ](timestamp)
+            self.create_lob(timestamp)
         elif new_snapshot is True:
             self.before_lob_update(timestamp)
             if self.current_lob.timestamp == timestamp:
@@ -272,3 +270,16 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             else:
                 self.current_lob.timestamp_inc = 0
             self.current_lob.timestamp = timestamp
+
+    def create_lob(self, timestamp: Timestamp) -> None:
+        """Create a new limit order book.
+
+        This method is called to create a new LOB at the specified timestamp.
+        It notifies handlers before the update.
+
+        Args:
+            timestamp: The timestamp for the new limit order book
+        """
+        self.current_lob = LimitOrderBook[Price, Volume, OrderID, TradeRef, Qualifiers](
+            timestamp
+        )

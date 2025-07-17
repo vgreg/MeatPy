@@ -41,3 +41,11 @@ MeatPy is built around several core components:
 - Comerton-Forde, C., Grégoire, V., & Zhong, Z. (2019). [Inverted fee structures, tick size, and market quality](https://doi.org/10.1016/j.jfineco.2019.03.005). Journal of Financial Economics, 134(1), 141-164.
 
 - Yaali, J., Grégoire, V., & Hurtut, T. (2022). [HFTViz: Visualization for the exploration of high frequency trading data](https://journals.sagepub.com/doi/full/10.1177/14738716211064921). Information Visualization, 21(2), 182-193.
+
+
+## Credits
+
+MeatPy was created by [Vincent Grégoire](https://www.vincentgregoire.com/) and [Charles Martineau](https://www.charlesmartineau.com/). Seoin Kim and Javad YaAli provided valuable research assistance on the project.
+
+## Funding
+MeatPy development benefited from the financial support of [IVADO](https://ivado.ca/)
