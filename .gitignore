@@ -210,3 +210,4 @@ pyrightconfig.json
 poetry.lock
 
 docs/guide/data/
+samples/*/data/

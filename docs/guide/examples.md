@@ -134,6 +134,6 @@ All notebooks include proper error handling for common issues:
 ## Next Steps
 
 After working through the examples:
-- Explore the [API Reference](../api/overview.md) for advanced usage
+- Explore the API Reference for advanced usage
 - Check the [Contributing Guide](../contributing.md) to add your own examples
 - Review the [Getting Started Guide](getting-started.md) for additional features
