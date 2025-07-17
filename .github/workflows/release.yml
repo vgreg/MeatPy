@@ -62,7 +62,13 @@ jobs:
           echo "Latest tag: $LATEST_TAG"
 
           # Get commits since last tag
-          COMMITS=$(git log ${LATEST_TAG}..HEAD --oneline --pretty=format:"%s")
+          if [ "$LATEST_TAG" = "v0.0.0" ]; then
+            # No tags exist, get all commits
+            COMMITS=$(git log --oneline --pretty=format:"%s")
+          else
+            # Get commits since last tag
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --oneline --pretty=format:"%s")
+          fi
 
           echo "Commits since last tag:"
           echo "$COMMITS"
