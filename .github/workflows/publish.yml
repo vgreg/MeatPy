@@ -1,11 +1,14 @@
-name: Publish to PyPI
+name: Manual Publish to PyPI
 
 on:
-  push:
-    tags:
-      - 'v*'
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        type: string
 
 permissions:
   contents: read

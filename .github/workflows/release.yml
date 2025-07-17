@@ -1,0 +1,177 @@
+name: Automated Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: |
+          uv sync --group dev
+
+      - name: Run tests
+        run: |
+          uv run pytest
+
+      - name: Run linting
+        run: |
+          uv run ruff check
+
+      - name: Run formatting check
+        run: |
+          uv run ruff format --check
+
+      - name: Determine version bump
+        id: version_bump
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git tag -l 'v*' --sort=-version:refname | head -n1)
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+
+          echo "Latest tag: $LATEST_TAG"
+
+          # Get commits since last tag
+          COMMITS=$(git log ${LATEST_TAG}..HEAD --oneline --pretty=format:"%s")
+
+          echo "Commits since last tag:"
+          echo "$COMMITS"
+
+          # Determine version bump type based on commit messages
+          BUMP_TYPE="patch"
+
+          if echo "$COMMITS" | grep -qi "BREAKING CHANGE\|breaking:"; then
+            BUMP_TYPE="major"
+          elif echo "$COMMITS" | grep -qi "feat\|feature:"; then
+            BUMP_TYPE="minor"
+          elif echo "$COMMITS" | grep -qi "fix\|bug\|patch:"; then
+            BUMP_TYPE="patch"
+          fi
+
+          echo "Version bump type: $BUMP_TYPE"
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+
+          # Calculate new version
+          CURRENT_VERSION=$(echo $LATEST_TAG | sed 's/v//')
+          if [ "$CURRENT_VERSION" = "0.0.0" ]; then
+            NEW_VERSION="0.1.0"
+          else
+            IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+            case $BUMP_TYPE in
+              major)
+                NEW_VERSION="$((major + 1)).0.0"
+                ;;
+              minor)
+                NEW_VERSION="$major.$((minor + 1)).0"
+                ;;
+              patch)
+                NEW_VERSION="$major.$minor.$((patch + 1))"
+                ;;
+            esac
+          fi
+
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update version in pyproject.toml
+        id: update_version
+        if: steps.version_bump.outputs.new_version != ''
+        run: |
+          NEW_VERSION="${{ steps.version_bump.outputs.new_version }}"
+          sed -i "s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+
+          echo "Updated pyproject.toml version to $NEW_VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml
+          git commit -m "chore: bump version to $NEW_VERSION"
+          git push
+
+      - name: Create GitHub Release
+        id: release
+        if: steps.version_bump.outputs.new_version != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.version_bump.outputs.new_version }}"
+          BUMP_TYPE="${{ steps.version_bump.outputs.bump_type }}"
+
+          # Create tag
+          git tag "v$NEW_VERSION"
+          git push origin "v$NEW_VERSION"
+
+          # Create release
+          gh release create "v$NEW_VERSION" \
+            --title "Release v$NEW_VERSION" \
+            --notes "## Changes in this release
+
+          This release was automatically generated based on commit messages.
+
+          Version bump type: $BUMP_TYPE
+
+          ### Recent commits:
+          $(git log --oneline --since="1 day ago" --pretty=format:"- %s")" \
+            --latest
+
+          echo "released=true" >> $GITHUB_OUTPUT
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+  publish:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.version }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Build package
+        run: |
+          uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true

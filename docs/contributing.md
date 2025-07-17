@@ -124,23 +124,53 @@ class TestLimitOrderBook:
 
 ### Commit Messages
 
-Use clear, descriptive commit messages:
+This project uses **automated semantic versioning** based on conventional commit messages. When code is merged to `main`, the system automatically:
 
-- **Good**: `Add support for ITCH 5.1 message format`
-- **Good**: `Fix memory leak in order book processing`
-- **Bad**: `Fix bug`
-- **Bad**: `Update code`
+1. Analyzes commit messages since the last release
+2. Determines the version bump type (major, minor, or patch)
+3. Updates the version in `pyproject.toml`
+4. Creates a GitHub release with a new tag
+5. Publishes the package to PyPI
 
-Format:
+#### Conventional Commit Format
+
+Use these commit message patterns to trigger appropriate version bumps:
+
+**Major Version Bump (Breaking Changes):**
+- `BREAKING CHANGE:` in commit body
+- `breaking:` prefix in commit message
+
+**Minor Version Bump (New Features):**
+- `feat:` prefix for new features
+- `feature:` prefix for new features
+
+**Patch Version Bump (Bug Fixes):**
+- `fix:` prefix for bug fixes
+- `bug:` prefix for bug fixes
+- `patch:` prefix for patches
+
+**Examples:**
+
+```bash
+# Patch version bump (0.1.0 -> 0.1.1)
+git commit -m "fix: resolve issue with order book reconstruction"
+
+# Minor version bump (0.1.0 -> 0.2.0)
+git commit -m "feat: add support for new message types"
+
+# Major version bump (0.1.0 -> 1.0.0)
+git commit -m "refactor: redesign API for better performance
+
+BREAKING CHANGE: MarketProcessor constructor now requires different parameters"
 ```
-Short description (50 chars or less)
 
-Longer explanation if needed. Wrap at 72 characters.
-Explain what the change does and why it was needed.
+#### Manual Releases
 
-- Use bullet points for multiple changes
-- Reference issue numbers: Fixes #123
-```
+If you need to publish a release manually:
+
+1. Go to the GitHub repository
+2. Navigate to Actions → Manual Publish to PyPI
+3. Click "Run workflow" and specify the version
 
 ## Types of Contributions
 
