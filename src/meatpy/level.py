@@ -68,6 +68,40 @@ class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
         self.volume: Volume = volume
         self.qualifs: Qualifiers | None = qualifs
 
+    def __eq__(self, other: object) -> bool:
+        """Check equality between OrderOnBook instances.
+
+        Args:
+            other: The other object to compare with
+
+        Returns:
+            bool: True if all attributes are equal, False otherwise
+        """
+        if not isinstance(other, OrderOnBook):
+            return False
+        return (
+            self.order_id == other.order_id
+            and self.timestamp == other.timestamp
+            and self.volume == other.volume
+            and self.qualifs == other.qualifs
+        )
+
+    def __str__(self) -> str:
+        """Return string representation of the order.
+
+        Returns:
+            str: String representation
+        """
+        return f"OrderOnBook(id={self.order_id}, volume={self.volume}, timestamp={self.timestamp})"
+
+    def __repr__(self) -> str:
+        """Return detailed string representation of the order.
+
+        Returns:
+            str: Detailed string representation
+        """
+        return f"OrderOnBook(order_id={self.order_id}, timestamp={self.timestamp}, volume={self.volume}, qualifs={self.qualifs})"
+
     def print_out(self, indent: str = "") -> None:
         """Print order information as a log.
 
@@ -323,15 +357,153 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         Returns:
             Volume: Sum of all order volumes at this level
         """
+        if not self.queue:
+            return 0
         acc: Volume | None = None
         for x in self.queue:
             if x.volume is not None:
-                acc += x.volume
+                if acc is None:
+                    acc = x.volume
+                else:
+                    acc += x.volume
             else:
                 acc = x.volume
         if acc is None:
             raise ValueError("No volume found")
         return acc
+
+    @property
+    def orders(self) -> list[OrderOnBook[Volume, OrderID, Qualifiers]]:
+        """Get the list of orders at this price level.
+
+        Returns:
+            List of OrderOnBook objects at this level
+        """
+        return self.queue
+
+    @property
+    def total_volume(self) -> Volume:
+        """Get the total volume at this price level.
+
+        Returns:
+            Volume: Sum of all order volumes at this level
+        """
+        return self.volume
+
+    @property
+    def n_orders(self) -> int:
+        """Get the number of orders at this price level.
+
+        Returns:
+            int: Number of orders at this level
+        """
+        return len(self.queue)
+
+    def is_empty(self) -> bool:
+        """Check if this price level is empty.
+
+        Returns:
+            bool: True if no orders at this level, False otherwise
+        """
+        return len(self.queue) == 0
+
+    def add_order(self, order: OrderOnBook[Volume, OrderID, Qualifiers]) -> None:
+        """Add an order to this price level.
+
+        Args:
+            order: The order to add to this level
+        """
+        self.queue.append(order)
+
+    def remove_order(self, order: OrderOnBook[Volume, OrderID, Qualifiers]) -> None:
+        """Remove an order from this price level.
+
+        Args:
+            order: The order to remove from this level
+
+        Raises:
+            ValueError: If the order is not found in the level
+        """
+        self.queue.remove(order)
+
+    def __str__(self) -> str:
+        """Return string representation of the level.
+
+        Returns:
+            str: String representation showing price and order count
+        """
+        return (
+            f"Level(price={self.price}, orders={len(self.queue)}, volume={self.volume})"
+        )
+
+    def __repr__(self) -> str:
+        """Return detailed string representation of the level.
+
+        Returns:
+            str: Detailed string representation
+        """
+        return (
+            f"Level(price={self.price}, orders={len(self.queue)}, volume={self.volume})"
+        )
+
+    def find_order(
+        self, order_id: OrderID
+    ) -> OrderOnBook[Volume, OrderID, Qualifiers] | None:
+        """Find an order by its ID.
+
+        Args:
+            order_id: The order ID to search for
+
+        Returns:
+            OrderOnBook | None: The order if found, None otherwise
+        """
+        for order in self.queue:
+            if order.order_id == order_id:
+                return order
+        return None
+
+    def has_order(self, order_id: OrderID) -> bool:
+        """Check if the level has an order with the given ID.
+
+        Args:
+            order_id: The order ID to check for
+
+        Returns:
+            bool: True if the order exists, False otherwise
+        """
+        return self.find_order(order_id) is not None
+
+    def clear(self) -> None:
+        """Clear all orders from this level."""
+        self.queue.clear()
+
+    def update_order_volume(
+        self, order: OrderOnBook[Volume, OrderID, Qualifiers], new_volume: Volume
+    ) -> None:
+        """Update the volume of an order.
+
+        Args:
+            order: The order to update
+            new_volume: The new volume for the order
+
+        Raises:
+            ValueError: If the order is not found in the level
+        """
+        if order not in self.queue:
+            raise ValueError("Order not found in level")
+        order.volume = new_volume
+
+    def copy(self) -> "Level[Price, Volume, OrderID, Qualifiers]":
+        """Create a copy of this level.
+
+        Returns:
+            Level: A new Level instance with copied orders
+        """
+        from copy import deepcopy
+
+        new_level = Level(self.price)
+        new_level.queue = deepcopy(self.queue)
+        return new_level
 
     def execution_price(self, volume: Volume) -> tuple[Price, Volume]:
         """Calculate the execution price for a given volume.

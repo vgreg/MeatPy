@@ -105,8 +105,9 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             book_date: The trading date for this processor
         """
 
-        super(ITCH50MarketProcessor, self).__init__()
+        super(ITCH50MarketProcessor, self).__init__(instrument, book_date)
 
+        # Override instrument to store as bytes with proper formatting
         self.instrument: bytes = (
             f"{instrument:<8}".encode("ascii")
             if isinstance(instrument, str)

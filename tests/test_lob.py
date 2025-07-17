@@ -56,8 +56,8 @@ class TestLimitOrderBookOrderType:
 
     def test_order_type_values(self):
         """Test OrderType enum values."""
-        assert OrderType.ASK == 0
-        assert OrderType.BID == 1
+        assert OrderType.ASK.value == 0
+        assert OrderType.BID.value == 1
 
     def test_order_type_names(self):
         """Test OrderType enum names."""
@@ -466,7 +466,7 @@ class TestLimitOrderBookIntegration:
         self.lob.enter_quote(self.timestamp, 101, 1000, 12346, OrderType.ASK)
 
         # Should be able to calculate spread
-        spread = self.lob.bid_ask_spread()
+        spread = self.lob.bid_ask_spread
         assert spread == 1
 
     def test_mid_quote(self):
@@ -476,5 +476,5 @@ class TestLimitOrderBookIntegration:
         self.lob.enter_quote(self.timestamp, 102, 1000, 12346, OrderType.ASK)
 
         # Should be able to calculate mid quote
-        mid = self.lob.mid_quote()
+        mid = self.lob.mid_quote
         assert mid == 101

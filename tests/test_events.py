@@ -1,5 +1,6 @@
 """Tests for the events module."""
 
+from datetime import datetime
 from meatpy import MarketMessage
 from meatpy.events import (
     BaseEventHandler,
@@ -15,8 +16,8 @@ class TestMarketEventHandler:
 
     def test_protocol_definition(self):
         """Test that MarketEventHandler is a runtime checkable protocol."""
-        assert hasattr(MarketEventHandler, "__runtime_checkable__")
-        assert MarketEventHandler.__runtime_checkable__ is True
+        assert hasattr(MarketEventHandler, "_is_runtime_protocol")
+        assert MarketEventHandler._is_runtime_protocol is True
 
 
 class TestBaseEventHandler:
@@ -30,8 +31,8 @@ class TestBaseEventHandler:
     def test_before_lob_update(self):
         """Test before_lob_update method."""
         handler = BaseEventHandler()
-        lob = LimitOrderBook(Timestamp("2024-01-01 09:30:00"))
-        new_timestamp = Timestamp("2024-01-01 09:31:00")
+        lob = LimitOrderBook(Timestamp(2024, 1, 1, 9, 30, 0))
+        new_timestamp = Timestamp(2024, 1, 1, 9, 31, 0)
 
         # Should not raise any exceptions
         handler.before_lob_update(lob, new_timestamp)
@@ -40,8 +41,8 @@ class TestBaseEventHandler:
     def test_message_event(self):
         """Test message_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         message = MarketMessage()
 
         # Should not raise any exceptions
@@ -50,8 +51,8 @@ class TestBaseEventHandler:
     def test_enter_quote_event(self):
         """Test enter_quote_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         price = 10000
         volume = 100
         order_id = 12345
@@ -65,8 +66,8 @@ class TestBaseEventHandler:
     def test_cancel_quote_event(self):
         """Test cancel_quote_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         volume = 50
         order_id = 12345
 
@@ -79,8 +80,8 @@ class TestBaseEventHandler:
     def test_delete_quote_event(self):
         """Test delete_quote_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         order_id = 12345
 
         # Should not raise any exceptions
@@ -90,8 +91,8 @@ class TestBaseEventHandler:
     def test_replace_quote_event(self):
         """Test replace_quote_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         orig_order_id = 12345
         new_order_id = 12346
         price = 10000
@@ -114,8 +115,8 @@ class TestBaseEventHandler:
     def test_execute_trade_event(self):
         """Test execute_trade_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         volume = 50
         order_id = 12345
         trade_ref = "trade-123"
@@ -129,8 +130,8 @@ class TestBaseEventHandler:
     def test_execute_trade_price_event(self):
         """Test execute_trade_price_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         volume = 50
         order_id = 12345
         trade_ref = "trade-123"
@@ -147,8 +148,8 @@ class TestBaseEventHandler:
     def test_auction_trade_event(self):
         """Test auction_trade_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         volume = 100
         price = 10000
         bid_id = 12345
@@ -160,8 +161,8 @@ class TestBaseEventHandler:
     def test_crossing_trade_event(self):
         """Test crossing_trade_event method."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
         volume = 100
         price = 10000
         bid_id = 12345
@@ -267,8 +268,8 @@ class TestEventHandlerEdgeCases:
     def test_none_values(self):
         """Test event handlers with None values."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
 
         # Should not raise any exceptions
         handler.before_lob_update(None, timestamp)
@@ -277,8 +278,8 @@ class TestEventHandlerEdgeCases:
     def test_zero_values(self):
         """Test event handlers with zero values."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
 
         # Should not raise any exceptions
         handler.enter_quote_event(processor, timestamp, 0, 0, 0)
@@ -288,8 +289,8 @@ class TestEventHandlerEdgeCases:
     def test_negative_values(self):
         """Test event handlers with negative values."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
 
         # Should not raise any exceptions
         handler.enter_quote_event(processor, timestamp, -100, -50, -1)
@@ -303,8 +304,8 @@ class TestEventHandlerPerformance:
     def test_rapid_event_handling(self):
         """Test rapid event handling performance."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
 
         # Process many events rapidly
         for i in range(1000):
@@ -315,8 +316,8 @@ class TestEventHandlerPerformance:
     def test_large_volume_handling(self):
         """Test handling of large volume values."""
         handler = BaseEventHandler()
-        processor = MarketProcessor("AAPL", "2024-01-01")
-        timestamp = Timestamp("2024-01-01 09:30:00")
+        processor = MarketProcessor("AAPL", datetime(2024, 1, 1))
+        timestamp = Timestamp(2024, 1, 1, 9, 30, 0)
 
         # Large volume values
         large_volume = 1000000000
