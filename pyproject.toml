@@ -1,6 +1,6 @@
 [project]
 name = "meatpy"
-version = "0.1.0"
+version = "0.2.0"
 description = "Read and process limit order book data"
 authors = [
     { name = "Vincent Grégoire", email = "vincent.gregoire@hec.ca" },
