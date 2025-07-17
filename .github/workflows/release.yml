@@ -97,7 +97,23 @@ jobs:
           # Calculate new version
           CURRENT_VERSION=$(echo $LATEST_TAG | sed 's/v//')
           if [ "$CURRENT_VERSION" = "0.0.0" ]; then
-            NEW_VERSION="0.1.0"
+            # No existing tags, get current version from pyproject.toml
+            CURRENT_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\([^"]*\)"/\1/')
+            echo "Current version from pyproject.toml: $CURRENT_VERSION"
+
+            # Bump based on commit type
+            IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+            case $BUMP_TYPE in
+              major)
+                NEW_VERSION="$((major + 1)).0.0"
+                ;;
+              minor)
+                NEW_VERSION="$major.$((minor + 1)).0"
+                ;;
+              patch)
+                NEW_VERSION="$major.$minor.$((patch + 1))"
+                ;;
+            esac
           else
             IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
             case $BUMP_TYPE in
@@ -125,11 +141,17 @@ jobs:
           sed -i "s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" pyproject.toml
 
           echo "Updated pyproject.toml version to $NEW_VERSION"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pyproject.toml
-          git commit -m "chore: bump version to $NEW_VERSION"
-          git push
+
+          # Check if there are any changes to commit
+          if git diff --quiet pyproject.toml; then
+            echo "No version changes to commit"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add pyproject.toml
+            git commit -m "chore: bump version to $NEW_VERSION"
+            git push
+          fi
 
       - name: Create GitHub Release
         id: release
