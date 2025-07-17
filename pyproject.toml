@@ -1,0 +1,41 @@
+[project]
+name = "meatpy"
+version = "0.1.0"
+description = "Read and process limit order book data"
+authors = [
+    { name = "Vincent Grégoire", email = "vincent.gregoire@hec.ca" },
+    { name = "Charles Martineau", email = "charles.martineau@utoronto.ca" },
+]
+maintainers = [{ name = "Vincent Grégoire", email = "vincent.gregoire@hec.ca" }]
+readme = "README.md"
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.11"
+dependencies = [
+    "pyarrow>=20.0.0",
+]
+classifiers = [
+    "Intended Audience :: Education",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=10.0.0"]
+
+[project.urls]
+Repository = "https://github.com/vgreg/MeatPy"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+ "pre-commit>=4.2.0",
+ "pytest>=8.4.1",
+ "pytest-cov>=6.2.1",
+ "ruff>=0.12.2",
+]
+docs = ["mkdocs>=1.5.0", "mkdocs-material>=9.0.0", "mkdocs-autorefs>=0.5.0", "mkdocs-jupyter>=0.24.0", "pandas>=2.0.0"]
