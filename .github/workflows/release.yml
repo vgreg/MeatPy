@@ -194,8 +194,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: v${{ needs.release.outputs.version }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -206,6 +204,13 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
+
+      - name: Update version for PyPI build
+        run: |
+          NEW_VERSION="${{ needs.release.outputs.version }}"
+          sed -i "s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+          echo "Updated pyproject.toml version to $NEW_VERSION for PyPI build"
+          grep "version = " pyproject.toml
 
       - name: Build package
         run: |
