@@ -10,6 +10,7 @@ from meatpy.level import (
     OrderOnBook,
     VolumeInconsistencyException,
 )
+from meatpy.timestamp import Timestamp
 
 
 class TestOrderOnBook:
@@ -19,42 +20,44 @@ class TestOrderOnBook:
         """Test OrderOnBook initialization."""
         order = OrderOnBook(
             order_id=12345,
+            timestamp=Timestamp(2024, 1, 1, 9, 30, 0),
             volume=100,
-            timestamp="2024-01-01 09:30:00",
-            qualifiers={"exchange": "NASDAQ"},
+            qualifs={"exchange": "NASDAQ"},
         )
 
         assert order.order_id == 12345
         assert order.volume == 100
-        assert str(order.timestamp) == "2024-01-01 09:30:00"
-        assert order.qualifiers == {"exchange": "NASDAQ"}
+        assert str(order.timestamp) == "2024-01-01 09:30:00.000000"
+        assert order.qualifs == {"exchange": "NASDAQ"}
 
     def test_initialization_without_qualifiers(self):
         """Test OrderOnBook initialization without qualifiers."""
-        order = OrderOnBook(order_id=12345, volume=100, timestamp="2024-01-01 09:30:00")
+        order = OrderOnBook(
+            order_id=12345, timestamp=Timestamp(2024, 1, 1, 9, 30, 0), volume=100
+        )
 
         assert order.order_id == 12345
         assert order.volume == 100
-        assert order.qualifiers == {}
+        assert order.qualifs is None
 
     def test_equality(self):
         """Test OrderOnBook equality."""
-        order1 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order2 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order3 = OrderOnBook(67890, 100, "2024-01-01 09:30:00")
+        order1 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order2 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order3 = OrderOnBook(67890, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         assert order1 == order2
         assert order1 != order3
 
     def test_str_representation(self):
         """Test OrderOnBook string representation."""
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
         assert "12345" in str(order)
         assert "100" in str(order)
 
     def test_repr_representation(self):
         """Test OrderOnBook repr representation."""
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
         assert "OrderOnBook" in repr(order)
         assert "12345" in repr(order)
 
@@ -74,7 +77,7 @@ class TestLevel:
     def test_add_order(self):
         """Test adding an order to a level."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
 
@@ -86,8 +89,8 @@ class TestLevel:
     def test_add_multiple_orders(self):
         """Test adding multiple orders to a level."""
         level = Level(price=10000)
-        order1 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order2 = OrderOnBook(67890, 50, "2024-01-01 09:31:00")
+        order1 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order2 = OrderOnBook(67890, Timestamp(2024, 1, 1, 9, 31, 0), 50)
 
         level.add_order(order1)
         level.add_order(order2)
@@ -99,7 +102,7 @@ class TestLevel:
     def test_remove_order(self):
         """Test removing an order from a level."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
         level.remove_order(order)
@@ -111,8 +114,8 @@ class TestLevel:
     def test_remove_order_not_found(self):
         """Test removing an order that doesn't exist."""
         level = Level(price=10000)
-        order1 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order2 = OrderOnBook(67890, 50, "2024-01-01 09:31:00")
+        order1 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order2 = OrderOnBook(67890, Timestamp(2024, 1, 1, 9, 31, 0), 50)
 
         level.add_order(order1)
 
@@ -122,7 +125,7 @@ class TestLevel:
     def test_update_order_volume(self):
         """Test updating order volume."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
         level.update_order_volume(order, 75)
@@ -133,8 +136,8 @@ class TestLevel:
     def test_update_order_volume_not_found(self):
         """Test updating volume for order that doesn't exist."""
         level = Level(price=10000)
-        order1 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order2 = OrderOnBook(67890, 50, "2024-01-01 09:31:00")
+        order1 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order2 = OrderOnBook(67890, Timestamp(2024, 1, 1, 9, 31, 0), 50)
 
         level.add_order(order1)
 
@@ -144,7 +147,7 @@ class TestLevel:
     def test_find_order(self):
         """Test finding an order by ID."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
         found_order = level.find_order(12345)
@@ -154,7 +157,7 @@ class TestLevel:
     def test_find_order_not_found(self):
         """Test finding an order that doesn't exist."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
         found_order = level.find_order(67890)
@@ -164,7 +167,7 @@ class TestLevel:
     def test_has_order(self):
         """Test checking if level has an order."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
 
@@ -174,8 +177,8 @@ class TestLevel:
     def test_clear(self):
         """Test clearing all orders from a level."""
         level = Level(price=10000)
-        order1 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order2 = OrderOnBook(67890, 50, "2024-01-01 09:31:00")
+        order1 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order2 = OrderOnBook(67890, Timestamp(2024, 1, 1, 9, 31, 0), 50)
 
         level.add_order(order1)
         level.add_order(order2)
@@ -190,14 +193,14 @@ class TestLevel:
         level = Level(price=10000)
         assert level.is_empty() is True
 
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
         level.add_order(order)
         assert level.is_empty() is False
 
     def test_str_representation(self):
         """Test Level string representation."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
         level.add_order(order)
 
         level_str = str(level)
@@ -214,7 +217,7 @@ class TestLevel:
     def test_copy(self):
         """Test copying a level."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
         level.add_order(order)
 
         copied_level = level.copy()
@@ -228,18 +231,18 @@ class TestLevel:
         assert copied_level.orders[0] is not level.orders[0]
 
     def test_order_priority(self):
-        """Test order priority (time-based)."""
+        """Test order priority (arrival order)."""
         level = Level(price=10000)
-        order1 = OrderOnBook(12345, 100, "2024-01-01 09:30:00")
-        order2 = OrderOnBook(67890, 50, "2024-01-01 09:31:00")
+        order1 = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 100)
+        order2 = OrderOnBook(67890, Timestamp(2024, 1, 1, 9, 31, 0), 50)
 
         # Add orders in reverse time order
         level.add_order(order2)
         level.add_order(order1)
 
-        # First order should be the earliest one
-        assert level.orders[0] == order1
-        assert level.orders[1] == order2
+        # First order should be the first one added (arrival order)
+        assert level.orders[0] == order2
+        assert level.orders[1] == order1
 
 
 class TestLevelEdgeCases:
@@ -248,7 +251,7 @@ class TestLevelEdgeCases:
     def test_zero_volume_order(self):
         """Test handling orders with zero volume."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, 0, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), 0)
 
         level.add_order(order)
 
@@ -259,7 +262,7 @@ class TestLevelEdgeCases:
     def test_negative_volume_order(self):
         """Test handling orders with negative volume."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, -50, "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), -50)
 
         level.add_order(order)
 
@@ -276,7 +279,7 @@ class TestLevelEdgeCases:
     def test_decimal_volume(self):
         """Test level with decimal volume."""
         level = Level(price=10000)
-        order = OrderOnBook(12345, Decimal("100.5"), "2024-01-01 09:30:00")
+        order = OrderOnBook(12345, Timestamp(2024, 1, 1, 9, 30, 0), Decimal("100.5"))
 
         level.add_order(order)
 
@@ -285,7 +288,7 @@ class TestLevelEdgeCases:
     def test_string_order_id(self):
         """Test level with string order ID."""
         level = Level(price=10000)
-        order = OrderOnBook("order-12345", 100, "2024-01-01 09:30:00")
+        order = OrderOnBook("order-12345", Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
 
@@ -295,7 +298,7 @@ class TestLevelEdgeCases:
     def test_bytes_order_id(self):
         """Test level with bytes order ID."""
         level = Level(price=10000)
-        order = OrderOnBook(b"order-12345", 100, "2024-01-01 09:30:00")
+        order = OrderOnBook(b"order-12345", Timestamp(2024, 1, 1, 9, 30, 0), 100)
 
         level.add_order(order)
 
@@ -312,7 +315,7 @@ class TestLevelPerformance:
 
         # Add many orders
         for i in range(1000):
-            order = OrderOnBook(i, 100, "2024-01-01 09:30:00")
+            order = OrderOnBook(i, Timestamp(2024, 1, 1, 9, 30, 0), 100)
             level.add_order(order)
 
         assert len(level.orders) == 1000
@@ -330,7 +333,7 @@ class TestLevelPerformance:
         # Add many orders
         orders = []
         for i in range(100):
-            order = OrderOnBook(i, 100, "2024-01-01 09:30:00")
+            order = OrderOnBook(i, Timestamp(2024, 1, 1, 9, 30, 0), 100)
             level.add_order(order)
             orders.append(order)
 

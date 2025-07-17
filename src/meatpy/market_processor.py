@@ -6,6 +6,7 @@ order book history for a specific instrument.
 """
 
 import abc
+import datetime
 from typing import Generic
 
 from .lob import LimitOrderBook, OrderType
@@ -38,9 +39,17 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
     def __init__(
         self,
+        instrument: str | bytes,
+        book_date: datetime.datetime | None,
     ) -> None:
-        """Initialize a market processor"""
+        """Initialize a market processor
 
+        Args:
+            instrument: The instrument/symbol to process
+            book_date: The trading date for this processor
+        """
+        self.instrument: str | bytes = instrument
+        self.book_date: datetime.datetime | None = book_date
         self.current_lob: (
             LimitOrderBook[Price, Volume, OrderID, TradeRef, Qualifiers] | None
         ) = None
@@ -75,7 +84,7 @@ class MarketProcessor(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             new_timestamp: The new timestamp for the upcoming update
         """
         for x in self.handlers:
-            x.before_lob_update(self, new_timestamp)
+            x.before_lob_update(self.current_lob, new_timestamp)
 
     def message_event(self, timestamp: Timestamp, message: MarketMessage) -> None:
         """Notify handlers of a raw message event.
