@@ -4,7 +4,7 @@ This module provides classes for managing individual price levels in a limit
 order book, including order queues, execution logic, and CSV export functionality.
 """
 
-from typing import Generic
+from typing import Any, Generic
 
 from meatpy.timestamp import Timestamp
 
@@ -78,34 +78,64 @@ class OrderOnBook(Generic[Volume, OrderID, Qualifiers]):
             f"{indent}{self.volume} shares entered at {self.timestamp} (id {self.order_id})"
         )
 
-    def write_csv(
+    def get_order_data(self) -> dict[str, Any]:
+        """Get structured data for this order.
+
+        Returns:
+            Dictionary containing order data
+        """
+        return {
+            "order_id": self.order_id,
+            "timestamp": self.timestamp,
+            "volume": self.volume,
+            "qualifs": self.qualifs,
+        }
+
+    def to_record(
         self,
-        file,
-        timestamp: Timestamp,
-        order_type: str,
-        level: int,
+        order_type_str: str,
+        level_num: int,
         price: Price,
-        show_age: bool,
-    ) -> None:
-        """Write order data to a CSV file.
+        timestamp: Timestamp,
+        show_age: bool = False,
+    ) -> dict[str, Any]:
+        """Convert order to a structured record.
+
+        This method provides direct access to order data without the
+        overhead of CSV serialization and parsing.
 
         Args:
-            file: File object to write to
-            timestamp: Current timestamp for the record
-            order_type: Type of order (e.g., 'bid', 'ask')
-            level: Price level number
+            order_type_str: Type of order (e.g., 'Ask', 'Bid')
+            level_num: Price level number
             price: Price of the level
+            timestamp: Current timestamp for the record
             show_age: Whether to include age information
+
+        Returns:
+            Dictionary record representing the order
         """
         if show_age:
             age = timestamp - self.timestamp
-            file.write(
-                f"{timestamp},{order_type},{level},{price},{self.order_id},{self.volume},{self.timestamp},{age}\n".encode()
-            )
+            return {
+                "Timestamp": str(timestamp),
+                "Type": order_type_str,
+                "Level": level_num,
+                "Price": float(price),
+                "Order ID": self.order_id,
+                "Volume": self.volume,
+                "Order Timestamp": str(self.timestamp),
+                "Age": float(age),
+            }
         else:
-            file.write(
-                f"{timestamp},{order_type},{level},{price},{self.order_id},{self.volume},{self.timestamp}\n".encode()
-            )
+            return {
+                "Timestamp": str(timestamp),
+                "Type": order_type_str,
+                "Level": level_num,
+                "Price": float(price),
+                "Order ID": self.order_id,
+                "Volume": self.volume,
+                "Order Timestamp": str(self.timestamp),
+            }
 
 
 class Level(Generic[Price, Volume, OrderID, Qualifiers]):
@@ -164,67 +194,113 @@ class Level(Generic[Price, Volume, OrderID, Qualifiers]):
         for x in self.queue:
             x.print_out(f"{indent}  ")
 
-    def write_csv(
+    def get_orders_data(self) -> list[dict[str, Any]]:
+        """Get structured data for all orders at this level.
+
+        Returns:
+            List of dictionaries containing order data
+        """
+        orders_data = []
+        for order in self.queue:
+            order_data = order.get_order_data()
+            orders_data.append(order_data)
+        return orders_data
+
+    def to_records(
         self,
-        file,
+        order_type_str: str,
+        level_num: int,
+        price: Price,
         timestamp: Timestamp,
-        order_type: str,
-        level: int,
         collapse_orders: bool = False,
-        price: Price | None = None,
         show_age: bool = False,
-    ) -> None:
-        """Write level data to a CSV file.
+    ) -> list[dict[str, Any]]:
+        """Convert level data to structured records.
+
+        This method provides direct access to level data without the
+        overhead of CSV serialization and parsing.
 
         Args:
-            file: File object to write to
+            order_type_str: Type of order (e.g., 'Ask', 'Bid')
+            level_num: Price level number
+            price: Price to use for the records
             timestamp: Current timestamp for the record
-            order_type: Type of order (e.g., 'bid', 'ask')
-            level: Price level number
             collapse_orders: Whether to aggregate all orders at this level
-            price: Price to use (defaults to level price if None)
             show_age: Whether to include age information
+
+        Returns:
+            List of dictionary records representing the level data
         """
-        if price is None:
-            price = self.price
+        records = []
+
         if collapse_orders:
             volume = 0
             n_orders = len(self.queue)
-            for x in self.queue:
-                volume += x.volume
+            for order in self.queue:
+                volume += order.volume
+
             if show_age:
                 vw_age_acc = None
                 age_acc = None
-                for x in self.queue:
-                    order_age = timestamp - x.timestamp
+                for order in self.queue:
+                    order_age = timestamp - order.timestamp
                     if vw_age_acc is None:
-                        vw_age_acc = order_age * x.volume
+                        vw_age_acc = order_age * order.volume
                     else:
-                        vw_age_acc += order_age * x.volume
+                        vw_age_acc += order_age * order.volume
                     if age_acc is None:
                         age_acc = order_age
                     else:
                         age_acc += order_age
+
                 if vw_age_acc is not None and volume > 0:
                     vw_age = vw_age_acc / float(volume)
                 else:
-                    vw_age = None
+                    vw_age = 0.0
+
                 if age_acc is not None and n_orders > 0:
                     age = age_acc / float(n_orders)
                 else:
-                    age = None
-                first_age = timestamp - self.queue[0].timestamp
-                last_age = timestamp - self.queue[-1].timestamp
-                file.write(
-                    f"{timestamp},{order_type},{level},{price},{volume},{n_orders},{vw_age},{age},{first_age},{last_age}\n".encode()
-                )
+                    age = 0.0
+
+                first_age = timestamp - self.queue[0].timestamp if self.queue else 0.0
+                last_age = timestamp - self.queue[-1].timestamp if self.queue else 0.0
+
+                record = {
+                    "Timestamp": str(timestamp),
+                    "Type": order_type_str,
+                    "Level": level_num,
+                    "Price": float(price),
+                    "Volume": volume,
+                    "N Orders": n_orders,
+                    "Volume-Weighted Average Age": float(vw_age),
+                    "Average Age": float(age),
+                    "First Age": float(first_age),
+                    "Last Age": float(last_age),
+                }
             else:
-                file.write(
-                    f"{timestamp},{order_type},{level},{price},{volume},{n_orders}\n".encode()
-                )
+                record = {
+                    "Timestamp": str(timestamp),
+                    "Type": order_type_str,
+                    "Level": level_num,
+                    "Price": float(price),
+                    "Volume": volume,
+                    "N Orders": n_orders,
+                }
+            records.append(record)
         else:
-            for x in self.queue:
-                x.write_csv(file, timestamp, order_type, level, self.price, show_age)
+            # Individual order records
+            for order in self.queue:
+                order_record = order.to_record(
+                    order_type_str=order_type_str,
+                    level_num=level_num,
+                    price=price,
+                    timestamp=timestamp,
+                    show_age=show_age,
+                )
+                records.append(order_record)
+
+        return records
 
     def order_on_book(self, order_id: OrderID) -> bool:
         """Check if an order is on the book at this level.

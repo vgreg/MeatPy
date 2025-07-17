@@ -9,6 +9,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 
+class SchemaLockedException(Exception):
+    """Exception raised when attempting to modify a locked schema.
+
+    This exception is raised when a DataWriter's schema has been locked
+    (typically after writing has begun) and an attempt is made to change it.
+    """
+
+    pass
+
+
 class DataWriter(ABC):
     """Abstract base class for data writers.
 
@@ -40,6 +50,7 @@ class DataWriter(ABC):
         self._buffer: List[Any] = []
         self._schema: Optional[Dict[str, Any]] = None
         self._header_written = False
+        self._schema_locked = False
 
     @abstractmethod
     def write_header(self, schema: Dict[str, Any]) -> None:
@@ -104,8 +115,31 @@ class DataWriter(ABC):
 
         Args:
             schema: Schema definition for the data
+
+        Raises:
+            SchemaLockedException: If the schema is locked and cannot be changed
         """
+        if self._schema_locked:
+            raise SchemaLockedException(
+                "Cannot modify schema after it has been locked. "
+                "Schema is typically locked after writing begins."
+            )
+
         self._schema = schema
         if not self._header_written:
             self.write_header(schema)
             self._header_written = True
+            # Lock schema after first write
+            self._schema_locked = True
+
+    def lock_schema(self) -> None:
+        """Lock the schema to prevent further modifications."""
+        self._schema_locked = True
+
+    def is_schema_locked(self) -> bool:
+        """Check if the schema is locked.
+
+        Returns:
+            True if schema is locked, False otherwise
+        """
+        return self._schema_locked

@@ -2,8 +2,7 @@ from copy import deepcopy
 from decimal import Decimal
 from enum import Enum
 from math import log
-from pathlib import Path
-from typing import Generic
+from typing import Any, Generic
 
 from .level import ExecutionPriorityException, Level
 from .timestamp import Timestamp
@@ -134,7 +133,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
             i += 1
             x.print_out(f"{indent}  ", i)
 
-    def from_price(self, price: Price) -> Level:
+    def create_level_from_price(self, price: Price) -> Level:
         """Create a new Level instance with the given price.
 
         Args:
@@ -170,40 +169,80 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
                 i += 1
         return new_lob
 
-    def write_csv(
-        self, file: str | Path, collapse_orders: bool = False, show_age: bool = False
-    ) -> None:
-        """Write the limit order book content to a CSV file.
+    def get_bid_levels(self, max_depth: int | None = None) -> list[Level]:
+        """Get bid levels up to specified depth.
 
         Args:
-            file: File path or Path object to write to.
-            collapse_orders: Whether to collapse orders, defaults to False.
-            show_age: Whether to show order age, defaults to False.
+            max_depth: Maximum number of levels to return (None for all)
+
+        Returns:
+            List of bid levels
         """
-        i = 1
-        for x in self.ask_levels:
-            x.write_csv(
-                file,
-                self.timestamp,
-                "Ask",
-                i,
-                collapse_orders,
-                self.adjust_price(x.price),
-                show_age,
+        if max_depth is None:
+            return self.bid_levels[:]
+        return self.bid_levels[:max_depth]
+
+    def get_ask_levels(self, max_depth: int | None = None) -> list[Level]:
+        """Get ask levels up to specified depth.
+
+        Args:
+            max_depth: Maximum number of levels to return (None for all)
+
+        Returns:
+            List of ask levels
+        """
+        if max_depth is None:
+            return self.ask_levels[:]
+        return self.ask_levels[:max_depth]
+
+    def to_records(
+        self,
+        collapse_orders: bool = False,
+        show_age: bool = False,
+        max_depth: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Convert limit order book to structured records.
+
+        This method provides direct access to the limit order book data
+        without the overhead of CSV serialization and parsing.
+
+        Args:
+            collapse_orders: Whether to aggregate orders by level
+            show_age: Whether to include order age information
+            max_depth: Maximum depth of levels to include (None for all)
+
+        Returns:
+            List of dictionary records representing the book state
+        """
+        records = []
+
+        # Process ask levels
+        ask_levels = self.get_ask_levels(max_depth)
+        for level_num, level in enumerate(ask_levels, 1):
+            level_records = level.to_records(
+                order_type_str="Ask",
+                level_num=level_num,
+                price=self.adjust_price(level.price),
+                timestamp=self.timestamp,
+                collapse_orders=collapse_orders,
+                show_age=show_age,
             )
-            i += 1
-        i = 1
-        for x in self.bid_levels:
-            x.write_csv(
-                file,
-                self.timestamp,
-                "Bid",
-                i,
-                collapse_orders,
-                self.adjust_price(x.price),
-                show_age,
+            records.extend(level_records)
+
+        # Process bid levels
+        bid_levels = self.get_bid_levels(max_depth)
+        for level_num, level in enumerate(bid_levels, 1):
+            level_records = level.to_records(
+                order_type_str="Bid",
+                level_num=level_num,
+                price=self.adjust_price(level.price),
+                timestamp=self.timestamp,
+                collapse_orders=collapse_orders,
+                show_age=show_age,
             )
-            i += 1
+            records.extend(level_records)
+
+        return records
 
     #### Built-in measures #######
 
@@ -556,7 +595,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.from_price(price))
+            queue.insert(i, self.create_level_from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote(timestamp, volume, order_id, qualifs)
 
@@ -594,7 +633,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.from_price(price))
+            queue.insert(i, self.create_level_from_price(price))
         # Enter the quote on the level
         queue[i].enter_quote_out_of_order(timestamp, volume, order_id, qualifs)
 
@@ -646,7 +685,7 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         # If the price level does not exist, create it!
         if i == len(queue) or queue[i].price != price:
-            queue.insert(i, self.from_price(price))
+            queue.insert(i, self.create_level_from_price(price))
 
         # Compute the number of positions in front
         pre_positions = 0
