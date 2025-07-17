@@ -2,100 +2,102 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Overview
+
+MeatPy is a Python framework for processing and analyzing high-frequency financial data, specifically designed for Nasdaq ITCH 5.0 format. It provides tools for parsing market messages, reconstructing limit order books, and analyzing market microstructure.
+
 ## Development Commands
 
-### Package Management
-- `uv sync` - Install dependencies and create virtual environment
-- `uv run <command>` - Run commands in the virtual environment
+### Environment Setup
+```bash
+# Install dependencies using uv (recommended)
+uv sync
+
+# Install pre-commit hooks
+uv run pre-commit install
+```
 
 ### Testing
-- `uv run pytest` - Run all tests with coverage
-- `uv run pytest tests/test_<module>.py` - Run specific test file
-- `uv run pytest -m "not slow"` - Skip slow tests
-- `uv run pytest -m unit` - Run only unit tests
-- `uv run pytest -m integration` - Run only integration tests
-- Coverage reports are generated in `htmlcov/` directory
+```bash
+# Run all tests with coverage
+uv run pytest
+
+# Run specific test markers
+uv run pytest -m "not slow"  # Skip slow tests
+uv run pytest -m unit        # Only unit tests
+uv run pytest -m integration # Only integration tests
+```
 
 ### Code Quality
-- `uv run ruff check` - Lint code with ruff
-- `uv run ruff format` - Format code with ruff
-- `uv run pre-commit run --all-files` - Run all pre-commit hooks
-- Pre-commit hooks include: ruff linting/formatting, trailing whitespace, file checks
+```bash
+# Format code
+uv run ruff format
+
+# Check linting issues
+uv run ruff check
+
+# Fix auto-fixable linting issues
+uv run ruff check --fix
+```
 
 ### Documentation
-- `uv run mkdocs serve` - Start local documentation server for development
-- `uv run mkdocs build` - Build documentation for production
-- Documentation is built with MkDocs and Material theme in the `docs/` directory
-- Latest docs available at: https://www.vincentgregoire.com/MeatPy
-- Automatically deployed to GitHub Pages on main branch pushes
+```bash
+# Build documentation
+mkdocs build
+
+# Serve documentation locally
+mkdocs serve
+```
 
 ## Architecture Overview
 
-MeatPy is a framework for processing high-frequency financial market data, specifically designed for limit order book reconstruction and analysis.
-
 ### Core Components
 
-**MarketProcessor (`src/meatpy/market_processor.py`)**
-- Abstract base class for processing market messages
-- Maintains limit order book state and trading status
-- Supports event handlers for real-time processing
-- Generic typed for Price, Volume, OrderID, TradeRef, Qualifiers
+**Market Processing Pipeline**: The library follows an event-driven architecture centered around `MarketProcessor` classes that process market messages and maintain limit order book state.
 
-**LimitOrderBook (`src/meatpy/lob.py`)**
-- Core data structure representing the order book
-- Tracks bid/ask levels with price-time priority
-- Handles order additions, deletions, modifications, and executions
+**Key Classes**:
+- `MarketProcessor`: Abstract base class for processing market messages (src/meatpy/market_processor.py:19)
+- `ITCH50MarketProcessor`: ITCH 5.0 specific implementation (src/meatpy/itch50/itch50_market_processor.py:87)
+- `LimitOrderBook`: Maintains the current state of the order book (src/meatpy/lob.py)
+- `MarketEventHandler`: Handles events during processing (src/meatpy/market_event_handler.py)
 
-**MarketEventHandler (`src/meatpy/market_event_handler.py`)**
-- Observer pattern for handling market events
-- Allows pluggable event processing and recording
+### Message Processing Flow
 
-**MessageReader (`src/meatpy/message_reader.py`)**
-- Abstract interface for reading market data messages
-- Supports different data formats through subclassing
+1. **Message Reading**: `MessageReader` classes parse binary market data into `MarketMessage` objects
+2. **Event Processing**: `MarketProcessor` processes messages, updates the LOB, and notifies handlers
+3. **Data Recording**: Event handlers record market events (trades, quotes, etc.) to various output formats
 
-### ITCH 5.0 Implementation
+### Package Structure
 
-The `src/meatpy/itch50/` module provides a complete implementation for Nasdaq ITCH 5.0 format:
+- `src/meatpy/` - Core library code
+  - `itch50/` - ITCH 5.0 specific implementations
+  - `event_handlers/` - Event recording and processing handlers
+  - `writers/` - Output format writers (CSV, Parquet)
+- `tests/` - Test suite
+- `docs/` - Documentation (MkDocs format)
+- `samples/` - Example scripts showing typical usage patterns
 
-- `itch50_market_processor.py` - ITCH-specific market processor
-- `itch50_message_reader.py` - ITCH message parsing
-- `itch50_market_message.py` - ITCH message types and validation
-- `itch50_writer.py` - Writing ITCH data
-- Various event recorders for different data output formats
+### Generic Type System
 
-### Event Handlers (`src/meatpy/event_handlers/`)
+The codebase uses extensive generic typing for market data types:
+- `Price`, `Volume`, `OrderID`, `TradeRef`, `Qualifiers` are generic type parameters
+- ITCH 5.0 implementation uses concrete types: `int` for prices/volumes/IDs, `dict[str, str]` for qualifiers
 
-- `lob_event_recorder.py` - Records limit order book events
-- `ofi_recorder.py` - Order flow imbalance calculations
-- `spot_measures_recorder.py` - Real-time market measures
+## Development Guidelines
 
-### Type System (`src/meatpy/types.py`)
+### Code Style
+- Use Google-style docstrings for all public APIs
+- Type hints are required for all function signatures
+- Follow Ruff formatting standards
+- Maintain test coverage above 80%
 
-Uses generic types for financial data:
-- `Price`, `Volume`, `OrderID`, `TradeRef`, `Qualifiers`
-- Enables type-safe market data processing
+### Testing Approach
+- Tests use pytest with custom markers (unit, integration, slow, performance)
+- Coverage reporting configured in pytest.ini
+- Test data available in `tests/` and `docs/guide/data/`
 
-### Trading Status (`src/meatpy/trading_status.py`)
-
-Comprehensive trading status tracking:
-- Pre-trade, trade, halted, post-trade, quote-only states
-- Closing auction and closed market states
-
-## Project Structure
-
-- `src/meatpy/` - Main source code
-- `tests/` - Test suite with unit, integration, and performance tests
-- `examples/` - Usage examples and demonstrations
-- `samples/` - Sample processing scripts for ITCH 5.0
-- `docs/` - MkDocs documentation source
-- `rules/` - Development rules and guidelines
-
-## Key Development Notes
-
-- The codebase uses modern Python typing extensively
-- All market data types are generic for flexibility across different exchanges
-- Event-driven architecture allows for extensible data processing
-- ITCH 5.0 implementation serves as reference for adding new data formats
-- Tests include coverage requirements (minimum 80%)
-- Pre-commit hooks enforce code quality and formatting
+### Configuration Files
+- `pyproject.toml` - Project metadata, dependencies, and tool configuration
+- `pytest.ini` - Test configuration with coverage requirements
+- `mkdocs.yml` - Documentation configuration
+- `rules/python.mdc` - Development guidelines for cursor/AI tools

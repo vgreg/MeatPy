@@ -8,8 +8,6 @@ Cont, R., et al. (2013). "The Price Impact of Order Book Events."
 Journal of Financial Econometrics 12(1): 47-88.
 """
 
-from io import TextIOWrapper
-
 from ..event_handlers.lob_event_recorder import LOBEventRecorder
 from ..lob import LimitOrderBook
 
@@ -29,6 +27,10 @@ class OFIRecorder(LOBEventRecorder):
         """
         self.previous_lob: LimitOrderBook | None = None
         LOBEventRecorder.__init__(self, writer=writer)
+
+        # Set the schema based on OFI requirements
+        schema = self.get_schema()
+        self.writer.set_schema(schema)
 
     def record(self, lob: LimitOrderBook, record_timestamp: bool = None):
         """Record the OFI metric for the current LOB state.
@@ -74,44 +76,11 @@ class OFIRecorder(LOBEventRecorder):
                 e_n -= qs_new
             if Ps_new >= Ps_prev:
                 e_n += qs_prev
-            self.records.append((record_timestamp, e_n))
+            # Write record directly to the writer
+            record = {"Timestamp": str(record_timestamp), "e_n": e_n}
+            self.writer.buffer_record(record)
         self.previous_lob = new_lob
-
-    def write_csv(self, file: TextIOWrapper):
-        """Write OFI records to a CSV file.
-
-        Args:
-            file: File object to write to
-        """
-        file.write("Timestamp,e_n\n")
-        for x in self.records:
-            file.write(f"{x[0]},{x[1]}\n")
-
-    def write_csv_header(self, file: TextIOWrapper):
-        """Write the CSV header row to the file.
-
-        Args:
-            file: File object to write the header to
-        """
-        file.write("Timestamp,e_n\n")
-
-    def append_csv(self, file: TextIOWrapper):
-        """Append OFI records to a CSV file.
-
-        Args:
-            file: File object to append to
-        """
-        for x in self.records:
-            file.write(f"{x[0]},{x[1]}\n")
-        self.records = []
 
     def get_schema(self):
         """Get schema definition for the data writer."""
         return {"fields": {"Timestamp": "string", "e_n": "int64"}}
-
-    def format_records_for_writer(self, records):
-        """Format OFI records for the data writer."""
-        formatted_records = []
-        for timestamp, e_n in records:
-            formatted_records.append({"Timestamp": str(timestamp), "e_n": e_n})
-        return formatted_records
