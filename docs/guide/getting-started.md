@@ -35,7 +35,7 @@ with ITCH50MessageReader("market_data.txt.gz") as reader:
 
 Other common tasks include:
 
-- [Listing Symbols](guide/01_listing_symbols.md): Extracting unique stock symbols from ITCH files
-- [Extracting Specific Symbols](guide/02_extracting_symbols.md): Creating new ITCH files with only specific symbols
-- [Top of Book Snapshots](guide/03_top_of_book_snapshots.md): Generating snapshots of the top of book state for analysis
-- [Order Book Snapshots](guide/04_full_lob_snapshots): Creating snapshots of the full limit order book state
+- **Listing Symbols**: Extracting unique stock symbols from ITCH files
+- **Extracting Specific Symbols**: Creating new ITCH files with only specific symbols
+- **Top of Book Snapshots**: Generating snapshots of the top of book state for analysis
+- **Order Book Snapshots**: Creating snapshots of the full limit order book state
