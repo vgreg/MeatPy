@@ -4,8 +4,6 @@ This module provides the LOBRecorder class, which records LOB snapshots and
 exports them to CSV files, supporting both aggregate and detailed order data.
 """
 
-from io import TextIOWrapper
-from pathlib import Path
 from typing import Optional
 
 from ..lob import LimitOrderBook
@@ -36,10 +34,69 @@ class LOBRecorder(LOBEventRecorder):
             collapse_orders: Whether to aggregate orders by level
             show_age: Whether to include order age in output
         """
-        self.max_depth: int | None = max_depth
-        self.collapse_orders: bool = collapse_orders
-        self.show_age: bool = show_age
+        self._max_depth: int | None = max_depth
+        self._collapse_orders: bool = collapse_orders
+        self._show_age: bool = show_age
+
         LOBEventRecorder.__init__(self, writer=writer)
+
+        # Set the schema based on current parameters
+        self._set_writer_schema()
+
+    @property
+    def max_depth(self) -> int | None:
+        """Maximum depth of the book to record."""
+        return self._max_depth
+
+    @max_depth.setter
+    def max_depth(self, value: int | None) -> None:
+        """Set maximum depth of the book to record."""
+        if self._max_depth != value:
+            self._max_depth = value
+            self._update_writer_schema()
+
+    @property
+    def collapse_orders(self) -> bool:
+        """Whether to aggregate orders by level."""
+        return self._collapse_orders
+
+    @collapse_orders.setter
+    def collapse_orders(self, value: bool) -> None:
+        """Set whether to aggregate orders by level."""
+        if self._collapse_orders != value:
+            self._collapse_orders = value
+            self._update_writer_schema()
+
+    @property
+    def show_age(self) -> bool:
+        """Whether to include order age in output."""
+        return self._show_age
+
+    @show_age.setter
+    def show_age(self, value: bool) -> None:
+        """Set whether to include order age in output."""
+        if self._show_age != value:
+            self._show_age = value
+            self._update_writer_schema()
+
+    def _set_writer_schema(self) -> None:
+        """Set the writer schema based on current recording parameters."""
+        schema = self.get_schema()
+        self.writer.set_schema(schema)
+
+    def _update_writer_schema(self) -> None:
+        """Update the writer schema if not locked, otherwise raise warning."""
+        if not self.writer.is_schema_locked():
+            self._set_writer_schema()
+        else:
+            import warnings
+
+            warnings.warn(
+                "Cannot update schema after writing has begun. "
+                "Schema changes will take effect for new writers only.",
+                UserWarning,
+                stacklevel=3,
+            )
 
     def record(self, lob: LimitOrderBook, record_timestamp=None):
         """Record a snapshot of the limit order book.
@@ -48,102 +105,21 @@ class LOBRecorder(LOBEventRecorder):
             lob: The current limit order book
             record_timestamp: Optional timestamp to override
         """
+        # Create a copy of the LOB for recording
         new_record = lob.copy(max_level=self.max_depth)
         if record_timestamp is not None:
             new_record.timestamp = record_timestamp
-        self.records.append(new_record)
 
-    def write_csv(self, outfile: TextIOWrapper, collapse_orders=False, show_age=False):
-        """Write recorded LOB snapshots to a CSV file.
+        # Convert to structured records and write directly to the writer
+        records = new_record.to_records(
+            collapse_orders=self.collapse_orders,
+            show_age=self.show_age,
+            max_depth=self.max_depth,
+        )
 
-        This method now uses the new direct data access approach for better performance.
-
-        Args:
-            outfile: File object to write to
-            collapse_orders: Whether to aggregate orders by level
-            show_age: Whether to include order age in output
-        """
-        outfile.write(self.get_csv_header(collapse_orders, show_age).encode())
-        for lob in self.records:
-            # Use the new direct data access method
-            records = lob.to_records(
-                collapse_orders=collapse_orders,
-                show_age=show_age,
-                max_depth=self.max_depth,
-            )
-            for record in records:
-                # Convert record back to CSV format
-                if show_age:
-                    if collapse_orders:
-                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']},{record['Volume-Weighted Average Age']},{record['Average Age']},{record['First Age']},{record['Last Age']}\n"
-                    else:
-                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']},{record['Age']}\n"
-                else:
-                    if collapse_orders:
-                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']}\n"
-                    else:
-                        line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']}\n"
-                outfile.write(line.encode())
-
-    def write_csv_header(self, outfile: TextIOWrapper):
-        """Write the CSV header row to the file.
-
-        Args:
-            outfile: File object to write the header to
-        """
-        outfile.write(self.get_csv_header(self.collapse_orders, self.show_age).encode())
-
-    def append_csv(self, outfile: str | Path):
-        """Append recorded LOB snapshots to a CSV file.
-
-        Args:
-            outfile: File path or object to append to
-        """
-        with open(outfile, "ab") as file:
-            for lob in self.records:
-                # Use the new direct data access method
-                records = lob.to_records(
-                    collapse_orders=self.collapse_orders,
-                    show_age=self.show_age,
-                    max_depth=self.max_depth,
-                )
-                for record in records:
-                    # Convert record back to CSV format
-                    if self.show_age:
-                        if self.collapse_orders:
-                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']},{record['Volume-Weighted Average Age']},{record['Average Age']},{record['First Age']},{record['Last Age']}\n"
-                        else:
-                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']},{record['Age']}\n"
-                    else:
-                        if self.collapse_orders:
-                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Volume']},{record['N Orders']}\n"
-                        else:
-                            line = f"{record['Timestamp']},{record['Type']},{record['Level']},{record['Price']},{record['Order ID']},{record['Volume']},{record['Order Timestamp']}\n"
-                    file.write(line.encode())
-        self.records = []
-
-    def get_csv_header(self, collapse_orders: bool = False, show_age: bool = False):
-        """Get the CSV header string for the output file.
-
-        Args:
-            collapse_orders: Whether to aggregate orders by level
-            show_age: Whether to include order age in output
-
-        Returns:
-            str: The CSV header row
-        """
-        if show_age:
-            if collapse_orders:
-                return "Timestamp,Type,Level,Price,Volume,N Orders,Volume-Weighted Average Age,Average Age,First Age,Last Age\n"
-            else:
-                return (
-                    "Timestamp,Type,Level,Price,Order ID,Volume,Order Timestamp,Age\n"
-                )
-        else:
-            if collapse_orders:
-                return "Timestamp,Type,Level,Price,Volume,N Orders\n"
-            else:
-                return "Timestamp,Type,Level,Price,Order ID,Volume,Order Timestamp\n"
+        # Write each record to the writer
+        for record in records:
+            self.writer.buffer_record(record)
 
     def get_schema(self):
         """Get schema definition for the data writer."""
@@ -200,23 +176,3 @@ class LOBRecorder(LOBEventRecorder):
                         "Order Timestamp": "string",
                     }
                 }
-
-    def format_records_for_writer(self, records):
-        """Format LOB records for the data writer."""
-        formatted_records = []
-        for lob in records:
-            lob_records = self._convert_lob_to_records(lob)
-            formatted_records.extend(lob_records)
-        return formatted_records
-
-    def _convert_lob_to_records(self, lob):
-        """Convert a single LOB snapshot to records using direct data access."""
-        if not hasattr(lob, "to_records"):
-            return []
-
-        # Use the new direct data access method instead of CSV round-trip
-        return lob.to_records(
-            collapse_orders=self.collapse_orders,
-            show_age=self.show_age,
-            max_depth=self.max_depth,
-        )

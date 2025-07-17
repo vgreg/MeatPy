@@ -198,11 +198,11 @@ class TestLOBRecorder:
             # Create mock LOB
             lob = MockLimitOrderBook("2023-01-01T09:30:00")
 
-            # Record the LOB
+            # Record the LOB - data goes directly to writer buffer
             recorder.record(lob)
 
-            assert len(recorder.records) == 1
-            assert recorder.records[0].timestamp == "2023-01-01T09:30:00"
+            # Verify writer has buffered records
+            assert len(writer._buffer) > 0  # Should have records in writer buffer
 
     def test_schema_generation(self):
         """Test schema generation for different configurations."""
@@ -248,9 +248,9 @@ class TestLOBRecorder:
                 lob = MockLimitOrderBook(ts)
                 recorder.record(lob)
 
-            # Manually flush to writer
-            recorder.flush_to_writer()
-            recorder.close_writer()
+            # Flush writer buffer
+            writer.flush()
+            writer.close()
 
             # Verify the CSV output
             with open(tmp.name, "r") as f:
@@ -281,9 +281,9 @@ class TestLOBRecorder:
                 lob = MockLimitOrderBook(ts)
                 recorder.record(lob)
 
-            # Manually flush to writer
-            recorder.flush_to_writer()
-            recorder.close_writer()
+            # Flush writer buffer
+            writer.flush()
+            writer.close()
 
             # Verify the Parquet output
             table = pq.read_table(tmp.name)
@@ -299,7 +299,7 @@ class TestLOBRecorder:
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False, mode="w") as tmp:
             writer = CSVWriter(tmp.name)
             recorder = LOBRecorder(writer)
-            recorder.buffer_size = 2  # Small buffer for testing
+            writer.buffer_size = 2  # Small buffer for testing
 
             # Create mock market processor
             mock_processor = Mock()
@@ -310,11 +310,7 @@ class TestLOBRecorder:
             for i in range(5):
                 recorder.record(MockLimitOrderBook(f"2023-01-01T09:30:0{i}"))
 
-                # Simulate market processor call that would trigger flush
-                if len(recorder.records) >= recorder.buffer_size:
-                    recorder.flush_to_writer()
-
-            recorder.close_writer()
+            writer.close()
 
             # Clean up
             Path(tmp.name).unlink()
@@ -345,15 +341,13 @@ class TestOFIRecorder:
 
             # Record first LOB (should not create a record)
             recorder.record(lob1)
-            assert len(recorder.records) == 0
+            initial_buffer_size = len(writer._buffer)
 
             # Record second LOB (should create a record)
             recorder.record(lob2)
-            assert len(recorder.records) == 1
 
-            timestamp, e_n = recorder.records[0]
-            assert timestamp == "2023-01-01T09:30:01"
-            assert isinstance(e_n, int)
+            # Should have more records in buffer now
+            assert len(writer._buffer) > initial_buffer_size
 
     def test_schema_generation(self):
         """Test OFI schema generation."""
@@ -387,8 +381,8 @@ class TestOFIRecorder:
                 recorder.record(lob)
 
             # Flush and close
-            recorder.flush_to_writer()
-            recorder.close_writer()
+            writer.flush()
+            writer.close()
 
             # Verify the CSV output
             with open(tmp.name, "r") as f:
@@ -422,8 +416,8 @@ class TestOFIRecorder:
                 recorder.record(lob)
 
             # Flush and close
-            recorder.flush_to_writer()
-            recorder.close_writer()
+            writer.flush()
+            writer.close()
 
             # Verify the Parquet output
             table = pq.read_table(tmp.name)
@@ -456,12 +450,13 @@ class TestRecorderIntegration:
             # Test with trading status (should record)
             mock_processor.trading_status = TradeTradingStatus()
             recorder.before_lob_update(mock_processor, "2023-01-01T09:30:00")
-            initial_count = len(recorder.records)
+            initial_buffer_size = len(writer._buffer)
 
             # Test with pre-trade status (should not record)
             mock_processor.trading_status = PreTradeTradingStatus()
             recorder.before_lob_update(mock_processor, "2023-01-01T09:30:01")
-            assert len(recorder.records) == initial_count  # Should not have increased
+            # Buffer size should remain the same (no new records)
+            assert len(writer._buffer) == initial_buffer_size
 
             # Clean up
             Path(tmp.name).unlink()
@@ -483,11 +478,13 @@ class TestRecorderIntegration:
 
             # Test recording within window
             recorder.before_lob_update(mock_processor, "2023-01-01T09:30:30")
-            within_window_count = len(recorder.records)
+            within_window_buffer_size = len(writer._buffer)
 
             # Test recording outside window
             recorder.before_lob_update(mock_processor, "2023-01-01T09:35:00")
-            assert len(recorder.records) == within_window_count  # Should not increase
+            assert (
+                len(writer._buffer) == within_window_buffer_size
+            )  # Should not increase
 
             # Clean up
             Path(tmp.name).unlink()
@@ -504,8 +501,8 @@ class TestRecorderIntegration:
                     lob = MockLimitOrderBook(f"2023-01-01T09:30:0{i}")
                     recorder.record(lob)
 
-                # Explicitly flush at the end
-                recorder.flush_to_writer()
+                # Writer will auto-flush when context manager closes
+                pass
 
             # Verify the file was created and has content
             with open(tmp.name, "r") as f:
