@@ -99,56 +99,120 @@ class ITCH41Writer:
         file_handle.write(bytes([message.message_size]))
         file_handle.write(message.to_bytes())
 
-    def _flush_buffer(self) -> None:
-        """Flush the message buffer to file."""
-        if not self._buffer:
-            return
-
-        with self._get_file_handle() as file_handle:
-            for message in self._buffer:
-                self._write_message(file_handle, message)
-
-        self._buffer.clear()
-
-    def _should_track_message(self, message: ITCH41MarketMessage) -> bool:
-        """Determine if this message should be tracked based on symbols.
+    def _write_messages(self, force: bool = False) -> None:
+        """Write buffered messages to the file.
 
         Args:
-            message: The message to check
+            force: Whether to write regardless of buffer size
+        """
+        if len(self._buffer) > self.message_buffer or force:
+            with self._get_file_handle() as file_handle:
+                for message in self._buffer:
+                    self._write_message(file_handle, message)
+            self._buffer = []
+
+    def _append_message(self, message: ITCH41MarketMessage) -> None:
+        """Append a message to the stock message buffer.
+
+        Args:
+            message: Message to append
+        """
+        self._buffer.append(message)
+        self._write_messages()
+
+    def _validate_symbol(self, symbol: bytes) -> bool:
+        """Validate a symbol.
+
+        Args:
+            symbol: Symbol to validate
 
         Returns:
-            True if the message should be tracked
+            True if the symbol is valid, False otherwise
         """
-        # Track all messages if no symbols specified
         if self._symbols is None:
             return True
+        return symbol in self._symbols
 
-        # Check if message has a stock field and if it matches our symbols
-        if hasattr(message, "stock"):
-            return message.stock in self._symbols
-
-        # Track system messages and other global messages
-        return message.type in [b"S"]
-
-    def write_message(self, message: ITCH41MarketMessage) -> None:
-        """Write a message to the output file (buffered).
+    def process_message(self, message: ITCH41MarketMessage) -> None:
+        """Process a message and add it to the appropriate buffers.
 
         Args:
-            message: The message to write
+            message: Message to process
         """
-        if not self._should_track_message(message):
-            return
-
-        self._buffer.append(message)
         self._message_count += 1
 
-        # Flush buffer if it's full
-        if len(self._buffer) >= self.message_buffer:
-            self._flush_buffer()
+        # Get message type
+        message_type = getattr(message.__class__, "type", None)
+        if message_type is None:
+            return
 
-    def finalize(self) -> None:
-        """Finalize the writer by flushing any remaining buffered messages."""
-        self._flush_buffer()
+        # Handle different message types
+        if message_type == b"R":  # Stock Directory
+            if hasattr(message, "stock") and self._validate_symbol(message.stock):
+                self._append_message(message)
+
+        elif message_type in b"ST":  # System messages (Seconds, System Event)
+            # Add to all stock message buffers
+            self._append_message(message)
+
+        elif (
+            message_type in b"HYL"
+        ):  # Stock-specific messages (Trading Action, RegSHO, Market Participant Position)
+            if hasattr(message, "stock") and self._validate_symbol(message.stock):
+                self._append_message(message)
+
+        elif message_type in b"AF":  # Add order messages
+            if (
+                hasattr(message, "stock")
+                and hasattr(message, "orderRefNum")
+                and self._validate_symbol(message.stock)
+            ):
+                self._order_refs.add(message.orderRefNum)
+                self._append_message(message)
+
+        elif message_type in b"ECXD":  # Order execution/cancel/delete
+            if (
+                hasattr(message, "orderRefNum")
+                and message.orderRefNum in self._order_refs
+            ):
+                self._append_message(message)
+                if message_type == b"D":  # Order delete
+                    self._order_refs.remove(message.orderRefNum)
+                elif message_type in b"EC":  # Order executed
+                    if hasattr(message, "match"):
+                        self._matches.add(message.match)
+
+        elif message_type == b"U":  # Order replace
+            if (
+                hasattr(message, "origOrderRefNum")
+                and message.origOrderRefNum in self._order_refs
+            ):
+                self._append_message(message)
+                self._order_refs.remove(message.origOrderRefNum)
+                if hasattr(message, "newOrderRefNum"):
+                    self._order_refs.add(message.newOrderRefNum)
+
+        elif message_type == b"B":  # Broken trade
+            if hasattr(message, "match") and message.match in self._matches:
+                self._append_message(message)
+
+        elif message_type in b"PQ":  # Trade messages (Trade, Cross Trade)
+            if hasattr(message, "stock") and self._validate_symbol(message.stock):
+                self._append_message(message)
+                if hasattr(message, "match"):
+                    self._matches.add(message.match)
+
+        elif message_type in b"IN":  # NOII and RPII messages
+            if hasattr(message, "stock") and self._validate_symbol(message.stock):
+                self._append_message(message)
+
+    def flush(self) -> None:
+        """Flush all buffered messages to the file."""
+        self._write_messages(force=True)
+
+    def close(self) -> None:
+        """Close the writer and flush any remaining messages."""
+        self.flush()
 
     def __enter__(self):
         """Context manager entry."""
@@ -156,4 +220,4 @@ class ITCH41Writer:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
-        self.finalize()
+        self.close()
