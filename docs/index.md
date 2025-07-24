@@ -1,11 +1,13 @@
+![MeatPy Logo](images/meatpy.svg){width=200}
+
 # MeatPy
 
-MeatPy is a Python framework for processing financial market data, specifically designed for limit order book reconstruction and analysis. It provides efficient tools for handling high-frequency trading data formats like NASDAQ ITCH 5.0.
+MeatPy is a Python framework for processing financial market data, specifically designed for limit order book reconstruction and analysis. It provides efficient tools for handling high-frequency trading data formats like NASDAQ ITCH.
 
 ## Key Features
 
 - **Limit Order Book Processing**: Complete reconstruction and analysis of limit order books
-- **ITCH 5.0 Support**: Full implementation for NASDAQ ITCH 5.0 format
+- **ITCH Support**: Full implementation for NASDAQ ITCH 4.1 and 5.0 formats
 - **Event-Driven Architecture**: Extensible framework for real-time market data processing
 - **Type Safety**: Modern Python typing for robust financial data handling
 - **Multiple Output Formats**: Support for CSV, Parquet, and custom formats
