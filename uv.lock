@@ -1005,7 +1005,7 @@ wheels = [
 
 [[package]]
 name = "meatpy"
-version = "0.1.0"
+version = "0.2.5"
 source = { editable = "." }
 dependencies = [
     { name = "pyarrow" },
@@ -1034,7 +1034,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pyarrow", specifier = ">=20.0.0" },
+    { name = "pyarrow", specifier = ">=18.0.0" },
     { name = "pyarrow", marker = "extra == 'parquet'", specifier = ">=10.0.0" },
 ]
 provides-extras = ["parquet"]
