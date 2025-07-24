@@ -82,65 +82,65 @@ class ITCH41OrderEventRecorder(MarketEventHandler):
                 )
         if isinstance(message, AddOrderMessage):
             record = {
-                "orderRefNum": message.order_ref,
+                "order_ref": message.order_ref,
                 "bsindicator": message.side.decode(),
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "AddOrder",
             }
         elif isinstance(message, AddOrderMPIDMessage):
             record = {
-                "orderRefNum": message.order_ref,
+                "order_ref": message.order_ref,
                 "bsindicator": message.side.decode(),
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "AddOrderMPID",
             }
         elif isinstance(message, OrderExecutedMessage):
             record = {
-                "orderRefNum": message.order_ref,
+                "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderExecuted",
             }
         elif isinstance(message, OrderExecutedPriceMessage):
             record = {
-                "orderRefNum": message.order_ref,
+                "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderExecutedPrice",
             }
         elif isinstance(message, OrderCancelMessage):
             record = {
-                "orderRefNum": message.order_ref,
+                "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderCancel",
             }
         elif isinstance(message, OrderDeleteMessage):
             record = {
-                "orderRefNum": message.order_ref,
+                "order_ref": message.order_ref,
                 "bsindicator": price,
                 "shares": shares,
                 "price": price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderDelete",
             }
         elif isinstance(message, OrderReplaceMessage):
             record = {
-                "orderRefNum": message.original_ref,
+                "order_ref": message.original_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": message.new_ref,
+                "neworder_ref": message.new_ref,
                 "MessageType": "OrderReplace",
             }
         record["ask_price"] = ask_price

@@ -6,7 +6,7 @@ market messages to reconstruct the limit order book and handle trading status up
 
 import datetime
 
-from ..lob import LimitOrderBook, OrderNotFoundError, OrderType
+from ..lob import LimitOrderBook, OrderType
 from ..market_processor import MarketProcessor
 from ..message_reader import MarketMessage
 from ..timestamp import Timestamp
@@ -26,6 +26,7 @@ from .itch41_market_message import (
     OrderExecutedMessage,
     OrderExecutedPriceMessage,
     OrderReplaceMessage,
+    SecondsMessage,
     StockTradingActionMessage,
     SystemEventMessage,
 )
@@ -102,23 +103,33 @@ class ITCH41MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             book_date: The date for the limit order book
         """
         super().__init__(instrument, book_date)
+        self.current_second: int = 0
         self.system_status: bytes = b""
         self.stock_status: bytes = b""
         self.lob: LimitOrderBook[int, int, int, int, dict[str, str]] | None = None
 
-    def adjust_timestamp(self, raw_timestamp: int) -> Timestamp:
-        """Adjust the raw timestamp to a datetime object.
+    def adjust_timestamp(
+        self, current_second: int, message_timestamp: int
+    ) -> Timestamp:
+        """Adjust the raw timestamp to a datetime object for ITCH 4.1.
+
+        In ITCH 4.1, timestamps are assembled from:
+        - current_second: from the latest SecondsMessage
+        - message_timestamp: offset within that second (in nanoseconds)
 
         Args:
-            raw_timestamp: The raw timestamp in nanoseconds
+            current_second: The current second from SecondsMessage
+            message_timestamp: The message timestamp offset in nanoseconds
 
         Returns:
             A Timestamp object representing the adjusted time
         """
-        # Raw timestamp is in nanoseconds since midnight
+        # Combine second and nanosecond offset
+        total_nanoseconds = (current_second * 1_000_000_000) + message_timestamp
+
         return Timestamp.from_datetime(
-            self.book_date + datetime.timedelta(microseconds=raw_timestamp // 1000),
-            nanoseconds=raw_timestamp,
+            self.book_date + datetime.timedelta(microseconds=total_nanoseconds // 1000),
+            nanoseconds=total_nanoseconds,
         )
 
     def process_message(self, message: MarketMessage) -> None:
@@ -133,8 +144,18 @@ class ITCH41MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         if not isinstance(message, ITCH41MarketMessage):
             raise TypeError(f"Expected ITCH41MarketMessage, got {type(message)}")
 
-        # Update timestamp
-        self.current_timestamp = self.adjust_timestamp(message.timestamp)
+        # Handle SecondsMessage specially - it updates current_second
+        if isinstance(message, SecondsMessage):
+            self.current_second = message.seconds
+            # For SecondsMessage, timestamp is just the seconds converted to nanoseconds
+            self.current_timestamp = self.adjust_timestamp(message.seconds, 0)
+            self.message_event(self.current_timestamp, message)
+            return
+
+        # For all other messages, assemble timestamp from current_second and message timestamp
+        self.current_timestamp = self.adjust_timestamp(
+            self.current_second, message.timestamp
+        )
 
         # Process based on message type
         if isinstance(message, SystemEventMessage):
@@ -223,7 +244,7 @@ class ITCH41MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
             raise InvalidBuySellIndicatorError(f"Invalid side: {message.side}")
 
         # Add order to the book (MPID is ignored for book reconstruction)
-        self.lob.add_order(
+        self.lob.enter_quote(
             order_id=message.order_ref,
             order_type=order_type,
             price=message.price,
@@ -236,108 +257,79 @@ class ITCH41MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         if self.lob is None:
             raise MissingLOBError("Cannot execute order without LOB")
 
-        try:
-            # Find the order type to properly execute the trade
-            order_type = self.lob.find_order_type(message.order_ref)
-            self.lob.execute_trade(
-                timestamp=self.current_timestamp,
-                volume=message.shares,
-                order_id=message.order_ref,
-                order_type=order_type,
-            )
-        except OrderNotFoundError:
-            # Order not found - this can happen in normal operation
-            # if we started processing after the order was added
-            pass
+        # Find the order type to properly execute the trade
+        order_type = self.lob.find_order_type(message.order_ref)
+        self.lob.execute_trade(
+            timestamp=self.current_timestamp,
+            volume=message.shares,
+            order_id=message.order_ref,
+            order_type=order_type,
+        )
 
     def _process_order_executed_price(self, message: OrderExecutedPriceMessage) -> None:
         """Process an order executed with price message."""
         if self.lob is None:
             raise MissingLOBError("Cannot execute order without LOB")
 
-        try:
-            # Find the order type to properly execute the trade
-            order_type = self.lob.find_order_type(message.order_ref)
-            self.lob.execute_trade(
-                timestamp=self.current_timestamp,
-                volume=message.shares,
-                order_id=message.order_ref,
-                order_type=order_type,
-            )
-        except OrderNotFoundError:
-            # Order not found - this can happen in normal operation
-            # if we started processing after the order was added
-            pass
+        # Find the order type to properly execute the trade
+        order_type = self.lob.find_order_type(message.order_ref)
+        self.lob.execute_trade(
+            timestamp=self.current_timestamp,
+            volume=message.shares,
+            order_id=message.order_ref,
+            order_type=order_type,
+        )
 
     def _process_order_cancel(self, message: OrderCancelMessage) -> None:
         """Process an order cancel message."""
         if self.lob is None:
             raise MissingLOBError("Cannot cancel order without LOB")
 
-        try:
-            # Find the order type to properly cancel the quote
-            order_type = self.lob.find_order_type(message.order_ref)
-            self.lob.cancel_quote(
-                volume=message.shares,
-                order_id=message.order_ref,
-                order_type=order_type,
-            )
-        except OrderNotFoundError:
-            # Order not found - this can happen in normal operation
-            # if we started processing after the order was added
-            pass
+        # Find the order type to properly cancel the quote
+        order_type = self.lob.find_order_type(message.order_ref)
+        self.lob.cancel_quote(
+            volume=message.shares,
+            order_id=message.order_ref,
+            order_type=order_type,
+        )
 
     def _process_order_delete(self, message: OrderDeleteMessage) -> None:
         """Process an order delete message."""
         if self.lob is None:
             raise MissingLOBError("Cannot delete order without LOB")
 
-        try:
-            # Find the order type to properly delete the quote
-            order_type = self.lob.find_order_type(message.order_ref)
-            self.lob.delete_quote(
-                order_id=message.order_ref,
-                order_type=order_type,
-            )
-        except OrderNotFoundError:
-            # Order not found - this can happen in normal operation
-            # if we started processing after the order was added
-            pass
+        # Find the order type to properly delete the quote
+        order_type = self.lob.find_order_type(message.order_ref)
+        self.lob.delete_quote(
+            order_id=message.order_ref,
+            order_type=order_type,
+        )
 
     def _process_order_replace(self, message: OrderReplaceMessage) -> None:
         """Process an order replace message."""
         if self.lob is None:
             raise MissingLOBError("Cannot replace order without LOB")
 
-        try:
-            # Find the order type of the original order
-            order_type = self.lob.find_order_type(message.original_ref)
+        # Find the order type of the original order
+        order_type = self.lob.find_order_type(message.original_ref)
 
-            # Delete the original order
-            self.lob.delete_quote(message.original_ref, order_type)
+        # Delete the original order
+        self.lob.delete_quote(message.original_ref, order_type)
 
-            # Add the new order
-            self.lob.enter_quote(
-                timestamp=self.current_timestamp,
-                price=message.price,
-                volume=message.shares,
-                order_id=message.new_ref,
-                order_type=order_type,
-            )
-        except OrderNotFoundError:
-            # Order not found - this can happen in normal operation
-            # if we started processing after the order was added
-            pass
+        # Add the new order
+        self.lob.enter_quote(
+            timestamp=self.current_timestamp,
+            price=message.price,
+            volume=message.shares,
+            order_id=message.new_ref,
+            order_type=order_type,
+        )
 
     def _update_trading_status(self) -> None:
         """Update the trading status based on system and stock status."""
-        try:
-            new_status = self._determine_trading_status()
-            if new_status != self.trading_status:
-                self.trading_status = new_status
-        except InvalidTradingStatusError:
-            # Keep current status if we can't determine new one
-            pass
+        new_status = self._determine_trading_status()
+        if new_status != self.trading_status:
+            self.trading_status = new_status
 
     def _determine_trading_status(self) -> type:
         """Determine the trading status from system and stock status codes.

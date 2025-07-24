@@ -127,16 +127,6 @@ class ITCH41MarketMessage(MarketMessage):
         """Initialize an ITCH41MarketMessage."""
         self.timestamp: int = 0
 
-    def set_timestamp(self, ts1: int, ts2: int) -> None:
-        """Set the timestamp from two integers."""
-        self.timestamp = (ts1 << 32) | ts2
-
-    def split_timestamp(self) -> tuple[int, int]:
-        """Split the timestamp into two integers."""
-        ts1 = self.timestamp >> 32
-        ts2 = self.timestamp & 0xFFFFFFFF
-        return ts1, ts2
-
     @classmethod
     def from_bytes(cls, message_data: bytes) -> "ITCH41MarketMessage":
         """Create a message object from bytes data.
@@ -161,7 +151,7 @@ class ITCH41MarketMessage(MarketMessage):
             b"R": StockDirectoryMessage,
             b"H": StockTradingActionMessage,
             b"Y": RegSHOMessage,
-            # b"L": MarketParticipantPositionMessage,  # Temporarily disabled for debugging
+            b"L": MarketParticipantPositionMessage,
             b"A": AddOrderMessage,
             b"F": AddOrderMPIDMessage,
             b"E": OrderExecutedMessage,
@@ -172,6 +162,8 @@ class ITCH41MarketMessage(MarketMessage):
             b"P": TradeMessage,
             b"Q": CrossTradeMessage,
             b"B": BrokenTradeMessage,
+            b"I": NoiiMessage,
+            b"N": RpiiMessage,
         }
 
         message_class = message_classes.get(message_type)
@@ -249,7 +241,7 @@ class SecondsMessage(ITCH41MarketMessage):
         message = cls()
         (message.seconds,) = struct.unpack("!I", message_data[1:])
         # For seconds messages, set timestamp to seconds value in nanoseconds
-        message.timestamp = message.seconds * 1_000_000_000
+        message.timestamp = 0
         return message
 
     def to_bytes(self) -> bytes:
@@ -264,7 +256,7 @@ class SecondsMessage(ITCH41MarketMessage):
         """Create a SecondsMessage from JSON data."""
         message = cls()
         message.seconds = data.get("seconds", 0)
-        message.timestamp = message.seconds * 1_000_000_000
+        message.timestamp = 0
         return message
 
 
@@ -283,17 +275,16 @@ class SystemEventMessage(ITCH41MarketMessage):
         """Create a SystemEventMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.event_code,
         ) = struct.unpack("!Ic", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIc",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.event_code,
         )
 
@@ -342,21 +333,20 @@ class StockDirectoryMessage(ITCH41MarketMessage):
         """Create a StockDirectoryMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.stock,
             message.category,
             message.status,
             message.lotsize,
             message.lotsonly,
         ) = struct.unpack("!I8sccIc", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cI8sccIc",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.stock,
             self.category,
             self.status,
@@ -431,20 +421,19 @@ class StockTradingActionMessage(ITCH41MarketMessage):
         """Create a StockTradingActionMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.stock,
             message.state,
             message.reserved,
             message.reason,
         ) = struct.unpack("!I8scc4s", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cI8scc4s",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.stock,
             self.state,
             self.reserved,
@@ -506,18 +495,17 @@ class RegSHOMessage(ITCH41MarketMessage):
         """Create a RegSHOMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.stock,
             message.action,
         ) = struct.unpack("!I8sc", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cI8sc",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.stock,
             self.action,
         )
@@ -572,21 +560,20 @@ class MarketParticipantPositionMessage(ITCH41MarketMessage):
         """Create a MarketParticipantPositionMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.mpid,
             message.stock,
             message.primary,
             message.mode,
             message.state,
         ) = struct.unpack("!I4s8sccc", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cI4s8sccc",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.mpid,
             self.stock,
             self.primary,
@@ -664,21 +651,20 @@ class AddOrderMessage(ITCH41MarketMessage):
         """Create an AddOrderMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
             message.side,
             message.shares,
             message.stock,
             message.price,
         ) = struct.unpack("!IQcI8sI", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQcI8sI",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
             self.side,
             self.shares,
@@ -741,7 +727,7 @@ class AddOrderMPIDMessage(ITCH41MarketMessage):
         """Create an AddOrderMPIDMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
             message.side,
             message.shares,
@@ -749,14 +735,13 @@ class AddOrderMPIDMessage(ITCH41MarketMessage):
             message.price,
             message.mpid,
         ) = struct.unpack("!IQcI8sI4s", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQcI8sI4s",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
             self.side,
             self.shares,
@@ -824,19 +809,18 @@ class OrderExecutedMessage(ITCH41MarketMessage):
         """Create an OrderExecutedMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
             message.shares,
             message.match_num,
         ) = struct.unpack("!IQIQ", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQIQ",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
             self.shares,
             self.match_num,
@@ -882,21 +866,20 @@ class OrderExecutedPriceMessage(ITCH41MarketMessage):
         """Create an OrderExecutedPriceMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
             message.shares,
             message.match_num,
             message.printable,
             message.price,
         ) = struct.unpack("!IQIQcI", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQIQcI",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
             self.shares,
             self.match_num,
@@ -950,18 +933,17 @@ class OrderCancelMessage(ITCH41MarketMessage):
         """Create an OrderCancelMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
             message.shares,
         ) = struct.unpack("!IQI", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQI",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
             self.shares,
         )
@@ -1000,17 +982,16 @@ class OrderDeleteMessage(ITCH41MarketMessage):
         """Create an OrderDeleteMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
         ) = struct.unpack("!IQ", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQ",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
         )
 
@@ -1049,20 +1030,19 @@ class OrderReplaceMessage(ITCH41MarketMessage):
         """Create an OrderReplaceMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.original_ref,
             message.new_ref,
             message.shares,
             message.price,
         ) = struct.unpack("!IQQII", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQQII",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.original_ref,
             self.new_ref,
             self.shares,
@@ -1112,7 +1092,7 @@ class TradeMessage(ITCH41MarketMessage):
         """Create a TradeMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.order_ref,
             message.side,
             message.shares,
@@ -1120,14 +1100,13 @@ class TradeMessage(ITCH41MarketMessage):
             message.price,
             message.match_num,
         ) = struct.unpack("!IQcI8sIQ", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQcI8sIQ",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.order_ref,
             self.side,
             self.shares,
@@ -1192,21 +1171,20 @@ class CrossTradeMessage(ITCH41MarketMessage):
         """Create a CrossTradeMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.shares,
             message.stock,
             message.price,
             message.match_num,
             message.cross_type,
         ) = struct.unpack("!IQ8sIQc", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQ8sIQc",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.shares,
             self.stock,
             self.price,
@@ -1268,17 +1246,16 @@ class BrokenTradeMessage(ITCH41MarketMessage):
         """Create a BrokenTradeMessage from bytes data."""
         message = cls()
         (
-            timestamp,
+            message.timestamp,
             message.match_num,
         ) = struct.unpack("!IQ", message_data[1:])
-        message.timestamp = timestamp * 1_000_000_000  # Convert to nanoseconds
         return message
 
     def to_bytes(self) -> bytes:
         return struct.pack(
             "!cIQ",
             self.type,
-            self.timestamp // 1_000_000_000,  # Convert to seconds
+            self.timestamp,
             self.match_num,
         )
 
@@ -1297,3 +1274,188 @@ class BrokenTradeMessage(ITCH41MarketMessage):
         message.timestamp = data.get("timestamp", 0)
         message.match_num = data.get("match_num", 0)
         return message
+
+
+class NoiiMessage(ITCH41MarketMessage):
+    type = b"I"
+    description = "NOII Message"
+    message_size = struct.calcsize("!IQQc8sIIIcc") + 1
+
+    def __init__(self) -> None:
+        """Initialize a NoiiMessage."""
+        super().__init__()
+        self.paired_shares: int = 0
+        self.imbalance: int = 0
+        self.imbalance_direction: bytes = b""
+        self.stock: bytes = b""
+        self.far_price: int = 0
+        self.near_price: int = 0
+        self.current_ref_price: int = 0
+        self.cross_type: bytes = b""
+        self.price_variation_indicator: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "NoiiMessage":
+        """Create a NoiiMessage from bytes data."""
+        message = cls()
+        (
+            message.timestamp,
+            message.paired_shares,
+            message.imbalance,
+            message.imbalance_direction,
+            message.stock,
+            message.far_price,
+            message.near_price,
+            message.current_ref_price,
+            message.cross_type,
+            message.price_variation_indicator,
+        ) = struct.unpack("!IQQc8sIIIcc", message_data[1:])
+        return message
+
+    def to_bytes(self) -> bytes:
+        return struct.pack(
+            "!cIQQc8sIIIcc",
+            self.type,
+            self.timestamp,
+            self.paired_shares,
+            self.imbalance,
+            self.imbalance_direction,
+            self.stock,
+            self.far_price,
+            self.near_price,
+            self.current_ref_price,
+            self.cross_type,
+            self.price_variation_indicator,
+        )
+
+    def _add_json_fields(self, data: dict) -> None:
+        """Add NoiiMessage-specific fields to JSON data."""
+        data.update(
+            {
+                "paired_shares": self.paired_shares,
+                "imbalance": self.imbalance,
+                "imbalance_direction": self.imbalance_direction.decode()
+                if isinstance(self.imbalance_direction, bytes)
+                else self.imbalance_direction,
+                "stock": self.stock.decode().rstrip()
+                if isinstance(self.stock, bytes)
+                else self.stock,
+                "far_price": self.far_price,
+                "near_price": self.near_price,
+                "current_ref_price": self.current_ref_price,
+                "cross_type": self.cross_type.decode()
+                if isinstance(self.cross_type, bytes)
+                else self.cross_type,
+                "price_variation_indicator": self.price_variation_indicator.decode()
+                if isinstance(self.price_variation_indicator, bytes)
+                else self.price_variation_indicator,
+            }
+        )
+
+    @classmethod
+    def _from_json_data(cls, data: dict) -> "NoiiMessage":
+        """Create a NoiiMessage from JSON data."""
+        message = cls()
+        message.timestamp = data.get("timestamp", 0)
+        message.paired_shares = data.get("paired_shares", 0)
+        message.imbalance = data.get("imbalance", 0)
+        message.far_price = data.get("far_price", 0)
+        message.near_price = data.get("near_price", 0)
+        message.current_ref_price = data.get("current_ref_price", 0)
+
+        stock = data.get("stock", "")
+        if isinstance(stock, str):
+            stock = stock.ljust(8).encode()
+        message.stock = stock
+
+        for field_name in [
+            "imbalance_direction",
+            "cross_type",
+            "price_variation_indicator",
+        ]:
+            value = data.get(field_name, " ")
+            if isinstance(value, str):
+                value = value.encode()
+            setattr(message, field_name, value)
+        return message
+
+    def validate(self) -> bool:
+        """Validate all codes in this NoiiMessage."""
+        return self.validate_code(
+            self.cross_type, self.crossTradeTypes
+        ) and self.validate_code(
+            self.price_variation_indicator, self.price_variation_indicator
+        )
+
+
+class RpiiMessage(ITCH41MarketMessage):
+    type = b"N"
+    description = "Retail Price Improvement Message"
+    message_size = struct.calcsize("!I8sc") + 1
+
+    interest_indicators = {
+        b"B": "RPI orders avail on buy side",
+        b"S": "RPI orders avail on sell side",
+        b"A": "RPI orders avail on both sides",
+        b"N": "No RPI orders avail",
+    }
+
+    def __init__(self) -> None:
+        """Initialize a RpiiMessage."""
+        super().__init__()
+        self.stock: bytes = b""
+        self.interest: bytes = b""
+
+    @classmethod
+    def _from_bytes_data(cls, message_data: bytes) -> "RpiiMessage":
+        """Create a RpiiMessage from bytes data."""
+        message = cls()
+        (
+            message.timestamp,
+            message.stock,
+            message.interest,
+        ) = struct.unpack("!I8sc", message_data[1:])
+        return message
+
+    def to_bytes(self) -> bytes:
+        return struct.pack(
+            "!cI8sc",
+            self.type,
+            self.timestamp,
+            self.stock,
+            self.interest,
+        )
+
+    def _add_json_fields(self, data: dict) -> None:
+        """Add RpiiMessage-specific fields to JSON data."""
+        data.update(
+            {
+                "stock": self.stock.decode().rstrip()
+                if isinstance(self.stock, bytes)
+                else self.stock,
+                "interest": self.interest.decode()
+                if isinstance(self.interest, bytes)
+                else self.interest,
+            }
+        )
+
+    @classmethod
+    def _from_json_data(cls, data: dict) -> "RpiiMessage":
+        """Create a RpiiMessage from JSON data."""
+        message = cls()
+        message.timestamp = data.get("timestamp", 0)
+
+        stock = data.get("stock", "")
+        if isinstance(stock, str):
+            stock = stock.ljust(8).encode()
+        message.stock = stock
+
+        interest = data.get("interest", " ")
+        if isinstance(interest, str):
+            interest = interest.encode()
+        message.interest = interest
+        return message
+
+    def validate(self) -> bool:
+        """Validate all codes in this RpiiMessage."""
+        return self.validate_code(self.interest, self.interest_indicators)
