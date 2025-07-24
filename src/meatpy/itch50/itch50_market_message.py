@@ -235,7 +235,7 @@ class ITCH50MarketMessage(MarketMessage):
     @classmethod
     def validate_cross_type(cls, code: bytes) -> bool:
         """Validate a cross type code."""
-        return cls.validate_code(code, cls.crossTypeDescriptions)
+        return cls.validate_code(code, cls.cross_typeDescriptions)
 
     def validate(self) -> bool:
         """Validate all codes in this message.
@@ -930,7 +930,7 @@ class AddOrderMessage(ITCH50MarketMessage):
     def __init__(self) -> None:
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
+        self.order_ref: int = 0
         self.bsindicator: bytes = b""
         self.shares: int = 0
         self.stock: bytes = b""
@@ -944,7 +944,7 @@ class AddOrderMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
+            message.order_ref,
             message.bsindicator,
             message.shares,
             message.stock,
@@ -962,7 +962,7 @@ class AddOrderMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
+            self.order_ref,
             self.bsindicator,
             self.shares,
             self.stock,
@@ -975,7 +975,7 @@ class AddOrderMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
+                "orderRefNum": self.order_ref,
                 "bsindicator": self.bsindicator.decode()
                 if isinstance(self.bsindicator, bytes)
                 else self.bsindicator,
@@ -993,7 +993,7 @@ class AddOrderMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
+        message.order_ref = data.get("orderRefNum", 0)
         message.shares = data.get("shares", 0)
         message.price = data.get("price", 0)
         bsindicator = data.get("bsindicator", " ")
@@ -1016,7 +1016,7 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
         """Initialize an AddOrderMPIDMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
+        self.order_ref: int = 0
         self.bsindicator: bytes = b""
         self.shares: int = 0
         self.stock: bytes = b""
@@ -1032,7 +1032,7 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
+            message.order_ref,
             message.bsindicator,
             message.shares,
             message.stock,
@@ -1051,7 +1051,7 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
+            self.order_ref,
             self.bsindicator,
             self.shares,
             self.stock,
@@ -1065,7 +1065,7 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
+                "orderRefNum": self.order_ref,
                 "bsindicator": self.bsindicator.decode()
                 if isinstance(self.bsindicator, bytes)
                 else self.bsindicator,
@@ -1089,7 +1089,7 @@ class AddOrderMPIDMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
+        message.order_ref = data.get("orderRefNum", 0)
         message.shares = data.get("shares", 0)
         message.price = data.get("price", 0)
 
@@ -1121,9 +1121,9 @@ class OrderExecutedMessage(ITCH50MarketMessage):
         """Initialize an OrderExecutedMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
-        self.executedShares: int = 0
-        self.matchNumber: int = 0
+        self.order_ref: int = 0
+        self.shares: int = 0
+        self.match: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "OrderExecutedMessage":
@@ -1134,9 +1134,9 @@ class OrderExecutedMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
-            message.executedShares,
-            message.matchNumber,
+            message.order_ref,
+            message.shares,
+            message.match,
         ) = struct.unpack("!HHHIQIQ", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1150,9 +1150,9 @@ class OrderExecutedMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.executedShares,
-            self.matchNumber,
+            self.order_ref,
+            self.shares,
+            self.match,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1161,9 +1161,9 @@ class OrderExecutedMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
-                "executedShares": self.executedShares,
-                "matchNumber": self.matchNumber,
+                "orderRefNum": self.order_ref,
+                "executedShares": self.shares,
+                "matchNumber": self.match,
             }
         )
 
@@ -1176,9 +1176,9 @@ class OrderExecutedMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
-        message.executedShares = data.get("executedShares", 0)
-        message.matchNumber = data.get("matchNumber", 0)
+        message.order_ref = data.get("orderRefNum", 0)
+        message.shares = data.get("executedShares", 0)
+        message.match = data.get("matchNumber", 0)
 
         return message
 
@@ -1192,11 +1192,11 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
         """Initialize an OrderExecutedPriceMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
-        self.executedShares: int = 0
-        self.matchNumber: int = 0
+        self.order_ref: int = 0
+        self.shares: int = 0
+        self.match: int = 0
         self.printable: bytes = b""
-        self.executionPrice: int = 0
+        self.execution_price: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "OrderExecutedPriceMessage":
@@ -1207,11 +1207,11 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
-            message.executedShares,
-            message.matchNumber,
+            message.order_ref,
+            message.shares,
+            message.match,
             message.printable,
-            message.executionPrice,
+            message.execution_price,
         ) = struct.unpack("!HHHIQIQcI", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1225,11 +1225,11 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.executedShares,
-            self.matchNumber,
+            self.order_ref,
+            self.shares,
+            self.match,
             self.printable,
-            self.executionPrice,
+            self.execution_price,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1238,13 +1238,13 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
-                "executedShares": self.executedShares,
-                "matchNumber": self.matchNumber,
+                "orderRefNum": self.order_ref,
+                "executedShares": self.shares,
+                "matchNumber": self.match,
                 "printable": self.printable.decode()
                 if isinstance(self.printable, bytes)
                 else self.printable,
-                "executionPrice": self.executionPrice,
+                "executionPrice": self.execution_price,
             }
         )
 
@@ -1257,10 +1257,10 @@ class OrderExecutedPriceMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
-        message.executedShares = data.get("executedShares", 0)
-        message.matchNumber = data.get("matchNumber", 0)
-        message.executionPrice = data.get("executionPrice", 0)
+        message.order_ref = data.get("orderRefNum", 0)
+        message.shares = data.get("executedShares", 0)
+        message.match = data.get("matchNumber", 0)
+        message.execution_price = data.get("executionPrice", 0)
 
         printable = data.get("printable", " ")
         if isinstance(printable, str):
@@ -1279,8 +1279,8 @@ class OrderCancelMessage(ITCH50MarketMessage):
         """Initialize an OrderCancelMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
-        self.canceledShares: int = 0
+        self.order_ref: int = 0
+        self.canceled_shares: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "OrderCancelMessage":
@@ -1291,8 +1291,8 @@ class OrderCancelMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
-            message.canceledShares,
+            message.order_ref,
+            message.canceled_shares,
         ) = struct.unpack("!HHHIQI", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1306,8 +1306,8 @@ class OrderCancelMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
-            self.canceledShares,
+            self.order_ref,
+            self.canceled_shares,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1316,8 +1316,8 @@ class OrderCancelMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
-                "canceledShares": self.canceledShares,
+                "orderRefNum": self.order_ref,
+                "canceledShares": self.canceled_shares,
             }
         )
 
@@ -1330,8 +1330,8 @@ class OrderCancelMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
-        message.canceledShares = data.get("canceledShares", 0)
+        message.order_ref = data.get("orderRefNum", 0)
+        message.canceled_shares = data.get("canceledShares", 0)
 
         return message
 
@@ -1345,7 +1345,7 @@ class OrderDeleteMessage(ITCH50MarketMessage):
         """Initialize an OrderDeleteMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
+        self.order_ref: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "OrderDeleteMessage":
@@ -1356,7 +1356,7 @@ class OrderDeleteMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
+            message.order_ref,
         ) = struct.unpack("!HHHIQ", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1370,7 +1370,7 @@ class OrderDeleteMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
+            self.order_ref,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1379,7 +1379,7 @@ class OrderDeleteMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
+                "orderRefNum": self.order_ref,
             }
         )
 
@@ -1392,7 +1392,7 @@ class OrderDeleteMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
+        message.order_ref = data.get("orderRefNum", 0)
 
         return message
 
@@ -1405,8 +1405,8 @@ class OrderReplaceMessage(ITCH50MarketMessage):
     def __init__(self) -> None:
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.originalOrderRefNum: int = 0
-        self.newOrderRefNum: int = 0
+        self.original_ref: int = 0
+        self.new_ref: int = 0
         self.shares: int = 0
         self.price: int = 0
 
@@ -1418,8 +1418,8 @@ class OrderReplaceMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.originalOrderRefNum,
-            message.newOrderRefNum,
+            message.original_ref,
+            message.new_ref,
             message.shares,
             message.price,
         ) = struct.unpack("!HHHIQQII", message_data[1:])
@@ -1435,8 +1435,8 @@ class OrderReplaceMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.originalOrderRefNum,
-            self.newOrderRefNum,
+            self.original_ref,
+            self.new_ref,
             self.shares,
             self.price,
         )
@@ -1447,8 +1447,8 @@ class OrderReplaceMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "originalOrderRefNum": self.originalOrderRefNum,
-                "newOrderRefNum": self.newOrderRefNum,
+                "originalOrderRefNum": self.original_ref,
+                "newOrderRefNum": self.new_ref,
                 "shares": self.shares,
                 "price": self.price,
             }
@@ -1463,8 +1463,8 @@ class OrderReplaceMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.originalOrderRefNum = data.get("originalOrderRefNum", 0)
-        message.newOrderRefNum = data.get("newOrderRefNum", 0)
+        message.original_ref = data.get("originalOrderRefNum", 0)
+        message.new_ref = data.get("newOrderRefNum", 0)
         message.shares = data.get("shares", 0)
         message.price = data.get("price", 0)
 
@@ -1479,12 +1479,12 @@ class TradeMessage(ITCH50MarketMessage):
     def __init__(self) -> None:
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.orderRefNum: int = 0
+        self.order_ref: int = 0
         self.bsindicator: bytes = b""
         self.shares: int = 0
         self.stock: bytes = b""
         self.price: int = 0
-        self.matchNumber: int = 0
+        self.match: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "TradeMessage":
@@ -1494,12 +1494,12 @@ class TradeMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.orderRefNum,
+            message.order_ref,
             message.bsindicator,
             message.shares,
             message.stock,
             message.price,
-            message.matchNumber,
+            message.match,
         ) = struct.unpack("!HHHIQcI8sIQ", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1513,12 +1513,12 @@ class TradeMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.orderRefNum,
+            self.order_ref,
             self.bsindicator,
             self.shares,
             self.stock,
             self.price,
-            self.matchNumber,
+            self.match,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1527,7 +1527,7 @@ class TradeMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "orderRefNum": self.orderRefNum,
+                "orderRefNum": self.order_ref,
                 "bsindicator": self.bsindicator.decode()
                 if isinstance(self.bsindicator, bytes)
                 else self.bsindicator,
@@ -1536,7 +1536,7 @@ class TradeMessage(ITCH50MarketMessage):
                 if isinstance(self.stock, bytes)
                 else self.stock,
                 "price": self.price,
-                "matchNumber": self.matchNumber,
+                "matchNumber": self.match,
             }
         )
 
@@ -1546,10 +1546,10 @@ class TradeMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.orderRefNum = data.get("orderRefNum", 0)
+        message.order_ref = data.get("orderRefNum", 0)
         message.shares = data.get("shares", 0)
         message.price = data.get("price", 0)
-        message.matchNumber = data.get("matchNumber", 0)
+        message.match = data.get("matchNumber", 0)
         bsindicator = data.get("bsindicator", " ")
         if isinstance(bsindicator, str):
             bsindicator = bsindicator.encode()
@@ -1572,9 +1572,9 @@ class CrossTradeMessage(ITCH50MarketMessage):
         self.tracking_number: int = 0
         self.shares: int = 0
         self.stock: bytes = b""
-        self.crossPrice: int = 0
-        self.matchNumber: int = 0
-        self.crossType: bytes = b""
+        self.cross_price: int = 0
+        self.match: int = 0
+        self.cross_type: bytes = b""
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "CrossTradeMessage":
@@ -1587,9 +1587,9 @@ class CrossTradeMessage(ITCH50MarketMessage):
             ts2,
             message.shares,
             message.stock,
-            message.crossPrice,
-            message.matchNumber,
-            message.crossType,
+            message.cross_price,
+            message.match,
+            message.cross_type,
         ) = struct.unpack("!HHHIQ8sIQc", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1605,9 +1605,9 @@ class CrossTradeMessage(ITCH50MarketMessage):
             ts2,
             self.shares,
             self.stock,
-            self.crossPrice,
-            self.matchNumber,
-            self.crossType,
+            self.cross_price,
+            self.match,
+            self.cross_type,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1620,11 +1620,11 @@ class CrossTradeMessage(ITCH50MarketMessage):
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "crossPrice": self.crossPrice,
-                "matchNumber": self.matchNumber,
-                "crossType": self.crossType.decode()
-                if isinstance(self.crossType, bytes)
-                else self.crossType,
+                "crossPrice": self.cross_price,
+                "matchNumber": self.match,
+                "crossType": self.cross_type.decode()
+                if isinstance(self.cross_type, bytes)
+                else self.cross_type,
             }
         )
 
@@ -1638,8 +1638,8 @@ class CrossTradeMessage(ITCH50MarketMessage):
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
         message.shares = data.get("shares", 0)
-        message.crossPrice = data.get("crossPrice", 0)
-        message.matchNumber = data.get("matchNumber", 0)
+        message.cross_price = data.get("crossPrice", 0)
+        message.match = data.get("matchNumber", 0)
 
         # Handle string fields
         stock = data.get("stock", "")
@@ -1650,13 +1650,13 @@ class CrossTradeMessage(ITCH50MarketMessage):
         crossType = data.get("crossType", " ")
         if isinstance(crossType, str):
             crossType = crossType.encode()
-        message.crossType = crossType
+        message.cross_type = crossType
 
         return message
 
     def validate(self) -> bool:
         """Validate all codes in this CrossTradeMessage."""
-        return self.validate_cross_type(self.crossType)
+        return self.validate_cross_type(self.cross_type)
 
 
 class BrokenTradeMessage(ITCH50MarketMessage):
@@ -1667,7 +1667,7 @@ class BrokenTradeMessage(ITCH50MarketMessage):
     def __init__(self) -> None:
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.matchNumber: int = 0
+        self.match: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "BrokenTradeMessage":
@@ -1677,7 +1677,7 @@ class BrokenTradeMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.matchNumber,
+            message.match,
         ) = struct.unpack("!HHHIQ", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1691,7 +1691,7 @@ class BrokenTradeMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.matchNumber,
+            self.match,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1700,7 +1700,7 @@ class BrokenTradeMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "matchNumber": self.matchNumber,
+                "matchNumber": self.match,
             }
         )
 
@@ -1713,7 +1713,7 @@ class BrokenTradeMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.matchNumber = data.get("matchNumber", 0)
+        message.match = data.get("matchNumber", 0)
 
         return message
 
@@ -1727,15 +1727,15 @@ class NoiiMessage(ITCH50MarketMessage):
         """Initialize a NoiiMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.pairedShares: int = 0
-        self.imbalanceShares: int = 0
-        self.imbalanceDirection: bytes = b""
+        self.paired_shares: int = 0
+        self.imbalance_shares: int = 0
+        self.imbalance_direction: bytes = b""
         self.stock: bytes = b""
-        self.farPrice: int = 0
-        self.nearPrice: int = 0
-        self.currentReferencePrice: int = 0
-        self.crossType: bytes = b""
-        self.priceVariationIndicator: bytes = b""
+        self.far_price: int = 0
+        self.near_price: int = 0
+        self.current_ref_price: int = 0
+        self.cross_type: bytes = b""
+        self.price_variation_indicator: bytes = b""
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "NoiiMessage":
@@ -1746,15 +1746,15 @@ class NoiiMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.pairedShares,
-            message.imbalanceShares,
-            message.imbalanceDirection,
+            message.paired_shares,
+            message.imbalance_shares,
+            message.imbalance_direction,
             message.stock,
-            message.farPrice,
-            message.nearPrice,
-            message.currentReferencePrice,
-            message.crossType,
-            message.priceVariationIndicator,
+            message.far_price,
+            message.near_price,
+            message.current_ref_price,
+            message.cross_type,
+            message.price_variation_indicator,
         ) = struct.unpack("!HHHIQQc8sIIIcc", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -1768,15 +1768,15 @@ class NoiiMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.pairedShares,
-            self.imbalanceShares,
-            self.imbalanceDirection,
+            self.paired_shares,
+            self.imbalance_shares,
+            self.imbalance_direction,
             self.stock,
-            self.farPrice,
-            self.nearPrice,
-            self.currentReferencePrice,
-            self.crossType,
-            self.priceVariationIndicator,
+            self.far_price,
+            self.near_price,
+            self.current_ref_price,
+            self.cross_type,
+            self.price_variation_indicator,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -1785,23 +1785,23 @@ class NoiiMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "pairedShares": self.pairedShares,
-                "imbalanceShares": self.imbalanceShares,
-                "imbalanceDirection": self.imbalanceDirection.decode()
-                if isinstance(self.imbalanceDirection, bytes)
-                else self.imbalanceDirection,
+                "pairedShares": self.paired_shares,
+                "imbalanceShares": self.imbalance_shares,
+                "imbalanceDirection": self.imbalance_direction.decode()
+                if isinstance(self.imbalance_direction, bytes)
+                else self.imbalance_direction,
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "farPrice": self.farPrice,
-                "nearPrice": self.nearPrice,
-                "currentReferencePrice": self.currentReferencePrice,
-                "crossType": self.crossType.decode()
-                if isinstance(self.crossType, bytes)
-                else self.crossType,
-                "priceVariationIndicator": self.priceVariationIndicator.decode()
-                if isinstance(self.priceVariationIndicator, bytes)
-                else self.priceVariationIndicator,
+                "farPrice": self.far_price,
+                "nearPrice": self.near_price,
+                "currentReferencePrice": self.current_ref_price,
+                "crossType": self.cross_type.decode()
+                if isinstance(self.cross_type, bytes)
+                else self.cross_type,
+                "priceVariationIndicator": self.price_variation_indicator.decode()
+                if isinstance(self.price_variation_indicator, bytes)
+                else self.price_variation_indicator,
             }
         )
 
@@ -1814,11 +1814,11 @@ class NoiiMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.pairedShares = data.get("pairedShares", 0)
-        message.imbalanceShares = data.get("imbalanceShares", 0)
-        message.farPrice = data.get("farPrice", 0)
-        message.nearPrice = data.get("nearPrice", 0)
-        message.currentReferencePrice = data.get("currentReferencePrice", 0)
+        message.paired_shares = data.get("pairedShares", 0)
+        message.imbalance_shares = data.get("imbalanceShares", 0)
+        message.far_price = data.get("farPrice", 0)
+        message.near_price = data.get("nearPrice", 0)
+        message.current_ref_price = data.get("currentReferencePrice", 0)
 
         # Handle string fields
         for field_name in [
@@ -1840,7 +1840,7 @@ class NoiiMessage(ITCH50MarketMessage):
 
     def validate(self) -> bool:
         """Validate all codes in this NoiiMessage."""
-        return self.validate_cross_type(self.crossType)
+        return self.validate_cross_type(self.cross_type)
 
 
 class RpiiMessage(ITCH50MarketMessage):
@@ -2005,7 +2005,7 @@ class MWCBBreachMessage(ITCH50MarketMessage):
         """Initialize a MWCBBreachMessage."""
         self.stock_locate: int = 0
         self.tracking_number: int = 0
-        self.breachedLevel: bytes = b""
+        self.breached_level: bytes = b""
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "MWCBBreachMessage":
@@ -2016,7 +2016,7 @@ class MWCBBreachMessage(ITCH50MarketMessage):
             message.tracking_number,
             ts1,
             ts2,
-            message.breachedLevel,
+            message.breached_level,
         ) = struct.unpack("!HHHIc", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -2030,7 +2030,7 @@ class MWCBBreachMessage(ITCH50MarketMessage):
             self.tracking_number,
             ts1,
             ts2,
-            self.breachedLevel,
+            self.breached_level,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -2039,9 +2039,9 @@ class MWCBBreachMessage(ITCH50MarketMessage):
             {
                 "stock_locate": self.stock_locate,
                 "tracking_number": self.tracking_number,
-                "breachedLevel": self.breachedLevel.decode()
-                if isinstance(self.breachedLevel, bytes)
-                else self.breachedLevel,
+                "breachedLevel": self.breached_level.decode()
+                if isinstance(self.breached_level, bytes)
+                else self.breached_level,
             }
         )
 
@@ -2058,7 +2058,7 @@ class MWCBBreachMessage(ITCH50MarketMessage):
         breachedLevel = data.get("breachedLevel", " ")
         if isinstance(breachedLevel, str):
             breachedLevel = breachedLevel.encode()
-        message.breachedLevel = breachedLevel
+        message.breached_level = breachedLevel
 
         return message
 
@@ -2073,9 +2073,9 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
         self.stock_locate: int = 0
         self.tracking_number: int = 0
         self.stock: bytes = b""
-        self.ipoQuotationReleaseTime: int = 0
-        self.ipoQuotationReleaseQualifier: bytes = b""
-        self.ipoPrice: int = 0
+        self.ipo_quotation_release_time: int = 0
+        self.ipo_quotation_release_qualifier: bytes = b""
+        self.ipo_price: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "IPOQuotingPeriodUpdateMessage":
@@ -2087,9 +2087,9 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             message.stock,
-            message.ipoQuotationReleaseTime,
-            message.ipoQuotationReleaseQualifier,
-            message.ipoPrice,
+            message.ipo_quotation_release_time,
+            message.ipo_quotation_release_qualifier,
+            message.ipo_price,
         ) = struct.unpack("!HHHI8sIcI", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -2104,9 +2104,9 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             self.stock,
-            self.ipoQuotationReleaseTime,
-            self.ipoQuotationReleaseQualifier,
-            self.ipoPrice,
+            self.ipo_quotation_release_time,
+            self.ipo_quotation_release_qualifier,
+            self.ipo_price,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -2118,11 +2118,11 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "ipoQuotationReleaseTime": self.ipoQuotationReleaseTime,
-                "ipoQuotationReleaseQualifier": self.ipoQuotationReleaseQualifier.decode()
-                if isinstance(self.ipoQuotationReleaseQualifier, bytes)
-                else self.ipoQuotationReleaseQualifier,
-                "ipoPrice": self.ipoPrice,
+                "ipoQuotationReleaseTime": self.ipo_quotation_release_time,
+                "ipoQuotationReleaseQualifier": self.ipo_quotation_release_qualifier.decode()
+                if isinstance(self.ipo_quotation_release_qualifier, bytes)
+                else self.ipo_quotation_release_qualifier,
+                "ipoPrice": self.ipo_price,
             }
         )
 
@@ -2135,8 +2135,8 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.ipoQuotationReleaseTime = data.get("ipoQuotationReleaseTime", 0)
-        message.ipoPrice = data.get("ipoPrice", 0)
+        message.ipo_quotation_release_time = data.get("ipoQuotationReleaseTime", 0)
+        message.ipo_price = data.get("ipoPrice", 0)
 
         stock = data.get("stock", "")
         if isinstance(stock, str):
@@ -2146,7 +2146,7 @@ class IPOQuotingPeriodUpdateMessage(ITCH50MarketMessage):
         ipoQuotationReleaseQualifier = data.get("ipoQuotationReleaseQualifier", " ")
         if isinstance(ipoQuotationReleaseQualifier, str):
             ipoQuotationReleaseQualifier = ipoQuotationReleaseQualifier.encode()
-        message.ipoQuotationReleaseQualifier = ipoQuotationReleaseQualifier
+        message.ipo_quotation_release_qualifier = ipoQuotationReleaseQualifier
 
         return message
 
@@ -2161,10 +2161,10 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
         self.stock_locate: int = 0
         self.tracking_number: int = 0
         self.stock: bytes = b""
-        self.auctionCollarReferencePrice: int = 0
-        self.upperAuctionCollarPrice: int = 0
-        self.lowerAuctionCollarPrice: int = 0
-        self.auctionCollarExtension: int = 0
+        self.auction_collar_ref_price: int = 0
+        self.upper_auction_collar_price: int = 0
+        self.lower_auction_collar_price: int = 0
+        self.auction_collar_extension: int = 0
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "LULDAuctionCollarMessage":
@@ -2176,10 +2176,10 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             message.stock,
-            message.auctionCollarReferencePrice,
-            message.upperAuctionCollarPrice,
-            message.lowerAuctionCollarPrice,
-            message.auctionCollarExtension,
+            message.auction_collar_ref_price,
+            message.upper_auction_collar_price,
+            message.lower_auction_collar_price,
+            message.auction_collar_extension,
         ) = struct.unpack("!HHHI8sIIII", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -2194,10 +2194,10 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             self.stock,
-            self.auctionCollarReferencePrice,
-            self.upperAuctionCollarPrice,
-            self.lowerAuctionCollarPrice,
-            self.auctionCollarExtension,
+            self.auction_collar_ref_price,
+            self.upper_auction_collar_price,
+            self.lower_auction_collar_price,
+            self.auction_collar_extension,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -2209,10 +2209,10 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "auctionCollarReferencePrice": self.auctionCollarReferencePrice,
-                "upperAuctionCollarPrice": self.upperAuctionCollarPrice,
-                "lowerAuctionCollarPrice": self.lowerAuctionCollarPrice,
-                "auctionCollarExtension": self.auctionCollarExtension,
+                "auctionCollarReferencePrice": self.auction_collar_ref_price,
+                "upperAuctionCollarPrice": self.upper_auction_collar_price,
+                "lowerAuctionCollarPrice": self.lower_auction_collar_price,
+                "auctionCollarExtension": self.auction_collar_extension,
             }
         )
 
@@ -2225,10 +2225,10 @@ class LULDAuctionCollarMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.auctionCollarReferencePrice = data.get("auctionCollarReferencePrice", 0)
-        message.upperAuctionCollarPrice = data.get("upperAuctionCollarPrice", 0)
-        message.lowerAuctionCollarPrice = data.get("lowerAuctionCollarPrice", 0)
-        message.auctionCollarExtension = data.get("auctionCollarExtension", 0)
+        message.auction_collar_ref_price = data.get("auctionCollarReferencePrice", 0)
+        message.upper_auction_collar_price = data.get("upperAuctionCollarPrice", 0)
+        message.lower_auction_collar_price = data.get("lowerAuctionCollarPrice", 0)
+        message.auction_collar_extension = data.get("auctionCollarExtension", 0)
 
         stock = data.get("stock", "")
         if isinstance(stock, str):
@@ -2248,8 +2248,8 @@ class OperationalHaltMessage(ITCH50MarketMessage):
         self.stock_locate: int = 0
         self.tracking_number: int = 0
         self.stock: bytes = b""
-        self.haltStatus: bytes = b""
-        self.haltReason: bytes = b""
+        self.halt_status: bytes = b""
+        self.halt_reason: bytes = b""
 
     @classmethod
     def _from_bytes_data(cls, message_data: bytes) -> "OperationalHaltMessage":
@@ -2261,8 +2261,8 @@ class OperationalHaltMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             message.stock,
-            message.haltStatus,
-            message.haltReason,
+            message.halt_status,
+            message.halt_reason,
         ) = struct.unpack("!HHHI8scc", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -2277,8 +2277,8 @@ class OperationalHaltMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             self.stock,
-            self.haltStatus,
-            self.haltReason,
+            self.halt_status,
+            self.halt_reason,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -2290,12 +2290,12 @@ class OperationalHaltMessage(ITCH50MarketMessage):
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "haltStatus": self.haltStatus.decode()
-                if isinstance(self.haltStatus, bytes)
-                else self.haltStatus,
-                "haltReason": self.haltReason.decode()
-                if isinstance(self.haltReason, bytes)
-                else self.haltReason,
+                "haltStatus": self.halt_status.decode()
+                if isinstance(self.halt_status, bytes)
+                else self.halt_status,
+                "haltReason": self.halt_reason.decode()
+                if isinstance(self.halt_reason, bytes)
+                else self.halt_reason,
             }
         )
 
@@ -2333,14 +2333,14 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
         self.stock_locate: int = 0
         self.tracking_number: int = 0
         self.stock: bytes = b""
-        self.dlcrEventType: bytes = b""
-        self.referencePrice: int = 0
-        self.upperPriceLimit: int = 0
-        self.lowerPriceLimit: int = 0
-        self.maxPriceVariation: int = 0
+        self.dlcr_event_type: bytes = b""
+        self.ref_price: int = 0
+        self.upper_price_limit: int = 0
+        self.lower_price_limit: int = 0
+        self.max_price_variation: int = 0
         self.quantity: int = 0
-        self.quantityLimit: int = 0
-        self.quantityLimitType: int = 0
+        self.quantity_limit: int = 0
+        self.quantity_limit_type: int = 0
 
     @classmethod
     def _from_bytes_data(
@@ -2354,14 +2354,14 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             message.stock,
-            message.dlcrEventType,
-            message.referencePrice,
-            message.upperPriceLimit,
-            message.lowerPriceLimit,
-            message.maxPriceVariation,
+            message.dlcr_event_type,
+            message.ref_price,
+            message.upper_price_limit,
+            message.lower_price_limit,
+            message.max_price_variation,
             message.quantity,
-            message.quantityLimit,
-            message.quantityLimitType,
+            message.quantity_limit,
+            message.quantity_limit_type,
         ) = struct.unpack("!HHHI8scIIIIQII", message_data[1:])
         message.set_timestamp(ts1, ts2)
         return message
@@ -2376,14 +2376,14 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
             ts1,
             ts2,
             self.stock,
-            self.dlcrEventType,
-            self.referencePrice,
-            self.upperPriceLimit,
-            self.lowerPriceLimit,
-            self.maxPriceVariation,
+            self.dlcr_event_type,
+            self.ref_price,
+            self.upper_price_limit,
+            self.lower_price_limit,
+            self.max_price_variation,
             self.quantity,
-            self.quantityLimit,
-            self.quantityLimitType,
+            self.quantity_limit,
+            self.quantity_limit_type,
         )
 
     def _add_json_fields(self, data: dict) -> None:
@@ -2395,16 +2395,16 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
                 "stock": self.stock.decode().rstrip()
                 if isinstance(self.stock, bytes)
                 else self.stock,
-                "dlcrEventType": self.dlcrEventType.decode()
-                if isinstance(self.dlcrEventType, bytes)
-                else self.dlcrEventType,
-                "referencePrice": self.referencePrice,
-                "upperPriceLimit": self.upperPriceLimit,
-                "lowerPriceLimit": self.lowerPriceLimit,
-                "maxPriceVariation": self.maxPriceVariation,
+                "dlcrEventType": self.dlcr_event_type.decode()
+                if isinstance(self.dlcr_event_type, bytes)
+                else self.dlcr_event_type,
+                "referencePrice": self.ref_price,
+                "upperPriceLimit": self.upper_price_limit,
+                "lowerPriceLimit": self.lower_price_limit,
+                "maxPriceVariation": self.max_price_variation,
                 "quantity": self.quantity,
-                "quantityLimit": self.quantityLimit,
-                "quantityLimitType": self.quantityLimitType,
+                "quantityLimit": self.quantity_limit,
+                "quantityLimitType": self.quantity_limit_type,
             }
         )
 
@@ -2417,13 +2417,13 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
         message.stock_locate = data.get("stock_locate", 0)
         message.tracking_number = data.get("tracking_number", 0)
         message.timestamp = data.get("timestamp", 0)
-        message.referencePrice = data.get("referencePrice", 0)
-        message.upperPriceLimit = data.get("upperPriceLimit", 0)
-        message.lowerPriceLimit = data.get("lowerPriceLimit", 0)
-        message.maxPriceVariation = data.get("maxPriceVariation", 0)
+        message.ref_price = data.get("referencePrice", 0)
+        message.upper_price_limit = data.get("upperPriceLimit", 0)
+        message.lower_price_limit = data.get("lowerPriceLimit", 0)
+        message.max_price_variation = data.get("maxPriceVariation", 0)
         message.quantity = data.get("quantity", 0)
-        message.quantityLimit = data.get("quantityLimit", 0)
-        message.quantityLimitType = data.get("quantityLimitType", 0)
+        message.quantity_limit = data.get("quantityLimit", 0)
+        message.quantity_limit_type = data.get("quantityLimitType", 0)
 
         stock = data.get("stock", "")
         if isinstance(stock, str):
@@ -2433,6 +2433,6 @@ class DirectListingCapitalRaiseMessage(ITCH50MarketMessage):
         dlcrEventType = data.get("dlcrEventType", " ")
         if isinstance(dlcrEventType, str):
             dlcrEventType = dlcrEventType.encode()
-        message.dlcrEventType = dlcrEventType
+        message.dlcr_event_type = dlcrEventType
 
         return message

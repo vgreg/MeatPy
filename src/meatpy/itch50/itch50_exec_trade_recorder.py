@@ -45,26 +45,26 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
         if isinstance(message, OrderExecutedMessage):
             # An executed order will ALWAYS be against top of book
             # because of price priority, so record.
-            if lob.ask_order_on_book(message.orderRefNum):
+            if lob.ask_order_on_book(message.order_ref):
                 record = {
                     "MessageType": "Exec",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                 }
                 record["Queue"] = "Ask"
                 record["Price"] = lob.ask_levels[0].price
-                (queue, i, j) = lob.find_order(message.orderRefNum)
+                (queue, i, j) = lob.find_order(message.order_ref)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
                 self.records.append((timestamp, record))
-            elif lob.bid_order_on_book(message.orderRefNum):
+            elif lob.bid_order_on_book(message.order_ref):
                 record = {
                     "MessageType": "Exec",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                 }
                 record["Queue"] = "Bid"
                 record["Price"] = lob.bid_levels[0].price
-                (queue, i, j) = lob.find_order(message.orderRefNum)
+                (queue, i, j) = lob.find_order(message.order_ref)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
                 self.records.append((timestamp, record))
         elif isinstance(message, TradeMessage):
@@ -90,29 +90,29 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 self.records.append((timestamp, record))
         elif isinstance(message, OrderExecutedPriceMessage):
             if len(lob.ask_levels) > 0 and lob.ask_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 record = {
                     "MessageType": "ExecPrice",
                     "Queue": "Ask",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": message.price,
                 }
-                (queue, i, j) = lob.find_order(message.orderRefNum)
+                (queue, i, j) = lob.find_order(message.order_ref)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
                 self.records.append((timestamp, record))
             elif len(lob.bid_levels) > 0 and lob.bid_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 record = {
                     "MessageType": "ExecPrice",
                     "Queue": "Bid",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": message.price,
                 }
-                (queue, i, j) = lob.find_order(message.orderRefNum)
+                (queue, i, j) = lob.find_order(message.order_ref)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
                 self.records.append((timestamp, record))
 

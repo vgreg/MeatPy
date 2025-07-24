@@ -171,11 +171,11 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     timestamp=timestamp,
                     price=message.price,
                     volume=message.shares,
-                    order_id=message.orderRefNum,
+                    order_id=message.order_ref,
                     order_type=order_type,
                 )
         elif isinstance(message, OrderExecutedMessage):
-            if message.orderRefNum not in self._order_refs:
+            if message.order_ref not in self._order_refs:
                 return
             self._matches.add(message.match)
             if self.track_lob:
@@ -183,11 +183,11 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                 self.execute_trade(
                     timestamp=timestamp,
                     volume=message.shares,
-                    order_id=message.orderRefNum,
+                    order_id=message.order_ref,
                     trade_ref=message.match,
                 )
         elif isinstance(message, OrderExecutedPriceMessage):
-            if message.orderRefNum not in self._order_refs:
+            if message.order_ref not in self._order_refs:
                 return
             self._matches.add(message.match)
             if self.track_lob:
@@ -195,33 +195,33 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                 self.execute_trade_price(
                     timestamp=timestamp,
                     volume=message.shares,
-                    order_id=message.orderRefNum,
+                    order_id=message.order_ref,
                     trade_ref=message.match,
                     price=message.price,
                 )
         elif isinstance(message, OrderCancelMessage):
-            if message.orderRefNum not in self._order_refs:
+            if message.order_ref not in self._order_refs:
                 return
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
                     raise MissingLOBError("Cancelling order without LOB.")
-                if self.current_lob.ask_order_on_book(message.orderRefNum):
+                if self.current_lob.ask_order_on_book(message.order_ref):
                     order_type = OrderType.ASK
-                elif self.current_lob.bid_order_on_book(message.orderRefNum):
+                elif self.current_lob.bid_order_on_book(message.order_ref):
                     order_type = OrderType.BID
                 else:
                     raise OrderNotFoundError("Cancelling missing order.")
                 self.cancel_quote(
                     timestamp=timestamp,
-                    volume=message.cancelShares,
-                    order_id=message.orderRefNum,
+                    volume=message.canceled_shares,
+                    order_id=message.order_ref,
                     order_type=order_type,
                 )
         elif isinstance(message, OrderDeleteMessage):
-            if message.orderRefNum not in self._order_refs:
+            if message.order_ref not in self._order_refs:
                 return
-            self._order_refs.remove(message.orderRefNum)
+            self._order_refs.remove(message.order_ref)
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
@@ -229,9 +229,9 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                         "ITCH50MarketProcessor:process_message",
                         "Deleting order without LOB.",
                     )
-                if self.current_lob.ask_order_on_book(message.orderRefNum):
+                if self.current_lob.ask_order_on_book(message.order_ref):
                     order_type = OrderType.ASK
-                elif self.current_lob.bid_order_on_book(message.orderRefNum):
+                elif self.current_lob.bid_order_on_book(message.order_ref):
                     order_type = OrderType.BID
                 else:
                     raise Exception(
@@ -240,14 +240,14 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     )
                 self.delete_quote(
                     timestamp=timestamp,
-                    order_id=message.orderRefNum,
+                    order_id=message.order_ref,
                     order_type=order_type,
                 )
         elif isinstance(message, OrderReplaceMessage):
-            if message.origOrderRefNum not in self._order_refs:
+            if message.original_ref not in self._order_refs:
                 return
-            self._order_refs.remove(message.origOrderRefNum)
-            self._order_refs.add(message.newOrderRefNum)
+            self._order_refs.remove(message.original_ref)
+            self._order_refs.add(message.new_ref)
             if self.track_lob:
                 self.pre_lob_event(timestamp)
                 if self.current_lob is None:
@@ -255,9 +255,9 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                         "ITCH50MarketProcessor:process_message",
                         "Replacing order without LOB.",
                     )
-                if self.current_lob.ask_order_on_book(message.origOrderRefNum):
+                if self.current_lob.ask_order_on_book(message.original_ref):
                     order_type = OrderType.ASK
-                elif self.current_lob.bid_order_on_book(message.origOrderRefNum):
+                elif self.current_lob.bid_order_on_book(message.original_ref):
                     order_type = OrderType.BID
                 else:
                     raise Exception(
@@ -266,8 +266,8 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     )
                 self.replace_quote(
                     timestamp=timestamp,
-                    orig_order_id=message.origOrderRefNum,
-                    new_order_id=message.newOrderRefNum,
+                    orig_order_id=message.original_ref,
+                    new_order_id=message.new_ref,
                     price=message.price,
                     volume=message.shares,
                     order_type=order_type,

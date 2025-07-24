@@ -162,33 +162,30 @@ class ITCH50Writer:
         elif message_type in b"AF":  # Add order messages
             if (
                 hasattr(message, "stock")
-                and hasattr(message, "orderRefNum")
+                and hasattr(message, "order_ref")
                 and self._validate_symbol(message.stock)
             ):
-                self._order_refs.add(message.orderRefNum)
+                self._order_refs.add(message.order_ref)
                 self._append_message(message)
 
         elif message_type in b"ECXD":  # Order execution/cancel/delete
-            if (
-                hasattr(message, "orderRefNum")
-                and message.orderRefNum in self._order_refs
-            ):
+            if hasattr(message, "order_ref") and message.order_ref in self._order_refs:
                 self._append_message(message)
                 if message_type == b"D":  # Order delete
-                    self._order_refs.remove(message.orderRefNum)
+                    self._order_refs.remove(message.order_ref)
                 elif message_type in b"EC":  # Order executed
                     if hasattr(message, "match"):
                         self._matches.add(message.match)
 
         elif message_type == b"U":  # Order replace
             if (
-                hasattr(message, "origOrderRefNum")
-                and message.origOrderRefNum in self._order_refs
+                hasattr(message, "original_ref")
+                and message.original_ref in self._order_refs
             ):
                 self._append_message(message)
-                self._order_refs.remove(message.origOrderRefNum)
-                if hasattr(message, "newOrderRefNum"):
-                    self._order_refs.add(message.newOrderRefNum)
+                self._order_refs.remove(message.original_ref)
+                if hasattr(message, "new_ref"):
+                    self._order_refs.add(message.new_ref)
 
         elif message_type == b"B":  # Broken trade
             if hasattr(message, "match") and message.match in self._matches:

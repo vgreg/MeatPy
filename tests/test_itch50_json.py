@@ -49,7 +49,7 @@ class TestITCH50JSON:
 
     def test_add_order_message_json(self):
         """Test AddOrderMessage JSON serialization and deserialization."""
-        # Format: !HHHIQcI8sI (stock_locate, tracking_number, ts1, ts2, orderRefNum, bsindicator, shares, stock, price)
+        # Format: !HHHIQcI8sI (stock_locate, tracking_number, ts1, ts2, order_ref, bsindicator, shares, stock, price)
         binary_data = b"A" + struct.pack(
             "!HHHIQcI8sI", 1, 2, 3, 4, 5, b"B", 6, b"AAPL    ", 100
         )
@@ -64,7 +64,7 @@ class TestITCH50JSON:
         assert json_data["description"] == "Add Order Message"
         assert json_data["stock_locate"] == 1
         assert json_data["tracking_number"] == 2
-        assert json_data["orderRefNum"] == 5
+        assert json_data["order_ref"] == 5
         assert json_data["bsindicator"] == "B"
         assert json_data["shares"] == 6
         assert json_data["stock"] == "AAPL"
@@ -78,7 +78,7 @@ class TestITCH50JSON:
         assert reconstructed.timestamp == message.timestamp
         assert reconstructed.stock_locate == message.stock_locate
         assert reconstructed.tracking_number == message.tracking_number
-        assert reconstructed.orderRefNum == message.orderRefNum
+        assert reconstructed.order_ref == message.order_ref
         assert reconstructed.bsindicator == message.bsindicator
         assert reconstructed.shares == message.shares
         assert reconstructed.stock == message.stock
@@ -89,7 +89,7 @@ class TestITCH50JSON:
 
     def test_trade_message_json(self):
         """Test TradeMessage JSON serialization and deserialization."""
-        # Format: !HHHIQcI8sIQ (stock_locate, tracking_number, ts1, ts2, orderRefNum, bsindicator, shares, stock, price, matchNumber)
+        # Format: !HHHIQcI8sIQ (stock_locate, tracking_number, ts1, ts2, order_ref, bsindicator, shares, stock, price, matchNumber)
         binary_data = b"P" + struct.pack(
             "!HHHIQcI8sIQ", 1, 2, 3, 4, 5, b"B", 6, b"AAPL    ", 100, 7
         )
@@ -104,7 +104,7 @@ class TestITCH50JSON:
         assert json_data["description"] == "Trade Message"
         assert json_data["stock_locate"] == 1
         assert json_data["tracking_number"] == 2
-        assert json_data["orderRefNum"] == 5
+        assert json_data["order_ref"] == 5
         assert json_data["bsindicator"] == "B"
         assert json_data["shares"] == 6
         assert json_data["stock"] == "AAPL"
@@ -119,12 +119,12 @@ class TestITCH50JSON:
         assert reconstructed.timestamp == message.timestamp
         assert reconstructed.stock_locate == message.stock_locate
         assert reconstructed.tracking_number == message.tracking_number
-        assert reconstructed.orderRefNum == message.orderRefNum
+        assert reconstructed.order_ref == message.order_ref
         assert reconstructed.bsindicator == message.bsindicator
         assert reconstructed.shares == message.shares
         assert reconstructed.stock == message.stock
         assert reconstructed.price == message.price
-        assert reconstructed.matchNumber == message.matchNumber
+        assert reconstructed.match == message.match
 
         # Verify binary representation matches
         assert reconstructed.to_bytes() == message.to_bytes()

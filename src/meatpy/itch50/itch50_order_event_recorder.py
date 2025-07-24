@@ -72,74 +72,74 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             price = None
             shares = None
             try:
-                queue, i, j = lob.find_order(message.orderRefNum)
+                queue, i, j = lob.find_order(message.order_ref)
                 price = queue[i].price
                 shares = queue[i].queue[j].volume
             except Exception as e:
                 print(
-                    f"ITCH50OrderEventRecorder ::{e} for order ID {message.orderRefNum}"
+                    f"ITCH50OrderEventRecorder ::{e} for order ID {message.order_ref}"
                 )
         if isinstance(message, AddOrderMessage):
             record = {
-                "orderRefNum": message.orderRefNum,
+                "order_ref": message.order_ref,
                 "bsindicator": message.bsindicator.decode(),
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "AddOrder",
             }
         elif isinstance(message, AddOrderMPIDMessage):
             record = {
-                "orderRefNum": message.orderRefNum,
+                "order_ref": message.order_ref,
                 "bsindicator": message.bsindicator.decode(),
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "AddOrderMPID",
             }
         elif isinstance(message, OrderExecutedMessage):
             record = {
-                "orderRefNum": message.orderRefNum,
+                "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderExecuted",
             }
         elif isinstance(message, OrderExecutedPriceMessage):
             record = {
-                "orderRefNum": message.orderRefNum,
+                "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderExecutedPrice",
             }
         elif isinstance(message, OrderCancelMessage):
             record = {
-                "orderRefNum": message.orderRefNum,
+                "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.cancelShares,
                 "price": price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderCancel",
             }
         elif isinstance(message, OrderDeleteMessage):
             record = {
-                "orderRefNum": message.orderRefNum,
+                "order_ref": message.order_ref,
                 "bsindicator": price,
                 "shares": shares,
                 "price": price,
-                "newOrderRefNum": "",
+                "neworder_ref": "",
                 "MessageType": "OrderDelete",
             }
         elif isinstance(message, OrderReplaceMessage):
             record = {
-                "orderRefNum": message.origOrderRefNum,
+                "order_ref": message.origorder_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": message.price,
-                "newOrderRefNum": message.newOrderRefNum,
+                "neworder_ref": message.neworder_ref,
                 "MessageType": "OrderReplace",
             }
         record["ask_price"] = ask_price
@@ -158,5 +158,5 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             "Timestamp,MessageType,BuySellIndicator,Price,Volume,OrderID,NewOrderID,AskPrice,AskSize,BidPrice,BidSize\n".encode()
         )
         for x in self.records:
-            row = f"{x[0]},{x[1]['MessageType']},{x[1]['bsindicator']},{x[1]['price']},{x[1]['shares']},{x[1]['orderRefNum']},{x[1]['newOrderRefNum']},{x[1]['ask_price']},{x[1]['ask_size']},{x[1]['bid_price']},{x[1]['bid_size']}\n"
+            row = f"{x[0]},{x[1]['MessageType']},{x[1]['bsindicator']},{x[1]['price']},{x[1]['shares']},{x[1]['order_ref']},{x[1]['neworder_ref']},{x[1]['ask_price']},{x[1]['ask_size']},{x[1]['bid_price']},{x[1]['bid_size']}\n"
             file.write(row.encode())
