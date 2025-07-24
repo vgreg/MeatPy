@@ -1,4 +1,4 @@
-# MeatPy - Market Empirical Analysis Toolbox for Python
+# MeatPy
 
 
 [![PyPI version](https://badge.fury.io/py/meatpy.svg)](https://badge.fury.io/py/meatpy)
