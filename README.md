@@ -5,8 +5,7 @@
 [![License](https://img.shields.io/pypi/l/meatpy.svg)](https://github.com/vgreg/MeatPy/blob/main/LICENSE)
 [![Documentation Status](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://www.vincentgregoire.com/MeatPy)
 
-
-![MeatPy Logo](docs/images/meatpy.svg)
+<img src="docs/images/meatpy.svg" width="200" alt="MeatPy Logo"/>
 
 MeatPy is a Python framework for processing and analyzing high-frequency financial market data, specifically designed for working with NASDAQ ITCH protocol data feeds. It provides robust tools for reconstructing limit order books and extracting key market events from historical market data files.
 
