@@ -1,3 +1,5 @@
+![MeatPy Logo](images/meatpy.svg){width=200}
+
 # MeatPy
 
 MeatPy is a Python framework for processing financial market data, specifically designed for limit order book reconstruction and analysis. It provides efficient tools for handling high-frequency trading data formats like NASDAQ ITCH.
