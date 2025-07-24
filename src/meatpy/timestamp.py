@@ -25,7 +25,29 @@ class Timestamp(datetime):
         minute: Minute of the timestamp
         second: Second of the timestamp
         microsecond: Microsecond of the timestamp
+        nanoseconds: Original nanosecond timestamp (if available)
     """
+
+    def __new__(
+        cls,
+        year=None,
+        month=None,
+        day=None,
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+        tzinfo=None,
+        *,
+        fold=0,
+        nanoseconds=None,
+    ):
+        """Create a new Timestamp instance with optional nanoseconds storage."""
+        instance = super().__new__(
+            cls, year, month, day, hour, minute, second, microsecond, tzinfo, fold=fold
+        )
+        instance._nanoseconds = nanoseconds
+        return instance
 
     def __str__(self) -> str:
         """Return string representation in standard format.
@@ -43,6 +65,15 @@ class Timestamp(datetime):
         """
         return "Timestamp: " + self.__str__()
 
+    @property
+    def nanoseconds(self) -> int | None:
+        """Get the original nanosecond timestamp if available.
+
+        Returns:
+            int: The original nanosecond timestamp, or None if not set
+        """
+        return getattr(self, "_nanoseconds", None)
+
     def copy(self) -> "Timestamp":
         """Create a deep copy of this timestamp.
 
@@ -52,11 +83,12 @@ class Timestamp(datetime):
         return deepcopy(self)
 
     @classmethod
-    def from_datetime(cls, dt: datetime) -> "Timestamp":
+    def from_datetime(cls, dt: datetime, nanoseconds: int | None = None) -> "Timestamp":
         """Create a Timestamp from a datetime object.
 
         Args:
             dt: The datetime object to convert
+            nanoseconds: Optional original nanosecond timestamp to preserve
 
         Returns:
             Timestamp: A new Timestamp instance with the datetime values
@@ -68,4 +100,5 @@ class Timestamp(datetime):
             hour=dt.hour,
             minute=dt.minute,
             microsecond=dt.microsecond,
+            nanoseconds=nanoseconds,
         )

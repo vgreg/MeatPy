@@ -1,11 +1,11 @@
-"""ITCH 5.0 order event recorder for limit order books.
+"""ITCH 4.1 order event recorder for limit order books.
 
-This module provides the ITCH50OrderEventRecorder class, which records order-related
-events from ITCH 5.0 market data and exports them to CSV files.
+This module provides the ITCH41OrderEventRecorder class, which records order-related
+events from ITCH 4.1 market data and exports them to CSV files.
 """
 
 from ..market_event_handler import MarketEventHandler
-from .itch50_market_message import (
+from .itch41_market_message import (
     AddOrderMessage,
     AddOrderMPIDMessage,
     OrderCancelMessage,
@@ -16,8 +16,8 @@ from .itch50_market_message import (
 )
 
 
-class ITCH50OrderEventRecorder(MarketEventHandler):
-    """Records order-related events from ITCH 5.0 market data.
+class ITCH41OrderEventRecorder(MarketEventHandler):
+    """Records order-related events from ITCH 4.1 market data.
 
     This recorder detects and records various order events including additions,
     executions, cancellations, deletions, and replacements, along with the
@@ -28,7 +28,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
     """
 
     def __init__(self) -> None:
-        """Initialize the ITCH50OrderEventRecorder."""
+        """Initialize the ITCH41OrderEventRecorder."""
         self.records = []
 
     def message_event(self, market_processor, timestamp, message) -> None:
@@ -49,7 +49,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             or isinstance(message, OrderReplaceMessage)
         ):
             return
-        lob = market_processor.current_lob
+        lob = market_processor.lob
         ask_price = None
         ask_size = None
         bid_price = None
@@ -72,17 +72,18 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             price = None
             shares = None
             try:
-                queue, i, j = lob.find_order(message.order_ref)
-                price = queue[i].price
-                shares = queue[i].queue[j].volume
+                if lob is not None:
+                    queue, i, j = lob.find_order(message.order_ref)
+                    price = queue[i].price
+                    shares = queue[i].queue[j].volume
             except Exception as e:
                 print(
-                    f"ITCH50OrderEventRecorder ::{e} for order ID {message.order_ref}"
+                    f"ITCH41OrderEventRecorder ::{e} for order ID {message.order_ref}"
                 )
         if isinstance(message, AddOrderMessage):
             record = {
                 "order_ref": message.order_ref,
-                "bsindicator": message.bsindicator.decode(),
+                "bsindicator": message.side.decode(),
                 "shares": message.shares,
                 "price": message.price,
                 "neworder_ref": "",
@@ -91,7 +92,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
         elif isinstance(message, AddOrderMPIDMessage):
             record = {
                 "order_ref": message.order_ref,
-                "bsindicator": message.bsindicator.decode(),
+                "bsindicator": message.side.decode(),
                 "shares": message.shares,
                 "price": message.price,
                 "neworder_ref": "",
@@ -119,7 +120,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             record = {
                 "order_ref": message.order_ref,
                 "bsindicator": "",
-                "shares": message.cancelShares,
+                "shares": message.shares,
                 "price": price,
                 "neworder_ref": "",
                 "MessageType": "OrderCancel",
@@ -135,11 +136,11 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
             }
         elif isinstance(message, OrderReplaceMessage):
             record = {
-                "order_ref": message.origorder_ref,
+                "order_ref": message.original_ref,
                 "bsindicator": "",
                 "shares": message.shares,
                 "price": message.price,
-                "neworder_ref": message.neworder_ref,
+                "neworder_ref": message.new_ref,
                 "MessageType": "OrderReplace",
             }
         record["ask_price"] = ask_price
@@ -147,16 +148,3 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
         record["bid_price"] = bid_price
         record["bid_size"] = bid_size
         self.records.append((timestamp, record))
-
-    def write_csv(self, file) -> None:
-        """Write recorded order events to a CSV file.
-
-        Args:
-            file: File object to write to
-        """
-        file.write(
-            "Timestamp,MessageType,BuySellIndicator,Price,Volume,OrderID,NewOrderID,AskPrice,AskSize,BidPrice,BidSize\n".encode()
-        )
-        for x in self.records:
-            row = f"{x[0]},{x[1]['MessageType']},{x[1]['bsindicator']},{x[1]['price']},{x[1]['shares']},{x[1]['order_ref']},{x[1]['neworder_ref']},{x[1]['ask_price']},{x[1]['ask_size']},{x[1]['bid_price']},{x[1]['bid_size']}\n"
-            file.write(row.encode())

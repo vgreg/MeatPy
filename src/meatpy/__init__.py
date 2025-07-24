@@ -62,3 +62,18 @@ __all__ = [
     "TradeRef",
     "Qualifiers",
 ]
+
+# ITCH format imports (available when format-specific modules are imported)
+try:
+    from . import itch41  # noqa: F401
+
+    __all__.extend(["itch41"])
+except ImportError:
+    pass
+
+try:
+    from . import itch50  # noqa: F401
+
+    __all__.extend(["itch50"])
+except ImportError:
+    pass

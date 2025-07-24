@@ -1,6 +1,6 @@
-"""ITCH 5.0 file writer with buffering and compression support.
+"""ITCH 4.1 file writer with buffering and compression support.
 
-This module provides the ITCH50Writer class, which writes ITCH 5.0 market data
+This module provides the ITCH41Writer class, which writes ITCH 4.1 market data
 messages to files with support for buffering and compression.
 """
 
@@ -12,11 +12,11 @@ import lzma
 from pathlib import Path
 from typing import Optional
 
-from .itch50_market_message import ITCH50MarketMessage
+from .itch41_market_message import ITCH41MarketMessage
 
 
-class ITCH50Writer:
-    """A writer for ITCH 5.0 market data files.
+class ITCH41Writer:
+    """A writer for ITCH 4.1 market data files.
 
     This writer keeps track of messages relevant to specified symbols and
     writes them to files in ITCH format with support for buffering and compression.
@@ -37,7 +37,7 @@ class ITCH50Writer:
         compress: bool = False,
         compression_type: str = "gzip",
     ) -> None:
-        """Initialize the ITCH50Writer.
+        """Initialize the ITCH41Writer.
 
         Args:
             symbols: List of symbols to track (None for all)
@@ -62,7 +62,7 @@ class ITCH50Writer:
         # Internal state
         self._order_refs: set[int] = set()
         self._matches: set[int] = set()
-        self._buffer: list[ITCH50MarketMessage] = []
+        self._buffer: list[ITCH41MarketMessage] = []
         self._message_count = 0
 
     def _get_file_handle(self, mode: str = "ab"):
@@ -88,7 +88,7 @@ class ITCH50Writer:
         else:
             raise ValueError(f"Unsupported compression type: {self.compression_type}")
 
-    def _write_message(self, file_handle, message: ITCH50MarketMessage) -> None:
+    def _write_message(self, file_handle, message: ITCH41MarketMessage) -> None:
         """Write a single message to the file in ITCH format.
 
         Args:
@@ -111,7 +111,7 @@ class ITCH50Writer:
                     self._write_message(file_handle, message)
             self._buffer = []
 
-    def _append_message(self, message: ITCH50MarketMessage) -> None:
+    def _append_message(self, message: ITCH41MarketMessage) -> None:
         """Append a message to the stock message buffer.
 
         Args:
@@ -133,7 +133,7 @@ class ITCH50Writer:
             return True
         return symbol in self._symbols
 
-    def process_message(self, message: ITCH50MarketMessage) -> None:
+    def process_message(self, message: ITCH41MarketMessage) -> None:
         """Process a message and add it to the appropriate buffers.
 
         Args:
@@ -151,11 +151,13 @@ class ITCH50Writer:
             if hasattr(message, "stock") and self._validate_symbol(message.stock):
                 self._append_message(message)
 
-        elif message_type in b"SVW":  # System messages
+        elif message_type in b"ST":  # System messages (Seconds, System Event)
             # Add to all stock message buffers
             self._append_message(message)
 
-        elif message_type in b"HYQINKLJh":  # Stock-specific messages
+        elif (
+            message_type in b"HYL"
+        ):  # Stock-specific messages (Trading Action, RegSHO, Market Participant Position)
             if hasattr(message, "stock") and self._validate_symbol(message.stock):
                 self._append_message(message)
 
@@ -191,11 +193,15 @@ class ITCH50Writer:
             if hasattr(message, "match") and message.match in self._matches:
                 self._append_message(message)
 
-        elif message_type == b"P":  # Trade
+        elif message_type in b"PQ":  # Trade messages (Trade, Cross Trade)
             if hasattr(message, "stock") and self._validate_symbol(message.stock):
                 self._append_message(message)
                 if hasattr(message, "match"):
                     self._matches.add(message.match)
+
+        elif message_type in b"IN":  # NOII and RPII messages
+            if hasattr(message, "stock") and self._validate_symbol(message.stock):
+                self._append_message(message)
 
     def flush(self) -> None:
         """Flush all buffered messages to the file."""

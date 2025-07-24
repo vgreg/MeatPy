@@ -57,7 +57,7 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                         "Queue": "Bid",
                         "Price": message.price,
                         "Volume": message.shares,
-                        "OrderID": message.orderRefNum,
+                        "OrderID": message.order_ref,
                     }
                     self.records.append((timestamp, record))
             elif message.bsindicator == b"S":
@@ -71,26 +71,26 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                         "Queue": "Ask",
                         "Price": message.price,
                         "Volume": message.shares,
-                        "OrderID": message.orderRefNum,
+                        "OrderID": message.order_ref,
                     }
                     self.records.append((timestamp, record))
         elif isinstance(message, OrderExecutedMessage):
             # An executed order will ALWAYS be against top of book
             # because of price priority, so record.
-            if lob.ask_order_on_book(message.orderRefNum):
+            if lob.ask_order_on_book(message.order_ref):
                 record = {
                     "MessageType": "Exec",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                 }
                 record["Queue"] = "Ask"
                 record["Price"] = lob.ask_levels[0].price
                 self.records.append((timestamp, record))
-            elif lob.bid_order_on_book(message.orderRefNum):
+            elif lob.bid_order_on_book(message.order_ref):
                 record = {
                     "MessageType": "Exec",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                 }
                 record["Queue"] = "Bid"
                 record["Price"] = lob.bid_levels[0].price
@@ -116,111 +116,111 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                 self.records.append((timestamp, record))
         elif isinstance(message, OrderExecutedPriceMessage):
             if len(lob.ask_levels) > 0 and lob.ask_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 record = {
                     "MessageType": "ExecPrice",
                     "Queue": "Ask",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": message.price,
                 }
                 self.records.append((timestamp, record))
             elif len(lob.bid_levels) > 0 and lob.bid_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 record = {
                     "MessageType": "ExecPrice",
                     "Queue": "Bid",
                     "Volume": message.shares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": message.price,
                 }
                 self.records.append((timestamp, record))
         elif isinstance(message, OrderCancelMessage):
             if len(lob.ask_levels) > 0 and lob.ask_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 record = {
                     "MessageType": "Cancel",
                     "Queue": "Ask",
                     "Volume": message.cancelShares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": lob.ask_levels[0].price,
                 }
                 self.records.append((timestamp, record))
             elif len(lob.bid_levels) > 0 and lob.bid_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 record = {
                     "MessageType": "Cancel",
                     "Queue": "Bid",
                     "Volume": message.cancelShares,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": lob.bid_levels[0].price,
                 }
                 self.records.append((timestamp, record))
         elif isinstance(message, OrderDeleteMessage):
             if len(lob.ask_levels) > 0 and lob.ask_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 volume = (
                     lob.ask_levels[0]
-                    .queue[lob.ask_levels[0].find_order_on_book(message.orderRefNum)]
+                    .queue[lob.ask_levels[0].find_order_on_book(message.order_ref)]
                     .volume
                 )
                 record = {
                     "MessageType": "Delete",
                     "Queue": "Ask",
                     "Volume": volume,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": lob.ask_levels[0].price,
                 }
                 self.records.append((timestamp, record))
             elif len(lob.bid_levels) > 0 and lob.bid_levels[0].order_on_book(
-                message.orderRefNum
+                message.order_ref
             ):
                 volume = (
                     lob.bid_levels[0]
-                    .queue[lob.bid_levels[0].find_order_on_book(message.orderRefNum)]
+                    .queue[lob.bid_levels[0].find_order_on_book(message.order_ref)]
                     .volume
                 )
                 record = {
                     "MessageType": "Delete",
                     "Queue": "Bid",
                     "Volume": volume,
-                    "OrderID": message.orderRefNum,
+                    "OrderID": message.order_ref,
                     "Price": lob.bid_levels[0].price,
                 }
                 self.records.append((timestamp, record))
         elif isinstance(message, OrderReplaceMessage):
             if lob.ask_order_on_book(
-                message.origOrderRefNum
+                message.origorder_ref
             ):  # change to the top at same price
                 if (
-                    lob.ask_levels[0].order_on_book(message.origOrderRefNum)
+                    lob.ask_levels[0].order_on_book(message.origorder_ref)
                     and message.price == lob.ask_levels[0].price
                 ):
-                    (queue, i, j) = lob.find_order(message.origOrderRefNum, 0)
+                    (queue, i, j) = lob.find_order(message.origorder_ref, 0)
                     old_volume = queue[i].volume()
                     new_shares = message.shares - old_volume
                     record = {
                         "MessageType": "Replace",
                         "Queue": "Ask",
                         "Volume": new_shares,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.ask_levels[0].price,
                     }
                     self.records.append((timestamp, record))
                 elif (
-                    lob.ask_levels[0].order_on_book(message.origOrderRefNum)
+                    lob.ask_levels[0].order_on_book(message.origorder_ref)
                     and lob.ask_levels[0].price < message.price
                 ):  # replace of a top order for an inferior order
                     record = {
                         "MessageType": "Replace",
                         "Queue": "Ask",
                         "Volume": message.shares * -1,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.ask_levels[0].price,
                     }
                     self.records.append((timestamp, record))
@@ -229,48 +229,47 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                         "MessageType": "Replace",
                         "Queue": "Ask",
                         "Volume": message.shares,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.ask_levels[0].price,
                     }
                     self.records.append((timestamp, record))
                 elif (
                     message.price == lob.ask_levels[0].price
-                    and lob.ask_levels[0].order_on_book(message.origOrderRefNum)
-                    is False
+                    and lob.ask_levels[0].order_on_book(message.origorder_ref) is False
                 ):  # Improvement over old order
                     record = {
                         "MessageType": "Replace",
                         "Queue": "Ask",
                         "Volume": message.shares,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.ask_levels[0].price,
                     }
                     self.records.append((timestamp, record))
-            if lob.bid_order_on_book(message.origOrderRefNum):
+            if lob.bid_order_on_book(message.origorder_ref):
                 if (
-                    lob.bid_levels[0].order_on_book(message.origOrderRefNum)
+                    lob.bid_levels[0].order_on_book(message.origorder_ref)
                     and message.price == lob.bid_levels[0].price
                 ):
-                    (queue, i, j) = lob.find_order(message.origOrderRefNum, 1)
+                    (queue, i, j) = lob.find_order(message.origorder_ref, 1)
                     old_volume = queue[i].volume()
                     new_shares = message.shares - old_volume
                     record = {
                         "MessageType": "Replace",
                         "Queue": "Bid",
                         "Volume": new_shares,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.bid_levels[0].price,
                     }
                     self.records.append((timestamp, record))
                 elif (
-                    lob.bid_levels[0].order_on_book(message.origOrderRefNum)
+                    lob.bid_levels[0].order_on_book(message.origorder_ref)
                     and lob.bid_levels[0].price > message.price
                 ):  # replace of a top order for an inferior order
                     record = {
                         "MessageType": "Replace",
                         "Queue": "Bid",
                         "Volume": message.shares * -1,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.bid_levels[0].price,
                     }
                     self.records.append((timestamp, record))
@@ -281,20 +280,19 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                         "MessageType": "Replace",
                         "Queue": "Bid",
                         "Volume": message.shares,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.bid_levels[0].price,
                     }
                     self.records.append((timestamp, record))
                 elif (
                     message.price == lob.bid_levels[0].price
-                    and lob.bid_levels[0].order_on_book(message.origOrderRefNum)
-                    is False
+                    and lob.bid_levels[0].order_on_book(message.origorder_ref) is False
                 ):  # Improvement over old order
                     record = {
                         "MessageType": "Replace",
                         "Queue": "Bid",
                         "Volume": message.shares,
-                        "OrderID": message.newOrderRefNum,
+                        "OrderID": message.neworder_ref,
                         "Price": lob.bid_levels[0].price,
                     }
                     self.records.append((timestamp, record))

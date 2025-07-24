@@ -1,21 +1,21 @@
-"""ITCH 5.0 execution trade recorder for limit order books.
+"""ITCH 4.1 execution trade recorder for limit order books.
 
-This module provides the ITCH50ExecTradeRecorder class, which records trade
-executions from ITCH 5.0 market data and exports them to CSV files.
+This module provides the ITCH41ExecTradeRecorder class, which records trade
+executions from ITCH 4.1 market data and exports them to CSV files.
 """
 
 from typing import Any
 
 from ..market_event_handler import MarketEventHandler
-from .itch50_market_message import (
+from .itch41_market_message import (
     OrderExecutedMessage,
     OrderExecutedPriceMessage,
     TradeMessage,
 )
 
 
-class ITCH50ExecTradeRecorder(MarketEventHandler):
-    """Records trade executions from ITCH 5.0 market data.
+class ITCH41ExecTradeRecorder(MarketEventHandler):
+    """Records trade executions from ITCH 4.1 market data.
 
     This recorder detects and records trade executions, including both
     visible and hidden trades, and exports them to CSV format.
@@ -25,7 +25,7 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
     """
 
     def __init__(self) -> None:
-        """Initialize the ITCH50ExecTradeRecorder."""
+        """Initialize the ITCH41ExecTradeRecorder."""
         self.records: list[Any] = []
 
     def message_event(
@@ -41,7 +41,10 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
             timestamp: The timestamp of the message
             message: The market message to process
         """
-        lob = market_processor.current_lob
+        lob = market_processor.lob
+        if lob is None:
+            return
+
         if isinstance(message, OrderExecutedMessage):
             # An executed order will ALWAYS be against top of book
             # because of price priority, so record.
@@ -53,8 +56,11 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 }
                 record["Queue"] = "Ask"
                 record["Price"] = lob.ask_levels[0].price
-                (queue, i, j) = lob.find_order(message.order_ref)
-                record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                try:
+                    (queue, i, j) = lob.find_order(message.order_ref)
+                    record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                except Exception:
+                    record["OrderTimestamp"] = ""
                 self.records.append((timestamp, record))
             elif lob.bid_order_on_book(message.order_ref):
                 record = {
@@ -64,11 +70,14 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 }
                 record["Queue"] = "Bid"
                 record["Price"] = lob.bid_levels[0].price
-                (queue, i, j) = lob.find_order(message.order_ref)
-                record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                try:
+                    (queue, i, j) = lob.find_order(message.order_ref)
+                    record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                except Exception:
+                    record["OrderTimestamp"] = ""
                 self.records.append((timestamp, record))
         elif isinstance(message, TradeMessage):
-            if message.bsindicator == b"S":
+            if message.side == b"S":
                 record = {
                     "MessageType": "ExecHid",
                     "Volume": message.shares,
@@ -78,7 +87,7 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                 record["Queue"] = "Ask"
                 record["Price"] = message.price
                 self.records.append((timestamp, record))
-            elif message.bsindicator == b"B":
+            elif message.side == b"B":
                 record = {
                     "MessageType": "ExecHid",
                     "Volume": message.shares,
@@ -99,8 +108,11 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                     "OrderID": message.order_ref,
                     "Price": message.price,
                 }
-                (queue, i, j) = lob.find_order(message.order_ref)
-                record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                try:
+                    (queue, i, j) = lob.find_order(message.order_ref)
+                    record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                except Exception:
+                    record["OrderTimestamp"] = ""
                 self.records.append((timestamp, record))
             elif len(lob.bid_levels) > 0 and lob.bid_levels[0].order_on_book(
                 message.order_ref
@@ -112,19 +124,9 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                     "OrderID": message.order_ref,
                     "Price": message.price,
                 }
-                (queue, i, j) = lob.find_order(message.order_ref)
-                record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                try:
+                    (queue, i, j) = lob.find_order(message.order_ref)
+                    record["OrderTimestamp"] = queue[i].queue[j].timestamp
+                except Exception:
+                    record["OrderTimestamp"] = ""
                 self.records.append((timestamp, record))
-
-    def write_csv(self, file) -> None:
-        """Write recorded trade executions to a CSV file.
-
-        Args:
-            file: File object to write to
-        """
-        file.write(
-            "Timestamp,MessageType,Queue,Price,Volume,OrderID,OrderTimestamp\n".encode()
-        )
-        for x in self.records:
-            row = f"{x[0]},{x[1]['MessageType']},{x[1]['Queue']},{x[1]['Price']},{x[1]['Volume']},{x[1]['OrderID']},{x[1]['OrderTimestamp']}\n"
-            file.write(row.encode())

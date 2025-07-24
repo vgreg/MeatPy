@@ -302,7 +302,7 @@ class TestCrossTradeMessageValidation:
     def test_invalid_cross_trade_message(self):
         """Test validation of invalid CrossTradeMessage."""
         message = CrossTradeMessage()
-        message.crossType = b"X"  # Invalid cross type
+        message.cross_type = b"X"  # Invalid cross type
 
         assert message.validate() is False
 
@@ -312,7 +312,7 @@ class TestCrossTradeMessageValidation:
 
         for cross_type in valid_types:
             message = CrossTradeMessage()
-            message.crossType = cross_type
+            message.cross_type = cross_type
             assert message.validate() is True
 
 
@@ -345,7 +345,7 @@ class TestNoiiMessageValidation:
     def test_invalid_noii_message(self):
         """Test validation of invalid NoiiMessage."""
         message = NoiiMessage()
-        message.crossType = b"X"  # Invalid cross type
+        message.cross_type = b"X"  # Invalid cross type
 
         assert message.validate() is False
 
