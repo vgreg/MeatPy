@@ -50,6 +50,13 @@ class TestITCH41MarketProcessor:
 
     def test_stock_trading_action_processing(self):
         """Test processing stock trading action messages."""
+        # First set system status
+        system_msg = SystemEventMessage()
+        system_msg.event_code = b"Q"  # Start of Market Hours
+        system_msg.timestamp = 12340
+        self.processor.process_message(system_msg)
+
+        # Then process stock trading action
         message = StockTradingActionMessage()
         message.stock = b"AAPL    "
         message.state = b"T"  # Trading
@@ -169,8 +176,11 @@ class TestITCH41MarketProcessor:
         exec_message.shares = 30
         exec_message.timestamp = 12346
 
-        # Should not raise error (gracefully handle missing order)
-        self.processor.process_message(exec_message)
+        # Should raise OrderNotFoundError for missing order
+        from meatpy.lob import OrderNotFoundError
+
+        with pytest.raises(OrderNotFoundError):
+            self.processor.process_message(exec_message)
 
     def test_order_cancellation(self):
         """Test order cancellation processing."""

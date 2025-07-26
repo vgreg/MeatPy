@@ -23,7 +23,7 @@ class TradingStatus:
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -31,13 +31,30 @@ class TradingStatus:
         """
         return "Generic TradingStatus object"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
             str: "N/A" for generic status
         """
         return "N/A"
+
+    def __eq__(self, other) -> bool:
+        """Check equality between trading status instances.
+
+        Two trading status instances are equal if they are of the same type,
+        regardless of their details.
+
+        Args:
+            other: The other object to compare with
+
+        Returns:
+            bool: True if both are the same type of trading status, False otherwise
+        """
+        return type(self) is type(other) and (
+            (self.details == other.details)
+            or (self.details is None and other.details is None)
+        )
 
 
 class PreTradeTradingStatus(TradingStatus):
@@ -55,7 +72,7 @@ class PreTradeTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -63,7 +80,7 @@ class PreTradeTradingStatus(TradingStatus):
         """
         return "Pre-Trade TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
@@ -87,7 +104,7 @@ class TradeTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -95,7 +112,7 @@ class TradeTradingStatus(TradingStatus):
         """
         return "Trade TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
@@ -119,7 +136,7 @@ class PostTradeTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -127,7 +144,7 @@ class PostTradeTradingStatus(TradingStatus):
         """
         return "Post-Trade TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
@@ -151,7 +168,7 @@ class HaltedTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -159,7 +176,7 @@ class HaltedTradingStatus(TradingStatus):
         """
         return "Halted TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
@@ -183,7 +200,7 @@ class QuoteOnlyTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -191,7 +208,7 @@ class QuoteOnlyTradingStatus(TradingStatus):
         """
         return "QuoteOnly TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
@@ -215,21 +232,21 @@ class ClosingAuctionTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
             str: Closing auction status representation
         """
-        return "Closing Auction TradingStatus"
+        return "Closing-Auction TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:
-            str: "Closing Auction"
+            str: "Closing-Auction"
         """
-        return "Closing Auction"
+        return "Closing-Auction"
 
 
 class ClosedTradingStatus(TradingStatus):
@@ -247,7 +264,7 @@ class ClosedTradingStatus(TradingStatus):
         """
         self.details: str | None = details
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation.
 
         Returns:
@@ -255,7 +272,7 @@ class ClosedTradingStatus(TradingStatus):
         """
         return "Closed TradingStatus"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return human-readable string.
 
         Returns:

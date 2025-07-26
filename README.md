@@ -4,6 +4,7 @@
 [![PyPI version](https://badge.fury.io/py/meatpy.svg)](https://badge.fury.io/py/meatpy)
 [![License](https://img.shields.io/pypi/l/meatpy.svg)](https://github.com/vgreg/MeatPy/blob/main/LICENSE)
 [![Documentation Status](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://www.vincentgregoire.com/MeatPy)
+[![codecov](https://codecov.io/gh/vgreg/MeatPy/branch/main/graph/badge.svg)](https://codecov.io/gh/vgreg/MeatPy)
 
 <img src="docs/images/meatpy.svg" width="200" alt="MeatPy Logo"/>
 

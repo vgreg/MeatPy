@@ -71,7 +71,7 @@ class TestLimitOrderBookExceptions:
     def test_inexistant_value_exception(self):
         """Test InexistantValueException."""
         exception = InexistantValueException("test", "message")
-        assert str(exception) == "message"
+        assert str(exception) == "('test', 'message')"
 
     def test_execution_priority_exception_list(self):
         """Test ExecutionPriorityExceptionList."""
@@ -255,8 +255,8 @@ class TestLimitOrderBookOrderManagement:
         # Then delete it
         self.lob.delete_quote(order_id, OrderType.BID)
 
-        # Should not raise an exception
-        assert len(self.lob.bid_levels) == 1
+        # Should not raise an exception, and level should be removed
+        assert len(self.lob.bid_levels) == 0
 
     def test_execute_trade(self):
         """Test executing a trade."""

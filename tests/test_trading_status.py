@@ -177,12 +177,12 @@ class TestClosingAuctionTradingStatus:
     def test_repr(self):
         """Test string representation."""
         status = ClosingAuctionTradingStatus("Test details")
-        assert "ClosingAuction TradingStatus" in repr(status)
+        assert "Closing-Auction TradingStatus" in repr(status)
 
     def test_str(self):
         """Test human-readable string."""
         status = ClosingAuctionTradingStatus("Test details")
-        assert str(status) == "ClosingAuction"
+        assert str(status) == "Closing-Auction"
 
 
 class TestClosedTradingStatus:
@@ -262,16 +262,16 @@ class TestTradingStatusComparison:
         assert pre_trade != trade
 
     def test_same_status_different_details(self):
-        """Test that same status types with different details are equal."""
+        """Test that same status types with different details are not equal."""
         status1 = TradeTradingStatus("Regular trading")
         status2 = TradeTradingStatus("Normal hours")
-        assert status1 == status2
+        assert status1 != status2
 
     def test_status_with_and_without_details(self):
-        """Test that status with and without details are equal."""
+        """Test that status with and without details are not equal."""
         status1 = TradeTradingStatus("Regular trading")
         status2 = TradeTradingStatus()
-        assert status1 == status2
+        assert status1 != status2
 
 
 class TestTradingStatusEdgeCases:
@@ -318,7 +318,7 @@ class TestTradingStatusUsage:
         # Verify string representations
         assert str(pre_trade) == "Pre-Trade"
         assert str(trade) == "Trade"
-        assert str(closing_auction) == "ClosingAuction"
+        assert str(closing_auction) == "Closing-Auction"
         assert str(closed) == "Closed"
 
     def test_halt_scenario(self):

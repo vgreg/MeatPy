@@ -1,7 +1,6 @@
 """Tests for the types module."""
 
 from decimal import Decimal
-from typing import get_args
 
 from meatpy.types import OrderID, Price, Qualifiers, TradeRef, Volume
 
@@ -11,40 +10,40 @@ class TestTypeVariables:
 
     def test_price_type_variable(self):
         """Test that Price TypeVar has correct constraints."""
-        args = get_args(Price)
-        assert int in args
-        assert Decimal in args
-        assert len(args) == 2
+        constraints = Price.__constraints__
+        assert int in constraints
+        assert Decimal in constraints
+        assert len(constraints) == 2
 
     def test_volume_type_variable(self):
         """Test that Volume TypeVar has correct constraints."""
-        args = get_args(Volume)
-        assert int in args
-        assert Decimal in args
-        assert len(args) == 2
+        constraints = Volume.__constraints__
+        assert int in constraints
+        assert Decimal in constraints
+        assert len(constraints) == 2
 
     def test_order_id_type_variable(self):
         """Test that OrderID TypeVar has correct constraints."""
-        args = get_args(OrderID)
-        assert int in args
-        assert str in args
-        assert bytes in args
-        assert len(args) == 3
+        constraints = OrderID.__constraints__
+        assert int in constraints
+        assert str in constraints
+        assert bytes in constraints
+        assert len(constraints) == 3
 
     def test_trade_ref_type_variable(self):
         """Test that TradeRef TypeVar has correct constraints."""
-        args = get_args(TradeRef)
-        assert int in args
-        assert str in args
-        assert bytes in args
-        assert len(args) == 3
+        constraints = TradeRef.__constraints__
+        assert int in constraints
+        assert str in constraints
+        assert bytes in constraints
+        assert len(constraints) == 3
 
     def test_qualifiers_type_variable(self):
         """Test that Qualifiers TypeVar has correct constraints."""
-        args = get_args(Qualifiers)
-        assert dict[str, str] in args
-        assert dict[str, int] in args
-        assert len(args) == 2
+        constraints = Qualifiers.__constraints__
+        assert dict[str, str] in constraints
+        assert dict[str, int] in constraints
+        assert len(constraints) == 2
 
 
 class TestTypeCompatibility:
