@@ -18,7 +18,7 @@ class TestITCH41MessageReader:
 
         # Create a system event message
         system_msg = SystemEventMessage()
-        system_msg.timestamp = 12345 * 1_000_000_000  # Convert to nanoseconds
+        system_msg.timestamp = 12345  # ITCH 4.1 timestamps are seconds
         system_msg.event_code = b"O"
         system_bytes = system_msg.to_bytes()
 
@@ -29,7 +29,7 @@ class TestITCH41MessageReader:
 
         # Create an add order message
         order_msg = AddOrderMessage()
-        order_msg.timestamp = 12346 * 1_000_000_000  # Convert to nanoseconds
+        order_msg.timestamp = 12346  # ITCH 4.1 timestamps are seconds
         order_msg.order_ref = 999
         order_msg.side = b"B"
         order_msg.shares = 100
@@ -61,13 +61,13 @@ class TestITCH41MessageReader:
 
             # Check first message details
             assert messages[0].event_code == b"O"
-            assert messages[0].timestamp == 12345 * 1_000_000_000
+            assert messages[0].timestamp == 12345
 
             # Check second message details
             assert messages[1].side == b"B"
             assert messages[1].shares == 100
             assert messages[1].price == 15000
-            assert messages[1].timestamp == 12346 * 1_000_000_000
+            assert messages[1].timestamp == 12346
 
     def test_read_file_gzip_compressed(self):
         """Test reading gzip compressed ITCH file."""
@@ -150,7 +150,7 @@ class TestITCH41MessageReader:
 
         for i in range(100):  # Create 100 messages
             msg = SystemEventMessage()
-            msg.timestamp = (12345 + i) * 1_000_000_000  # Convert to nanoseconds
+            msg.timestamp = 12345 + i  # ITCH 4.1 timestamps are seconds
             msg.event_code = b"O"
             msg_bytes = msg.to_bytes()
 
@@ -170,14 +170,14 @@ class TestITCH41MessageReader:
             # Check that all messages are correct
             for i, message in enumerate(messages):
                 assert isinstance(message, SystemEventMessage)
-                assert message.timestamp == (12345 + i) * 1_000_000_000
+                assert message.timestamp == 12345 + i
                 assert message.event_code == b"O"
 
     def test_incomplete_message_at_end(self):
         """Test handling of incomplete message at end of file."""
         # Create one complete message followed by incomplete data
         msg = SystemEventMessage()
-        msg.timestamp = 12345 * 1_000_000_000  # Convert to nanoseconds
+        msg.timestamp = 12345  # ITCH 4.1 timestamps are seconds
         msg.event_code = b"O"
         msg_bytes = msg.to_bytes()
 

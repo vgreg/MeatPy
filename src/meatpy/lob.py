@@ -1,5 +1,5 @@
 from copy import deepcopy
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from enum import Enum
 from math import log
 from typing import Any, Generic
@@ -254,12 +254,20 @@ class LimitOrderBook(Generic[Price, Volume, OrderID, TradeRef, Qualifiers]):
 
         Returns:
             The adjusted price as a Decimal.
+
+        Raises:
+            InvalidPriceTypeError: If the price cannot be converted to Decimal.
         """
-        return (
-            Decimal(price) / self.decimals_adj
-            if self.decimals_adj is not None
-            else Decimal(price)
-        )
+        try:
+            return (
+                Decimal(price) / self.decimals_adj
+                if self.decimals_adj is not None
+                else Decimal(price)
+            )
+        except (TypeError, InvalidOperation) as e:
+            raise InvalidPriceTypeError(
+                f"Cannot convert price to Decimal: {price}"
+            ) from e
 
     @property
     def bid_ask_spread(self) -> Decimal:

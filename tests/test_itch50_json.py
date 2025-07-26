@@ -64,7 +64,7 @@ class TestITCH50JSON:
         assert json_data["description"] == "Add Order Message"
         assert json_data["stock_locate"] == 1
         assert json_data["tracking_number"] == 2
-        assert json_data["order_ref"] == 5
+        assert json_data["orderRefNum"] == 5
         assert json_data["bsindicator"] == "B"
         assert json_data["shares"] == 6
         assert json_data["stock"] == "AAPL"
@@ -104,7 +104,7 @@ class TestITCH50JSON:
         assert json_data["description"] == "Trade Message"
         assert json_data["stock_locate"] == 1
         assert json_data["tracking_number"] == 2
-        assert json_data["order_ref"] == 5
+        assert json_data["orderRefNum"] == 5
         assert json_data["bsindicator"] == "B"
         assert json_data["shares"] == 6
         assert json_data["stock"] == "AAPL"

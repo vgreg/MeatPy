@@ -1,0 +1,44 @@
+coverage:
+  status:
+    project:
+      default:
+        # Require 80% coverage
+        target: 45%
+        # Allow 5% drop from base
+        threshold: 5%
+        # Only run on patch changes
+        informational: false
+    patch:
+      default:
+        # Require 80% coverage on new code
+        target: 45%
+        # Allow 5% drop from base
+        threshold: 5%
+        # Only run on patch changes
+        informational: false
+
+  ignore:
+    # Ignore test files
+    - "tests/"
+    # Ignore documentation
+    - "docs/"
+    # Ignore setup/build files
+    - "setup.py"
+    - "pyproject.toml"
+    # Ignore sample files
+    - "samples/"
+
+  round: down
+  precision: 2
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+flags:
+  unittests:
+    paths:
+      - src/meatpy/

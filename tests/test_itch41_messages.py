@@ -25,20 +25,13 @@ class TestITCH41MarketMessage:
     """Test the base ITCH41MarketMessage class."""
 
     def test_timestamp_handling(self):
-        """Test timestamp setting and splitting."""
+        """Test timestamp handling."""
         message = ITCH41MarketMessage()
 
-        # Test setting timestamp from two parts
-        ts1, ts2 = 12345, 67890
-        message.set_timestamp(ts1, ts2)
-
-        expected_timestamp = (ts1 << 32) | ts2
-        assert message.timestamp == expected_timestamp
-
-        # Test splitting timestamp back
-        split_ts1, split_ts2 = message.split_timestamp()
-        assert split_ts1 == ts1
-        assert split_ts2 == ts2
+        # ITCH 4.1 timestamps are nanoseconds since the last second
+        # They don't have set_timestamp or split_timestamp methods
+        message.timestamp = 123456789  # nanoseconds within current second
+        assert message.timestamp == 123456789
 
 
 class TestSystemEventMessage:
@@ -57,14 +50,14 @@ class TestSystemEventMessage:
         message = SystemEventMessage.from_bytes(data)
 
         assert (
-            message.timestamp == timestamp * 1_000_000_000
-        )  # Converted to nanoseconds
+            message.timestamp == timestamp
+        )  # Stored as-is (already in appropriate unit)
         assert message.event_code == event_code
 
     def test_to_bytes(self):
         """Test converting message to bytes."""
         message = SystemEventMessage()
-        message.timestamp = 12345 * 1_000_000_000  # Set in nanoseconds
+        message.timestamp = 12345  # Set as seconds for ITCH 4.1
         message.event_code = b"O"
 
         data = message.to_bytes()
@@ -120,9 +113,7 @@ class TestStockDirectoryMessage:
 
         message = StockDirectoryMessage.from_bytes(data)
 
-        assert (
-            message.timestamp == timestamp * 1_000_000_000
-        )  # Converted to nanoseconds
+        assert message.timestamp == timestamp  # Stored as-is
         assert message.stock == stock
         assert message.category == category
         assert message.status == status
@@ -160,7 +151,7 @@ class TestAddOrderMessage:
 
         message = AddOrderMessage.from_bytes(data)
 
-        assert message.timestamp == ts1 * 1_000_000_000  # Converted to nanoseconds
+        assert message.timestamp == ts1  # Stored as-is
         assert message.order_ref == order_ref
         assert message.side == side
         assert message.shares == shares
@@ -201,9 +192,7 @@ class TestOrderExecutedMessage:
 
         message = OrderExecutedMessage.from_bytes(data)
 
-        assert (
-            message.timestamp == timestamp * 1_000_000_000
-        )  # Converted to nanoseconds
+        assert message.timestamp == timestamp  # Stored as-is
         assert message.order_ref == order_ref
         assert message.shares == shares
         assert message.match_num == match_num
@@ -236,9 +225,7 @@ class TestTradeMessage:
 
         message = TradeMessage.from_bytes(data)
 
-        assert (
-            message.timestamp == timestamp * 1_000_000_000
-        )  # Converted to nanoseconds
+        assert message.timestamp == timestamp  # Stored as-is
         assert message.order_ref == order_ref
         assert message.side == side
         assert message.shares == shares

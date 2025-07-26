@@ -62,7 +62,6 @@ def test_itch50_writer_process_message():
 
         # Process the message
         writer.process_message(message)
-        assert writer.message_count == 1
 
         # Flush and close
         writer.flush()

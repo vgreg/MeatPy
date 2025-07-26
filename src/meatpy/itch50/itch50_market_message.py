@@ -235,7 +235,7 @@ class ITCH50MarketMessage(MarketMessage):
     @classmethod
     def validate_cross_type(cls, code: bytes) -> bool:
         """Validate a cross type code."""
-        return cls.validate_code(code, cls.cross_typeDescriptions)
+        return cls.validate_code(code, cls.crossTypeDescriptions)
 
     def validate(self) -> bool:
         """Validate all codes in this message.

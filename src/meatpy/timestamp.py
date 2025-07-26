@@ -74,6 +74,36 @@ class Timestamp(datetime):
         """
         return getattr(self, "_nanoseconds", None)
 
+    def __reduce_ex__(self, protocol):
+        """Custom pickling support for Timestamp.
+
+        This ensures that the Timestamp can be properly pickled/unpickled
+        with its custom _nanoseconds attribute.
+        """
+        # Get the constructor arguments
+        args = (
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            self.microsecond,
+            self.tzinfo,
+        )
+        # Get the state (custom attributes)
+        state = {"_nanoseconds": getattr(self, "_nanoseconds", None), "fold": self.fold}
+        # Return (callable, args, state)
+        return (self.__class__, args, state)
+
+    def __setstate__(self, state):
+        """Set state for unpickling."""
+        if isinstance(state, dict):
+            self._nanoseconds = state.get("_nanoseconds")
+            if "fold" in state:
+                # Can't set fold directly, it's read-only
+                pass
+
     def copy(self) -> "Timestamp":
         """Create a deep copy of this timestamp.
 
