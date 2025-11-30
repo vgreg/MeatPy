@@ -74,13 +74,17 @@ class TestMarketProcessorEventHandling:
     def test_before_lob_update(self):
         """Test before_lob_update method."""
         self.processor.before_lob_update(self.timestamp)
-        self.handler.before_lob_update.assert_called_once_with(self.lob, self.timestamp)
+        self.handler.before_lob_update.assert_called_once_with(
+            self.processor, self.timestamp
+        )
 
     def test_before_lob_update_with_no_lob(self):
         """Test before_lob_update method with no LOB."""
         self.processor.current_lob = None
         self.processor.before_lob_update(self.timestamp)
-        self.handler.before_lob_update.assert_called_once_with(None, self.timestamp)
+        self.handler.before_lob_update.assert_called_once_with(
+            self.processor, self.timestamp
+        )
 
     def test_message_event(self):
         """Test message_event method."""
@@ -224,12 +228,16 @@ class TestMarketProcessorEventHandling:
         """Test pre_lob_event method."""
         self.processor.pre_lob_event(self.timestamp)
         # This method should call before_lob_update on handlers
-        self.handler.before_lob_update.assert_called_once_with(self.lob, self.timestamp)
+        self.handler.before_lob_update.assert_called_once_with(
+            self.processor, self.timestamp
+        )
 
     def test_pre_lob_event_with_new_snapshot(self):
         """Test pre_lob_event method with new snapshot flag."""
         self.processor.pre_lob_event(self.timestamp, new_snapshot=True)
-        self.handler.before_lob_update.assert_called_once_with(self.lob, self.timestamp)
+        self.handler.before_lob_update.assert_called_once_with(
+            self.processor, self.timestamp
+        )
 
 
 class TestMarketProcessorCleanup:
