@@ -97,7 +97,7 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                     "Queue": "Ask",
                     "Volume": message.shares,
                     "OrderID": message.order_ref,
-                    "Price": message.price,
+                    "Price": message.execution_price,
                 }
                 (queue, i, j) = lob.find_order(message.order_ref)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
@@ -110,7 +110,7 @@ class ITCH50ExecTradeRecorder(MarketEventHandler):
                     "Queue": "Bid",
                     "Volume": message.shares,
                     "OrderID": message.order_ref,
-                    "Price": message.price,
+                    "Price": message.execution_price,
                 }
                 (queue, i, j) = lob.find_order(message.order_ref)
                 record["OrderTimestamp"] = queue[i].queue[j].timestamp
