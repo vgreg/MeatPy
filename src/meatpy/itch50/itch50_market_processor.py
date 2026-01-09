@@ -157,6 +157,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
         ):
             if message.stock != self.instrument:
                 return
+            self._order_refs.add(message.order_ref)
             if self.track_lob:
                 if message.bsindicator == b"B":
                     order_type = OrderType.BID
