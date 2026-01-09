@@ -111,7 +111,7 @@ class ITCH50OrderEventRecorder(MarketEventHandler):
                 "order_ref": message.order_ref,
                 "bsindicator": "",
                 "shares": message.shares,
-                "price": message.price,
+                "price": message.execution_price,
                 "neworder_ref": "",
                 "MessageType": "OrderExecutedPrice",
             }
