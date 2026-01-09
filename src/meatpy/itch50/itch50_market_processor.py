@@ -197,7 +197,7 @@ class ITCH50MarketProcessor(MarketProcessor[int, int, int, int, dict[str, str]])
                     volume=message.shares,
                     order_id=message.order_ref,
                     trade_ref=message.match,
-                    price=message.price,
+                    price=message.execution_price,
                 )
         elif isinstance(message, OrderCancelMessage):
             if message.order_ref not in self._order_refs:

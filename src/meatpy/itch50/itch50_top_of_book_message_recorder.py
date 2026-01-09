@@ -123,7 +123,7 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                     "Queue": "Ask",
                     "Volume": message.shares,
                     "OrderID": message.order_ref,
-                    "Price": message.price,
+                    "Price": message.execution_price,
                 }
                 self.records.append((timestamp, record))
             elif len(lob.bid_levels) > 0 and lob.bid_levels[0].order_on_book(
@@ -134,7 +134,7 @@ class ITCH50TopOfBookMessageRecorder(MarketEventHandler):
                     "Queue": "Bid",
                     "Volume": message.shares,
                     "OrderID": message.order_ref,
-                    "Price": message.price,
+                    "Price": message.execution_price,
                 }
                 self.records.append((timestamp, record))
         elif isinstance(message, OrderCancelMessage):
