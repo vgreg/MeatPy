@@ -84,7 +84,7 @@ This modular design separates data parsing, message representation, and order bo
 
 MeatPy has supported peer-reviewed academic publications examining market microstructure. The framework enabled the analysis in @gregoire2022earnings, investigating how earnings news propagates to stock prices using Nasdaq order book data. It contributed to @comerton2019inverted, examining market quality under inverted fee structures, and @yaali2022hftviz, developing visualization techniques for high-frequency trading data.
 
-Since its 0.2 release on PyPI in July 2025, MeatPy has averaged approximately 260 monthly downloads, indicating adoption beyond the original development team. The project has received bug reports and feature requests through GitHub Issues, demonstrating engagement from the research community.
+The project has 29 stars and 8 forks on GitHub and was downloaded 263 times in the last month^[According to PyPi Stats, see [https://pypistats.org/packages/meatpy](https://pypistats.org/packages/meatpy).], indicating adoption beyond the original development team. The project has received bug reports and feature requests through GitHub Issues, demonstrating engagement from the research community.
 
 # AI Usage Disclosure
 
