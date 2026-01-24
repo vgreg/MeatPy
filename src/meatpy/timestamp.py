@@ -129,6 +129,7 @@ class Timestamp(datetime):
             day=dt.day,
             hour=dt.hour,
             minute=dt.minute,
+            second=dt.second,
             microsecond=dt.microsecond,
             nanoseconds=nanoseconds,
         )

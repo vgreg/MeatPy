@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MeatPy is a Python framework for processing and analyzing high-frequency financial data, specifically designed for Nasdaq ITCH 5.0 format. It provides tools for parsing market messages, reconstructing limit order books, and analyzing market microstructure.
+MeatPy is a Python framework for processing and analyzing high-frequency financial data, specifically designed for Nasdaq ITCH protocol formats. It provides tools for parsing market messages, reconstructing limit order books, and analyzing market microstructure. Supported ITCH versions: 2.0, 3.0, 4.0, 4.1, and 5.0.
 
 ## Development Commands
 
@@ -70,7 +70,11 @@ mkdocs serve
 ### Package Structure
 
 - `src/meatpy/` - Core library code
-  - `itch50/` - ITCH 5.0 specific implementations
+  - `itch50/` - ITCH 5.0 specific implementations (binary, 8-char symbols)
+  - `itch41/` - ITCH 4.1 specific implementations (binary, 8-char symbols)
+  - `itch4/` - ITCH 4.0 specific implementations (binary, 6-char symbols)
+  - `itch3/` - ITCH 3.0 specific implementations (ASCII, 6-char symbols)
+  - `itch2/` - ITCH 2.0 specific implementations (ASCII, 6-char symbols)
   - `event_handlers/` - Event recording and processing handlers
   - `writers/` - Output format writers (CSV, Parquet)
 - `tests/` - Test suite

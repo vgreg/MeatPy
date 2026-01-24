@@ -13,7 +13,7 @@ MeatPy is a Python framework for processing and analyzing high-frequency financi
 ## 🎯 Key Features
 
 - **📊 Limit Order Book Reconstruction**: Complete order book state tracking with proper handling of all order types and modifications
-- **🏛️ NASDAQ ITCH Support**: Full implementation for ITCH 5.0 and 4.1 protocols with native message parsing
+- **🏛️ NASDAQ ITCH Support**: Full implementation for ITCH 2.0, 3.0, 4.0, 4.1, and 5.0 protocols with native message parsing
 - **⚡ Event-Driven Architecture**: Flexible observer pattern for real-time event processing and analysis
 - **🔒 Type Safety**: Modern Python with comprehensive type hints and generic interfaces for robust data handling
 - **📁 Multiple Output Formats**: Export to CSV, Parquet, or implement custom output formats

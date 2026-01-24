@@ -13,11 +13,21 @@ This guide will help you get started with MeatPy for processing financial market
 
 ### Supported Data Formats
 
-MeatPy currently supports:
+MeatPy supports multiple versions of the NASDAQ ITCH protocol:
 
-- **ITCH 5.0**: NASDAQ's binary market data format
+| Version | Format | Stock Symbol Size | Timestamp | Module |
+|---------|--------|-------------------|-----------|--------|
+| **ITCH 5.0** | Binary | 8 characters | Nanoseconds | `meatpy.itch50` |
+| **ITCH 4.1** | Binary | 8 characters | Nanoseconds | `meatpy.itch41` |
+| **ITCH 4.0** | Binary | 6 characters | Nanoseconds | `meatpy.itch4` |
+| **ITCH 3.0** | ASCII | 6 characters | Milliseconds | `meatpy.itch3` |
+| **ITCH 2.0** | ASCII | 6 characters | Milliseconds | `meatpy.itch2` |
+
+Each version has its own `MessageReader`, `MarketProcessor`, and message classes following the same patterns
 
 ## Basic Usage
+
+### Reading ITCH 5.0 Data (Binary)
 
 The simplest way to read ITCH 5.0 data:
 
@@ -32,6 +42,42 @@ with ITCH50MessageReader("market_data.txt.gz") as reader:
             break
 ```
 
+### Reading Other ITCH Versions
+
+Each ITCH version follows the same interface pattern:
+
+```python
+# ITCH 4.1 (Binary, 8-char symbols)
+from meatpy.itch41 import ITCH41MessageReader, ITCH41MarketProcessor
+
+# ITCH 4.0 (Binary, 6-char symbols)
+from meatpy.itch4 import ITCH4MessageReader, ITCH4MarketProcessor
+
+# ITCH 3.0 (ASCII, separate timestamp messages)
+from meatpy.itch3 import ITCH3MessageReader, ITCH3MarketProcessor
+
+# ITCH 2.0 (ASCII, embedded timestamps)
+from meatpy.itch2 import ITCH2MessageReader, ITCH2MarketProcessor
+```
+
+### Building a Limit Order Book
+
+```python
+import datetime
+from meatpy.itch50 import ITCH50MessageReader, ITCH50MarketProcessor
+
+book_date = datetime.datetime(2021, 8, 13)
+processor = ITCH50MarketProcessor("AAPL", book_date)
+
+with ITCH50MessageReader("market_data.txt.gz") as reader:
+    for message in reader:
+        processor.process_message(message)
+
+# Access the limit order book
+if processor.lob:
+    print(f"Best bid: ${processor.lob.best_bid / 10000:.2f}")
+    print(f"Best ask: ${processor.lob.best_ask / 10000:.2f}")
+```
 
 Other common tasks include:
 
