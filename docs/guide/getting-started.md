@@ -23,7 +23,11 @@ MeatPy supports multiple versions of the NASDAQ ITCH protocol:
 | **ITCH 3.0** | ASCII | 6 characters | Milliseconds | `meatpy.itch3` |
 | **ITCH 2.0** | ASCII | 6 characters | Milliseconds | `meatpy.itch2` |
 
-Each version has its own `MessageReader`, `MarketProcessor`, and message classes following the same patterns
+Each version has its own `MessageReader`, `MarketProcessor`, and message classes following the same patterns.
+
+MeatPy also supports:
+
+- **IEX DEEP 1.0**: IEX Exchange's market data format (price-level data) via `meatpy.iex_deep`
 
 ## Basic Usage
 
@@ -79,7 +83,35 @@ if processor.lob:
     print(f"Best ask: ${processor.lob.best_ask / 10000:.2f}")
 ```
 
-Other common tasks include:
+## Reading IEX DEEP Data
+
+IEX DEEP data comes in PCAP/PCAP-NG format. Here's how to read it:
+
+```python
+from meatpy.iex_deep import IEXDEEPMessageReader, IEXDEEPMarketProcessor
+
+# Read messages from a PCAP file
+reader = IEXDEEPMessageReader()
+for i, message in enumerate(reader.read_file("data_feeds_20180529_DEEP1.0.pcap.gz")):
+    print(f"Message {i}: {type(message).__name__}")
+    if i >= 10:
+        break
+
+# Process messages and reconstruct order book for a specific symbol
+processor = IEXDEEPMarketProcessor("SPY")
+for message in reader.read_file("data_feeds_20180529_DEEP1.0.pcap.gz"):
+    processor.process_message(message)
+
+# Get best bid and offer
+bbo = processor.get_bbo()
+if bbo[0] and bbo[1]:
+    print(f"Best Bid: ${bbo[0][0]/10000:.2f} x {bbo[0][1]}")
+    print(f"Best Ask: ${bbo[1][0]/10000:.2f} x {bbo[1][1]}")
+```
+
+For more details on IEX DEEP, see the [IEX DEEP Guide](iex-deep.md).
+
+## Other Common Tasks
 
 - **Listing Symbols**: Extracting unique stock symbols from ITCH files
 - **Extracting Specific Symbols**: Creating new ITCH files with only specific symbols

@@ -77,3 +77,10 @@ try:
     __all__.extend(["itch50"])
 except ImportError:
     pass
+
+try:
+    from . import iex_deep  # noqa: F401
+
+    __all__.extend(["iex_deep"])
+except ImportError:
+    pass
