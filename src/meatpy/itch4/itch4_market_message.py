@@ -1270,7 +1270,11 @@ class NoiiMessage(ITCH4MarketMessage):
         if isinstance(stock, str):
             stock = stock.ljust(6).encode()
         message.stock = stock
-        for field_name in ["imbalance_direction", "cross_type", "price_variation_indicator"]:
+        for field_name in [
+            "imbalance_direction",
+            "cross_type",
+            "price_variation_indicator",
+        ]:
             value = data.get(field_name, " ")
             if isinstance(value, str):
                 value = value.encode()

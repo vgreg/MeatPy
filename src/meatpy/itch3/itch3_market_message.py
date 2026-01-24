@@ -280,8 +280,7 @@ class StockTradingActionMessage(ITCH3MarketMessage):
 
     def to_bytes(self) -> bytes:
         return (
-            f"H{self.stock.decode():6s}{self.state.decode()}"
-            f"{self.reserved.decode():5s}"
+            f"H{self.stock.decode():6s}{self.state.decode()}{self.reserved.decode():5s}"
         ).encode()
 
     def _to_json_data(self) -> dict[str, Any]:
@@ -341,7 +340,9 @@ class MarketParticipantPositionMessage(ITCH3MarketMessage):
         }
 
     @classmethod
-    def _from_json_data(cls, data: dict[str, Any]) -> "MarketParticipantPositionMessage":
+    def _from_json_data(
+        cls, data: dict[str, Any]
+    ) -> "MarketParticipantPositionMessage":
         message = cls()
         message.stock = data["stock"].ljust(6).encode()
         message.mpid = data["mpid"].ljust(4).encode()
