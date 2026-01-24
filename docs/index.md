@@ -7,7 +7,7 @@ MeatPy is a Python framework for processing financial market data, specifically 
 ## Key Features
 
 - **Limit Order Book Processing**: Complete reconstruction and analysis of limit order books
-- **ITCH Support**: Full implementation for NASDAQ ITCH 4.1 and 5.0 formats
+- **ITCH Support**: Full implementation for NASDAQ ITCH 2.0, 3.0, 4.0, 4.1, and 5.0 formats
 - **IEX DEEP Support**: Full implementation for IEX DEEP 1.0 format (price-level data)
 - **Event-Driven Architecture**: Extensible framework for real-time market data processing
 - **Type Safety**: Modern Python typing for robust financial data handling
