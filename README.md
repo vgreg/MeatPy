@@ -8,16 +8,17 @@
 
 <img src="docs/images/meatpy.svg" width="200" alt="MeatPy Logo"/>
 
-MeatPy is a Python framework for processing and analyzing high-frequency financial market data, specifically designed for working with NASDAQ ITCH protocol data feeds. It provides robust tools for reconstructing limit order books and extracting key market events from historical market data files.
+MeatPy is a Python framework for processing and analyzing high-frequency financial market data, specifically designed for working with NASDAQ ITCH and IEX DEEP data feeds. It provides robust tools for reconstructing limit order books and extracting key market events from historical market data files.
 
 ## 🎯 Key Features
 
 - **📊 Limit Order Book Reconstruction**: Complete order book state tracking with proper handling of all order types and modifications
 - **🏛️ NASDAQ ITCH Support**: Full implementation for ITCH 5.0 and 4.1 protocols with native message parsing
+- **📈 IEX DEEP Support**: Full implementation for IEX DEEP 1.0 format with price-level order book reconstruction
 - **⚡ Event-Driven Architecture**: Flexible observer pattern for real-time event processing and analysis
 - **🔒 Type Safety**: Modern Python with comprehensive type hints and generic interfaces for robust data handling
 - **📁 Multiple Output Formats**: Export to CSV, Parquet, or implement custom output formats
-- **🚀 Performance Optimized**: Efficiently process multi-gigabyte ITCH files with streaming capabilities
+- **🚀 Performance Optimized**: Efficiently process multi-gigabyte data files with streaming capabilities
 - **🔧 Extensible Design**: Easy to adapt for other market data formats and custom analysis needs
 
 ## 📊 Common Use Cases
@@ -142,6 +143,28 @@ with ITCH50MessageReader(file_path) as reader, ParquetWriter(outfile_path) as wr
 
     for message in reader:
         processor.process_message(message)
+```
+
+### Reading IEX DEEP Data
+
+IEX DEEP provides aggregated price-level data (not individual orders like ITCH):
+
+```python
+from meatpy.iex_deep import IEXDEEPMessageReader, IEXDEEPMarketProcessor
+
+# Read and process IEX DEEP messages
+reader = IEXDEEPMessageReader()
+processor = IEXDEEPMarketProcessor("SPY")
+
+for message in reader.read_file("data_feeds_20180529_DEEP1.0.pcap.gz"):
+    processor.process_message(message)
+
+# Get best bid and offer
+bbo = processor.get_bbo()
+if bbo[0] and bbo[1]:
+    # Prices have 4 decimal places (divide by 10000)
+    print(f"Best Bid: ${bbo[0][0]/10000:.2f} x {bbo[0][1]}")
+    print(f"Best Ask: ${bbo[1][0]/10000:.2f} x {bbo[1][1]}")
 ```
 
 
