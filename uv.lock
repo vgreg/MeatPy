@@ -1005,7 +1005,7 @@ wheels = [
 
 [[package]]
 name = "meatpy"
-version = "0.2.11"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "pyarrow" },
