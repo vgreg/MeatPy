@@ -211,3 +211,7 @@ poetry.lock
 
 docs/guide/data/
 samples/*/data/
+
+
+paper/jats
+paper/paper.pdf
