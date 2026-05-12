@@ -1,3 +1,5 @@
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
+
 from .events import BaseEventHandler
 from .level import (
     ExecutionPriorityException,
@@ -24,7 +26,13 @@ from .trading_status import (
 )
 from .types import OrderID, Price, Qualifiers, TradeRef, Volume
 
+try:
+    __version__ = _pkg_version("meatpy")
+except PackageNotFoundError:
+    __version__ = "0.0.0+unknown"
+
 __all__ = [
+    "__version__",
     # Core classes
     "ExecutionPriorityException",
     "VolumeInconsistencyException",

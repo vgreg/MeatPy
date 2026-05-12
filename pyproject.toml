@@ -42,4 +42,6 @@ docs = [
   "mkdocs-autorefs>=0.5.0",
   "mkdocs-jupyter>=0.24.0",
   "pandas>=2.0.0",
+  # 10.21.2 fixes the `filename=None` crash with Pygments >= 2.20.
+  "pymdown-extensions>=10.21.2",
 ]
