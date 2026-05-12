@@ -34,6 +34,7 @@ MeatPy is built around several core components:
 ## What's Next?
 
 - Check out the [Installation Guide](installation.md) to get started
+- Run the bundled end-to-end quickstart (`uv run python samples/itch50/00_quickstart.py`) against the synthetic ITCH 5.0 sample shipped at `samples/data/sample.itch50` — no Nasdaq subscription required
 - Read the [User Guide](guide/getting-started.md) for usage instructions
 - See [Contributing](contributing.md) if you want to contribute to the project
 

@@ -2,6 +2,21 @@
 
 This guide will help you get started with MeatPy for processing financial market data.
 
+## Try it without downloading anything
+
+The repository ships a tiny synthetic ITCH 5.0 sample at
+`samples/data/sample.itch50` (590 bytes, two fictional symbols **MEAT** and
+**PYTH**) so you can exercise the parser, processor, and recorders end-to-end
+without a Nasdaq subscription. From a clone of the repo:
+
+```bash
+uv run python samples/itch50/00_quickstart.py
+```
+
+The quickstart counts messages by type and prints the top of book for each
+symbol after replaying every message through `ITCH50MarketProcessor`. See
+`samples/data/README.md` for what the file contains and how to regenerate it.
+
 ## Basic Concepts
 
 ### Core Components
@@ -77,10 +92,12 @@ with ITCH50MessageReader("market_data.txt.gz") as reader:
     for message in reader:
         processor.process_message(message)
 
-# Access the limit order book
-if processor.lob:
-    print(f"Best bid: ${processor.lob.best_bid / 10000:.2f}")
-    print(f"Best ask: ${processor.lob.best_ask / 10000:.2f}")
+# Access the limit order book. `best_bid` / `best_ask` return a `Decimal`
+# already scaled to dollars.
+lob = processor.current_lob
+if lob is not None and lob.bid_levels and lob.ask_levels:
+    print(f"Best bid: ${lob.best_bid:.2f}")
+    print(f"Best ask: ${lob.best_ask:.2f}")
 ```
 
 ## Reading IEX DEEP Data
